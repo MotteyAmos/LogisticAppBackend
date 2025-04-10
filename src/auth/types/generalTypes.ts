@@ -1,4 +1,7 @@
 
+import { Schema } from "mongoose"
+import { accountVerificationStatus } from "../enum/general"
+
 export interface fullName{
     surname: String,
     firstName: String,
@@ -35,11 +38,13 @@ export interface userProfile {
     contactDetils: contactDetils,
     address: address,
     emergencyInfo: emergencyInfo,
-    password: String
+    password: String,
+    picture: String
 }
 
 export interface financialInfo {
     bankAccountDetails: {
+        bankName:String,
         accountNumber: String,
         recipientName: String
     },
@@ -56,3 +61,11 @@ export interface preference {
     enableEmailNotification: boolean;
     twoFactorSecret: string
 }
+
+
+export interface auditing{
+    lastLogin:Date,
+    accountVerificationStatus: accountVerificationStatus
+}
+
+

@@ -1,15 +1,13 @@
 import mongoose, { Date } from "mongoose";
-import { financialInfo, preference, userProfile } from "./generalTypes";
-import { Role } from "../enum/role";
+import { auditing, financialInfo, preference, userProfile } from "./generalTypes";
+import { Role, accountStatus } from "../enum/general";
 
 
 export interface adminTypes extends mongoose.Document{
         userProfile: userProfile,
         financialDetails: financialInfo,
         role: Role,
-        status: "active" | "inactive",
+        status: accountStatus,
         preference: preference,
-        auditing:{
-            lastLogin: Date
-        }
+        auditing:auditing
     }
