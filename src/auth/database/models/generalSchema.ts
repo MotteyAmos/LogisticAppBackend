@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { auditing, financialInfo, preference, userProfile } from "../../types/generalTypes";
+import { auditingAndConfirmation, financialInfo, preference, userProfile } from "../../types/generalTypes";
 import { accountVerificationStatus } from "../../enum/general";
 
 
@@ -97,7 +97,7 @@ export const preferenceSchema = new Schema<preference>({
 })
 
 
-export const auditingSchema = new Schema<auditing>({
+export const auditingAndConfirmationSchema = new Schema<auditingAndConfirmation>({
     lastLogin:{
         type:Date,
         default: Date.now
@@ -106,5 +106,9 @@ export const auditingSchema = new Schema<auditing>({
         type:String,
         enum: Object.values(accountVerificationStatus),
         default: accountVerificationStatus.PENDING
+    },
+    emailVarification:{
+        type:Boolean,
+        default: false
     }
 })

@@ -9,7 +9,7 @@ export interface fullName{
 }
 
 
-export interface contactDetils{
+export interface contactDetails{
     phoneNumber: String,
     email: String
 }
@@ -35,7 +35,7 @@ export interface emergencyInfo {
 
 export interface userProfile {
     fullName:fullName,
-    contactDetils: contactDetils,
+    contactDetils: contactDetails,
     address: address,
     emergencyInfo: emergencyInfo,
     password: String,
@@ -63,9 +63,10 @@ export interface preference {
 }
 
 
-export interface auditing{
+export interface auditingAndConfirmation{
     lastLogin:Date,
-    accountVerificationStatus: accountVerificationStatus
+    accountVerificationStatus: accountVerificationStatus,
+    emailVarification:Boolean
 }
 
 

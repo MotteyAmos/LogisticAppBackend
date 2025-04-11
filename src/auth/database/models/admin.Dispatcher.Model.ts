@@ -1,6 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 import { adminTypes } from "../../types/admin";
-import { auditingSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
+import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
 import { compareValue, hashValue } from "../../utils/bcrypt";
 
@@ -19,7 +19,7 @@ const adminSchema = new Schema<adminTypes>({
         default: accountStatus.INACTIVE
     },
     preference: preferenceSchema,
-    auditing:auditingSchema
+    auditingAndConfirmation:auditingAndConfirmationSchema
     
 
 },{
@@ -41,7 +41,7 @@ const adminSchema = new Schema<adminTypes>({
         virtuals: true,
         getters: true
     },
-    collection:"Admins",
+    collection:"AdminAndDispatcher",
     timestamps:true
 })
 
@@ -66,6 +66,6 @@ adminSchema.methods.comparePassword = async function (value:string){
 
 
 
-const AdminModel = mongoose.model<adminTypes>("Admin", adminSchema);
+const AdminDispatcherModel = mongoose.model<adminTypes>("AdminAndDispatcher", adminSchema);
 
-export default AdminModel;
+export default AdminDispatcherModel;
