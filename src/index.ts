@@ -1,7 +1,8 @@
 
 import express, {Request, Response, urlencoded} from "express";
-
-
+import connectDatabase from "./auth/database/dbConnect";
+import { appConfig } from "./config/app.config";
+import { authRoute } from "./routes/authRoutes";
 const app = express();
 
 app.use(express.json())
@@ -11,8 +12,11 @@ app.get("/", (req:Request, res: Response)=>{
     res.send("Hello");
 })
 
+app.use("/auth", authRoute)
 
 
-app.listen(4000, ()=>{
-    console.log(`listening on port ${4000}`)
+
+app.listen(appConfig.PORT,async ()=>{
+    console.log(`listening on port `)
+    await connectDatabase();
 })
