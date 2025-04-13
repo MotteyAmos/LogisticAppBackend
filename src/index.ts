@@ -12,7 +12,7 @@ app.get("/", (req:Request, res: Response)=>{
     res.send("Hello");
 })
 
-app.use("/auth", authRoute)
+app.use("/api/auth", authRoute)
 
 
 
