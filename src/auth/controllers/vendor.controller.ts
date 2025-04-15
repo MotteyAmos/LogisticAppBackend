@@ -2,14 +2,15 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { HTTPSTATUS } from "../../config/http.config";
 import { AuthService } from "../services/admin.dispatcher.service";
-import { adminRegisterSchema } from "../validators/admin.dispatcher";
+import { vendorRegisterSchema } from "../validators/vendor";
+import { VendorAuthService } from "../services/vendor.service";
 
 
 
-export class VendoerAuthController {
-    private authService: AuthService;
+export class VendorAuthController {
+    private authService: VendorAuthService;
     
-    constructor(authService:AuthService){
+    constructor(authService:VendorAuthService){
         this.authService=authService
     }
 
@@ -17,7 +18,7 @@ export class VendoerAuthController {
         async (req:Request,res:Response):Promise<any>=>{
 
             // validate the schema
-           const body =  adminRegisterSchema.parse({
+           const body =  vendorRegisterSchema.parse({
                 ...req.body
             })
             
@@ -27,7 +28,7 @@ export class VendoerAuthController {
 
             return res.status(HTTPSTATUS.CREATED).json({
                 // user,
-                message:"User created successful"
+                message:"Vendor created successful"
             })
         }
     );

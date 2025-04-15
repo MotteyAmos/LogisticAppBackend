@@ -43,12 +43,12 @@ export interface userProfile {
 }
 
 export interface financialInfo {
-    bankAccountDetails: {
+    bankAccountDetails?: {
         bankName:String,
         accountNumber: String,
         recipientName: String
     },
-    mobileMoneyAccount:{
+    mobileMoneyAccount?:{
         phoneNumber: String,
         recipientName: String
     }

@@ -1,5 +1,5 @@
 import {z} from "zod";
-import { financialInfoSchema, userProfileSchema } from "./general";
+import { emergencyInfoSchema, financialInfoSchema, userProfileSchema } from "./general";
 
 
 export const adminRegisterSchema = z.object({
@@ -7,3 +7,5 @@ export const adminRegisterSchema = z.object({
     financialDetails: financialInfoSchema,
     role: z.enum(["SUPER_ADMIN","DISPATCHER", "ADMIN"])
 })
+
+

@@ -1,7 +1,8 @@
 import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
-import AdminDispatcherModel from "../database/models/admin.Dispatcher.Model";
-import { adminRegisterDto } from "../types/admin";
+import VendorModel from "../database/models/vendorModel";
+import { vendorRegisterDto } from "../types/vendor";
+
 
 
 
@@ -9,24 +10,23 @@ import { adminRegisterDto } from "../types/admin";
 
 export class VendorAuthService{
 
-
-    public async register(registerDto:adminRegisterDto){
+    public async register(registerDto:vendorRegisterDto){
 
         // check if the user already exit
-        const userExit =await  AdminDispatcherModel.findOne({
+        const userExit =await  VendorModel.findOne({
             "userProfile.contactDetails.email":registerDto.userProfile.contactDetails.email
         })
        
 
         // if user exit throw error
         if (userExit){
-            throw new BadRequestException("User already exits", ErrorCode.AUTH_EMAIL_ALREADY_EXISTS)
+            throw new BadRequestException("Vendor already exits", ErrorCode.AUTH_EMAIL_ALREADY_EXISTS)
         }
 
         // save the profile picture on s3 bucket
 
         // create admin or dispatcher
-        const user = await AdminDispatcherModel.create(registerDto);
+        const user = await VendorModel.create(registerDto);
 
 
         return {

@@ -3,6 +3,9 @@ import { auditingAndConfirmation, financialInfo, preference, userProfile } from 
 import { Role, accountStatus } from "../enum/general";
 import {z} from "zod"
 import { adminRegisterSchema } from "../validators/admin.dispatcher";
+
+
+
 export interface adminTypes extends mongoose.Document{
         userProfile: userProfile,
         financialDetails: financialInfo,

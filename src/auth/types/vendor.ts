@@ -1,18 +1,26 @@
 import mongoose from "mongoose"
-import { address, auditingAndConfirmation, contactDetails, financialInfo, preference, userProfile } from "./generalTypes"
+import { address, auditingAndConfirmation, contactDetails, financialInfo, preference} from "./generalTypes"
 import { accountStatus, Role } from "../enum/general"
-import {z} from "zod"
+
+
+export interface vendorProfileType {
+    contactDetails: contactDetails,
+    address: Omit<address, "nationalIdentification">,
+    password: String,
+    logo?:String
+}
+
 
 export interface businessInfo{
     companyName: String,
     businessType: String,
-    businessDescription: String,
+    businessDescription?: String,
     webApplicationDomainName: String
 }
 
 export interface vendorType extends mongoose.Document{
         businessInfo:businessInfo,
-        userProfile: Omit<userProfile,"emergencyInfo"> ,
+        userProfile: vendorProfileType ,
         financialDetails: financialInfo,
         role: Role,
         status: accountStatus,
@@ -22,9 +30,8 @@ export interface vendorType extends mongoose.Document{
     }
 
 export interface vendorRegisterDto{
-    businessInfo:businessInfo,
-        userProfile: Omit<userProfile,"emergencyInfo"> ,
+        businessInfo:businessInfo,
+        userProfile: vendorProfileType ,
         financialDetails: financialInfo,
-        role: Role,
-        status: accountStatus
+      
 }

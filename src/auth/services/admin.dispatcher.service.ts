@@ -1,9 +1,8 @@
 import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
 import AdminDispatcherModel from "../database/models/admin.Dispatcher.Model";
+import VendorModel from "../database/models/vendorModel";
 import { adminRegisterDto } from "../types/admin";
-
-
 
 
 
@@ -13,7 +12,8 @@ export class AuthService{
     public async register(registerDto:adminRegisterDto){
 
         // check if the user already exit
-        const userExit =await  AdminDispatcherModel.findOne({
+
+        const userExit =await  VendorModel.findOne({
             "userProfile.contactDetails.email":registerDto.userProfile.contactDetails.email
         })
        
