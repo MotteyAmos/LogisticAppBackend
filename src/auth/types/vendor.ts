@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 import { address, auditingAndConfirmation, contactDetails, financialInfo, preference, userProfile } from "./generalTypes"
 import { accountStatus, Role } from "../enum/general"
-
+import {z} from "zod"
 
 export interface businessInfo{
     companyName: String,
@@ -21,3 +21,10 @@ export interface vendorType extends mongoose.Document{
         apiKey: String
     }
 
+export interface vendorRegisterDto{
+    businessInfo:businessInfo,
+        userProfile: Omit<userProfile,"emergencyInfo"> ,
+        financialDetails: financialInfo,
+        role: Role,
+        status: accountStatus
+}

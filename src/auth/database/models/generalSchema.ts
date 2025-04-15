@@ -4,7 +4,7 @@ import { accountVerificationStatus } from "../../enum/general";
 
 
 // we wil be using aws s3 bucket, I will change the url later
-const userProfilePictureRootLoc = "https://s3.amazonaws.com/mybucket"
+export const userProfilePictureRootLoc = "https://s3.amazonaws.com/mybucket"
 
 
 export const userProfileSchema = new Schema<userProfile>({
