@@ -57,6 +57,9 @@ export const financialInfoSchema = z.object({
         phoneNumber:phoneNumberSchema,
         recipientName: nameSchema
     }).optional()
+}).refine((val)=> val.bankAccountDetails || val.mobileMoneyAccount, {
+    message: "At least one of bankAccountDetails or mobileMoneyAccount must be provided",
+    path:[]
 })
 
 

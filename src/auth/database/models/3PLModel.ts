@@ -3,7 +3,7 @@
 import mongoose, {Schema} from "mongoose";
 import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
-import { compareValue, hashValue } from "../../utils/bcrypt";
+import { compareValue, hashValue } from "../../utils/bcryptEn";
 import { professionalDetails, T3PLTypes } from "../../types/3pl";
 
 // we wil be using aws s3 bucket, I will change the url later

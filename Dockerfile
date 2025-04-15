@@ -1,4 +1,4 @@
-FROM node:23.11.0-alpine  AS development
+FROM node:20-slim  AS development
 
 WORKDIR /usr/src/app
 
@@ -8,11 +8,13 @@ RUN npm install
 
 COPY . .
 
-
+# RUN npm uninstall bcrypt
+# I was having issue with the bcrypt in the container, so I decided to do this
+RUN npm install bcrypt
 
 RUN npm run build
 
-FROM node:23.11.0-alpine  AS production
+FROM node:20-slim  AS production
 
 WORKDIR /usr/src/app
 

@@ -2,7 +2,7 @@ import mongoose, {Schema} from "mongoose";
 import { adminTypes } from "../../types/admin";
 import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
-import { compareValue, hashValue } from "../../utils/bcrypt";
+import { compareValue, hashValue } from "../../utils/bcryptEn";
 
 
 const adminSchema = new Schema<adminTypes>({
@@ -27,7 +27,7 @@ const adminSchema = new Schema<adminTypes>({
         virtuals:true,
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         getters:true
@@ -35,7 +35,7 @@ const adminSchema = new Schema<adminTypes>({
     toObject:{
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         virtuals: true,
@@ -47,7 +47,7 @@ const adminSchema = new Schema<adminTypes>({
 
 
 adminSchema.virtual("fullName").get(function(){
-    return this.userProfile.fullName + " " + this.userProfile.fullName.middleName + " " + this.userProfile.fullName.firstName
+    return this.userProfile.fullName.surname + " " + this.userProfile.fullName.middleName + " " + this.userProfile.fullName.firstName
 })
 
 

@@ -20,12 +20,14 @@ export class AuthController {
            const body =  adminRegisterSchema.parse({
                 ...req.body
             })
+            
             // pass it to the auth service
-
+            const {user} = await  this.authService.register(body);
             // return the result
 
             return res.status(HTTPSTATUS.CREATED).json({
-                message:""
+                // user,
+                message:"User created successful"
             })
         }
     );

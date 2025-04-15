@@ -1,7 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import { auditingAndConfirmationSchema,financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
-import { compareValue, hashValue } from "../../utils/bcrypt";
+import { compareValue, hashValue } from "../../utils/bcryptEn";
 import { vendorType } from "../../types/vendor";
 
 

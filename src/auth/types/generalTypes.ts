@@ -35,7 +35,7 @@ export interface emergencyInfo {
 
 export interface userProfile {
     fullName:fullName,
-    contactDetils: contactDetails,
+    contactDetails: contactDetails,
     address: address,
     emergencyInfo: emergencyInfo,
     password: String,

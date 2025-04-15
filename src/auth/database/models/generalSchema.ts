@@ -25,12 +25,11 @@ export const userProfileSchema = new Schema<userProfile>({
         }
        
     },
-    contactDetils:{
+    contactDetails:{
         phoneNumber:{
             type:String,
             trim:true,
-            required:true,
-            unique:true
+            required:true
         },
         email:{
             type:String,
@@ -44,12 +43,12 @@ export const userProfileSchema = new Schema<userProfile>({
         country:String,
         town:String,
         GPS_Address: String,
-        nationalIdentification:{
+        nationalIdentification: new Schema({
             // type of nation identification card eg. voter's id, GH-card etc
             type:String,
             // id value or number
             value:String
-        },
+        },{_id:false}),
     },
     emergencyInfo:{
         name: String,
@@ -66,7 +65,7 @@ export const userProfileSchema = new Schema<userProfile>({
         // the v value should look something like this /123.png
         get: (v: String) => `${userProfilePictureRootLoc}${v}`
     }
-})
+},{_id:false})
 
 export const financialDetailSchema = new Schema<financialInfo>({
     bankAccountDetails:{
@@ -78,7 +77,7 @@ export const financialDetailSchema = new Schema<financialInfo>({
         phoneNumber:String,
         recipientName:String
     }
-})
+},{_id:false})
 
 
 export const preferenceSchema = new Schema<preference>({

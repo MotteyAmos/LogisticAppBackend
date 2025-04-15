@@ -13,8 +13,8 @@ export class AuthService{
     public async register(registerDto:adminRegisterDto){
 
         // check if the user already exit
-        const userExit =await  AdminDispatcherModel.exists({
-            "userProfile.contactDetils.email":registerDto.userPrfile.contactDetails.email
+        const userExit =await  AdminDispatcherModel.findOne({
+            "userProfile.contactDetails.email":registerDto.userProfile.contactDetails.email
         })
        
 
@@ -25,6 +25,13 @@ export class AuthService{
 
         // save the profile picture on s3 bucket
 
+        // create admin or dispatcher
+        const user = await AdminDispatcherModel.create(registerDto);
+
+
+        return {
+            user
+        }
 
     }
 }
