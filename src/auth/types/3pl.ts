@@ -22,7 +22,7 @@ export interface T3PLTypes extends mongoose.Document{
         }
     }
 
-export interface T3PLDTO{
+export interface T3PLRegistrationDTO{
     userProfile: userProfile,
         financialDetails:  financialInfo,
         professionalDetails:{
@@ -31,6 +31,6 @@ export interface T3PLDTO{
         },
         vehicleInfo:{
             vehicleType:String,
-            registrationNumber: Number
+            registrationNumber: String
         }
 }

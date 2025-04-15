@@ -35,7 +35,7 @@ const T3PLSchema = new Schema<T3PLTypes>({
             type:Number,
             default:0
         }
-    }),
+    },{_id:false}),
     vehicleInfo:{
         vehicleType:String,
         registrationNumber:String

@@ -5,7 +5,7 @@ import { accountVerificationStatus } from "../enum/general"
 export interface fullName{
     surname: String,
     firstName: String,
-    middleName: String
+    middleName?: String
 }
 
 
@@ -29,7 +29,7 @@ export interface address {
 export interface emergencyInfo {
     name: String,
     relationship: String,
-    phoneNunber: String
+    phoneNumber: String
 }
 
 
@@ -39,7 +39,7 @@ export interface userProfile {
     address: address,
     emergencyInfo: emergencyInfo,
     password: String,
-    picture: String
+    picture?: String
 }
 
 export interface financialInfo {
