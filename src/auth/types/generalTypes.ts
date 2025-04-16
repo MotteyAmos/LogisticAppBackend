@@ -1,6 +1,4 @@
-
-import { Schema } from "mongoose"
-import { accountVerificationStatus } from "../enum/general"
+import { accountVerificationStatus, Role } from "../enum/general"
 
 export interface fullName{
     surname: String,
@@ -56,6 +54,8 @@ export interface financialInfo {
 
 
 
+
+
 export interface preference {
     enable2FA:boolean,
     enableEmailNotification: boolean;
@@ -69,5 +69,10 @@ export interface auditingAndConfirmation{
     emailVarification:Boolean
 }
 
-
+export interface loginDTO{
+    email:String,
+    password:String,
+    role:Role,
+    userAgent?:String
+}
 

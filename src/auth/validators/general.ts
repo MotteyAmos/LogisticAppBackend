@@ -63,3 +63,8 @@ export const financialInfoSchema = z.object({
 })
 
 
+export const loginSchema = z.object({
+    email: emailSchema,
+    password:passwordSchema,
+    role:z.enum(["SUPER_ADMIN","DISPATCHER","ADMIN","3PL","VENDOR"])
+})
