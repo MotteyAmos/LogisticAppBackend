@@ -1,7 +1,7 @@
 // 3PL = driver or rider
 
 import mongoose, {Schema} from "mongoose";
-import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
+import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, sessionSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
 import { compareValue, hashValue } from "../../utils/bcryptEn";
 import { professionalDetails, T3PLTypes } from "../../types/3pl";
@@ -40,12 +40,13 @@ const T3PLSchema = new Schema<T3PLTypes>({
         vehicleType:String,
         registrationNumber:String
     }
+    
 },{
     toJSON: {
         virtuals:true,
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         getters:true
@@ -53,7 +54,7 @@ const T3PLSchema = new Schema<T3PLTypes>({
     toObject:{
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         virtuals: true,
@@ -79,7 +80,7 @@ T3PLSchema.pre("save", async function(next){
 });
 
 T3PLSchema.methods.comparePassword = async function (value:string){
-    return await compareValue(value, this.password);
+    return await compareValue(value, this.userProfile.password);
 }
 
 

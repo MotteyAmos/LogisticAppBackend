@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { HTTPSTATUS } from "../../config/http.config";
-import { AuthService } from "../services/admin.dispatcher.service";
-import { adminRegisterSchema } from "../validators/admin.dispatcher";
 import { GeneralAuthService } from "../services/general.service";
 import { loginSchema } from "../validators/general";
 
@@ -20,8 +18,17 @@ export class GeneralAuthController {
             const userAgent = req.headers["user-agent"];
 
             const body = loginSchema.parse({...req.body,userAgent})
+            
 
-            // const {} = await this.authService.login(body)
+            const {accessToken,refreshToken,user} = await this.authService.login(body)
+
+
+            return res.status(HTTPSTATUS.OK).json({
+                accessToken,
+                refreshToken,
+                user,
+                message:"User Login Successuful"
+            })
         }
     )
 

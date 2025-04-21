@@ -6,13 +6,15 @@ COPY package*.json .
 
 RUN npm install
 
-COPY . .
-
 # RUN npm uninstall bcrypt
 # I was having issue with the bcrypt in the container, so I decided to do this
 RUN npm install bcrypt
 
+
+COPY . .
+
 RUN npm run build
+
 
 FROM node:20-slim  AS production
 

@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, userProfile } from "../../types/generalTypes";
+import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "../../types/generalTypes";
 import { accountVerificationStatus } from "../../enum/general";
+import { sevenDaysFromNow } from "../../../utils/date-time";
 
 
 // we wil be using aws s3 bucket, I will change the url later
@@ -111,3 +112,19 @@ export const auditingAndConfirmationSchema = new Schema<auditingAndConfirmation>
         default: false
     }
 })
+
+export const sessionSchema = new Schema<SessionType>({
+    userAgent:{
+     type:String,
+     default:""
+    },
+    createdAt:{
+     type:Date,
+     default: Date.now
+    },
+    expireAt:{
+     type:Date,
+     required:true,
+     default: sevenDaysFromNow
+    }
+ },{_id:false})

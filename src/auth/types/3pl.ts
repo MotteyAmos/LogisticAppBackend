@@ -1,5 +1,5 @@
 import mongoose, { Date } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, userProfile } from "./generalTypes";
+import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "./generalTypes";
 import { Role, accountStatus } from "../enum/general";
 
 
@@ -19,7 +19,9 @@ export interface T3PLTypes extends mongoose.Document{
         vehicleInfo:{
             vehicleType:String,
             registrationNumber: String
-        }
+        },
+        comparePassword(value:String): Promise<Boolean>
+
     }
 
 export interface T3PLRegistrationDTO{

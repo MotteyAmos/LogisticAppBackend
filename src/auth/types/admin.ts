@@ -1,5 +1,5 @@
 import mongoose, { Date } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, userProfile } from "./generalTypes";
+import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "./generalTypes";
 import { Role, accountStatus } from "../enum/general";
 import {z} from "zod"
 import { adminRegisterSchema } from "../validators/admin.dispatcher";
@@ -12,7 +12,9 @@ export interface adminTypes extends mongoose.Document{
         role: Role,
         status: accountStatus,
         preference: preference,
-        auditingAndConfirmation:auditingAndConfirmation
+        auditingAndConfirmation:auditingAndConfirmation,
+        comparePassword(value:String): Promise<Boolean>
+      
     }
 
 

@@ -1,6 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 import { adminTypes } from "../../types/admin";
-import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, userProfileSchema } from "./generalSchema";
+import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, sessionSchema, userProfileSchema } from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
 import { compareValue, hashValue } from "../../utils/bcryptEn";
 
@@ -61,7 +61,7 @@ adminSchema.pre("save", async function(next){
 });
 
 adminSchema.methods.comparePassword = async function (value:string){
-    return await compareValue(value, this.password);
+    return await compareValue(value, this.userProfile.password);
 }
 
 

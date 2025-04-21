@@ -1,4 +1,8 @@
+import {z} from "zod";
+import mongoose from "mongoose"
 import { accountVerificationStatus, Role } from "../enum/general"
+import { loginSchema } from "../validators/general"
+
 
 export interface fullName{
     surname: String,
@@ -69,10 +73,13 @@ export interface auditingAndConfirmation{
     emailVarification:Boolean
 }
 
-export interface loginDTO{
-    email:String,
-    password:String,
-    role:Role,
-    userAgent?:String
+
+
+
+export interface SessionType{
+    userAgent?:String,
+    expireAt?: Date,
+    createdAt?: Date
 }
 
+export type loginDTO = z.infer<typeof loginSchema>

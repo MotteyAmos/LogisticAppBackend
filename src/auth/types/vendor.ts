@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { address, auditingAndConfirmation, contactDetails, financialInfo, preference} from "./generalTypes"
+import { address, auditingAndConfirmation, contactDetails, financialInfo, preference, SessionType} from "./generalTypes"
 import { accountStatus, Role } from "../enum/general"
 
 
@@ -7,7 +7,8 @@ export interface vendorProfileType {
     contactDetails: contactDetails,
     address: Omit<address, "nationalIdentification">,
     password: String,
-    logo?:String
+    logo?:String,
+   
 }
 
 
@@ -26,7 +27,8 @@ export interface vendorType extends mongoose.Document{
         status: accountStatus,
         preference: preference,
         auditing:auditingAndConfirmation,
-        apiKey: String
+        apiKey: String,
+        comparePassword(value:String): Promise<Boolean>
     }
 
 export interface vendorRegisterDto{

@@ -1,4 +1,5 @@
 import {z} from "zod";
+import { Role } from "../enum/general";
 
 export const emailSchema = z.string().trim().email({message:"Invalid email address"}).min(5).max(255);
 export const passwordSchema = z.string({required_error:"Password is required"}).trim().min(8,{message:"Minimum password length should be 8"}).max(255);
@@ -63,8 +64,12 @@ export const financialInfoSchema = z.object({
 })
 
 
+
 export const loginSchema = z.object({
     email: emailSchema,
     password:passwordSchema,
-    role:z.enum(["SUPER_ADMIN","DISPATCHER","ADMIN","3PL","VENDOR"])
+    role:z.nativeEnum(Role),
+    userAgent:z.string().trim().optional()
 })
+
+

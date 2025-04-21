@@ -1,5 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import { auditingAndConfirmationSchema,financialDetailSchema, preferenceSchema, userProfilePictureRootLoc} from "./generalSchema";
+import { auditingAndConfirmationSchema,financialDetailSchema, preferenceSchema, sessionSchema, userProfilePictureRootLoc} from "./generalSchema";
 import { accountStatus, Role } from "../../enum/general";
 import { compareValue, hashValue } from "../../utils/bcryptEn";
 import { vendorType ,vendorProfileType} from "../../types/vendor";
@@ -37,6 +37,8 @@ const userProfileSchema = new Schema<vendorProfileType>({
     }
 },{_id:false})
 
+
+
 const vendorSchema = new Schema<vendorType>({
     businessInfo:{
         companyName:String,
@@ -69,7 +71,7 @@ const vendorSchema = new Schema<vendorType>({
         virtuals:true,
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         getters:true
@@ -77,7 +79,7 @@ const vendorSchema = new Schema<vendorType>({
     toObject:{
         transform(doc,ret){
             delete ret.userProfile.password
-            delete ret.preference.twoFactorSecret
+            delete ret.preference?.twoFactorSecret
             return ret
         },
         virtuals: true,
@@ -99,7 +101,7 @@ vendorSchema.pre("save", async function(next){
 });
 
 vendorSchema.methods.comparePassword = async function (value:string){
-    return await compareValue(value, this.password);
+    return await compareValue(value, this.userProfile.password);
 }
 
 
