@@ -1,10 +1,12 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { sevenDaysFromNow } from "../../../utils/date-time";
+import { Role } from "../../enum/general";
 
 
 export interface SessionDocument extends Document{
     userId: mongoose.Types.ObjectId;
     userAgent?: string;
+    userRole:Role;
     expiredAt:Date;
     createdAt: Date;
 }
@@ -14,6 +16,11 @@ const sessionSchema = new Schema<SessionDocument>({
         type: Schema.Types.ObjectId,
         required: true
     },
+    userRole: {
+            type:String,
+            enum: Object.values(Role),
+            default:Role.T3PL
+        },
     userAgent: {
         type: String,
         required: false

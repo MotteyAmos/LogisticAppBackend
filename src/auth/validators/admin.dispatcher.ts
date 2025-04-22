@@ -9,5 +9,5 @@ export const adminRegisterSchema = z.object({
 })
 
 export const accountVerifySchema = z.object({
-    userId:z.string()
+    userId:z.string({required_error:"userId required"})
 })

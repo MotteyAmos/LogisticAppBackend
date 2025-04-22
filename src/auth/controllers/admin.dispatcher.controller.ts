@@ -44,4 +44,17 @@ export class AuthController {
             })
         }
     )
+
+    public verifyT3PlAccount = asyncHandler(
+        async (req:Request, res:Response): Promise<any>=>{
+
+            const {userId} = accountVerifySchema.parse(req.body);
+
+            await this.authService.verifyT3PlAccount({userId})
+
+            return res.status(HTTPSTATUS.OK).json({
+                message:"Account verification successful"
+            })
+        }
+    )
 }

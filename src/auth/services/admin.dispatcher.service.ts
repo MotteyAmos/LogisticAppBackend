@@ -1,6 +1,7 @@
 import { HTTPSTATUS } from "../../config/http.config";
 import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
+import T3PLModel from "../database/models/3PLModel";
 import AdminDispatcherModel from "../database/models/admin.Dispatcher.Model";
 import VendorModel from "../database/models/vendorModel";
 import { accountStatus } from "../enum/general";
@@ -38,10 +39,24 @@ export class AuthService{
 
     public async verifyVendorAccount(verifyDto:accountVerifyDTO){
 
-        const vendor = await VendorModel.findOne({id:verifyDto.userId})
+        const vendor = await VendorModel.findOne({_id:verifyDto.userId})
 
         if (!vendor){
             throw new BadRequestException("Vendor does not exit")
+        }
+
+        vendor.status = accountStatus.ACTIVE
+
+        vendor.save();
+
+        // send an email to the vendor
+    }
+    public async verifyT3PlAccount(verifyDto:accountVerifyDTO){
+
+        const vendor = await T3PLModel.findOne({_id:verifyDto.userId})
+
+        if (!vendor){
+            throw new BadRequestException("3PL does not exit")
         }
 
         vendor.status = accountStatus.ACTIVE

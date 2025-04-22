@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Jwt, { SignOptions, VerifyOptions } from "jsonwebtoken"
 import { appConfig } from "../../config/app.config";
+import { Role } from "../enum/general";
 
 
 const defaults: SignOptions = {
@@ -23,7 +24,8 @@ export const refreshTokenSignOptions: SignOptionsAndSeret = {
 
 export interface AccessTokenPayloadType {
     userId:mongoose.Types.ObjectId,
-    sessionId: mongoose.Types.ObjectId
+    sessionId: mongoose.Types.ObjectId,
+    role: Role
 }
 
 export interface RefreshTokenPayloadType{
