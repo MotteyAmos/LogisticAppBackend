@@ -1,8 +1,10 @@
+import { HTTPSTATUS } from "../../config/http.config";
 import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
 import AdminDispatcherModel from "../database/models/admin.Dispatcher.Model";
 import VendorModel from "../database/models/vendorModel";
-import { adminRegisterDto } from "../types/admin";
+import { accountStatus } from "../enum/general";
+import { accountVerifyDTO, adminRegisterDto } from "../types/admin";
 
 
 
@@ -32,5 +34,20 @@ export class AuthService{
         return {
             user
         }
+    }
+
+    public async verifyVendorAccount(verifyDto:accountVerifyDTO){
+
+        const vendor = await VendorModel.findOne({id:verifyDto.userId})
+
+        if (!vendor){
+            throw new BadRequestException("Vendor does not exit")
+        }
+
+        vendor.status = accountStatus.ACTIVE
+
+        vendor.save();
+
+        // send an email to the vendor
     }
 }

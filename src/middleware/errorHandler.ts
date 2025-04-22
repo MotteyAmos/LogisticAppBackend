@@ -2,7 +2,7 @@ import { NextFunction,ErrorRequestHandler, Request,Response } from "express";
 import {z} from "zod";
 import { HTTPSTATUS } from "../config/http.config";
 import { AppError } from "../utils/AppError";
-
+import { Jwt , JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
 
 
 const formatZodError = (res: Response, error: z.ZodError)=>{
@@ -32,6 +32,18 @@ export const errorHandler:ErrorRequestHandler = (error,req:Request, res:Response
 
     if (error instanceof z.ZodError){
         return formatZodError(res, error);
+    }
+
+    if (error instanceof JsonWebTokenError){
+        return res.status(HTTPSTATUS.FORBIDDEN).json({
+            message:"Access token invalid"
+        })
+    }
+
+    if (error instanceof TokenExpiredError){
+        return res.status(HTTPSTATUS.FORBIDDEN).json({
+            message:"Access token expired"
+        })
     }
 
     if (error instanceof AppError){

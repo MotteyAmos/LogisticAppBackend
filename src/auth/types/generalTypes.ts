@@ -83,3 +83,11 @@ export interface SessionType{
 }
 
 export type loginDTO = z.infer<typeof loginSchema>
+
+declare global{
+    namespace Express{
+        interface Request{
+            userId:String;
+        }
+    }
+}

@@ -8,4 +8,6 @@ export const adminRegisterSchema = z.object({
     role: z.enum(["SUPER_ADMIN","DISPATCHER", "ADMIN"])
 })
 
-
+export const accountVerifySchema = z.object({
+    userId:z.string()
+})

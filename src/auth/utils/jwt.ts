@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { SignOptions, VerifyOptions } from "jsonwebtoken"
+import Jwt, { SignOptions, VerifyOptions } from "jsonwebtoken"
 import { appConfig } from "../../config/app.config";
-import  Jwt  from "jsonwebtoken";
+
 
 const defaults: SignOptions = {
     audience: ["user"]
@@ -41,3 +41,17 @@ export const signToken = (
     })
 }
 
+
+export const verifyJwtToken = <TPayload extends object = AccessTokenPayloadType>(token:string, options?: VerifyOptions & {secret:string})=>{
+    try{
+        const {secret = appConfig.JWT_ACCESS_SECRET, ...opts} = options || {}
+        const payload = Jwt.verify(token, secret, {
+            ...defaults, ...opts
+        })
+        return {payload}
+    }catch(error:any){
+        return {
+            error:error?.message
+        }
+    }
+}

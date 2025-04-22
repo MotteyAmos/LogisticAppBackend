@@ -2,7 +2,7 @@ import mongoose, { Date } from "mongoose";
 import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "./generalTypes";
 import { Role, accountStatus } from "../enum/general";
 import {z} from "zod"
-import { adminRegisterSchema } from "../validators/admin.dispatcher";
+import { accountVerifySchema, adminRegisterSchema } from "../validators/admin.dispatcher";
 
 
 
@@ -19,3 +19,5 @@ export interface adminTypes extends mongoose.Document{
 
 
 export type adminRegisterDto = z.infer<typeof adminRegisterSchema> 
+
+export type accountVerifyDTO = z.infer<typeof accountVerifySchema>

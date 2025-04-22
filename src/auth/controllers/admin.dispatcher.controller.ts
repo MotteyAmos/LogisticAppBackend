@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler";
 import { HTTPSTATUS } from "../../config/http.config";
 import { AuthService } from "../services/admin.dispatcher.service";
-import { adminRegisterSchema } from "../validators/admin.dispatcher";
+import { accountVerifySchema, adminRegisterSchema } from "../validators/admin.dispatcher";
 
 
 
@@ -31,4 +31,17 @@ export class AuthController {
             })
         }
     );
+
+    public verifyVendorAccount = asyncHandler(
+        async (req:Request, res:Response): Promise<any>=>{
+
+            const {userId} = accountVerifySchema.parse(req.body);
+
+            await this.authService.verifyVendorAccount({userId})
+
+            return res.status(HTTPSTATUS.OK).json({
+                message:"Account verification successful"
+            })
+        }
+    )
 }
