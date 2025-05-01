@@ -4,8 +4,11 @@ import { accountStatus, Role } from "../enum/general"
 
 
 export interface vendorProfileType {
-    contactDetails: contactDetails,
-    address: Omit<address, "nationalIdentification">,
+    contactDetails:{
+        name:String,
+        email:String,
+        phoneNumber:String
+    }
     password: String,
     logo?:String,
    
@@ -16,7 +19,10 @@ export interface businessInfo{
     companyName: String,
     businessType: String,
     businessDescription?: String,
-    webApplicationDomainName: String
+    webApplicationDomainName: String,
+    businessAddress?:String,
+    businessRegistrationNumber?:String,
+    countryAndCity?: String
 }
 
 export interface vendorType extends mongoose.Document{

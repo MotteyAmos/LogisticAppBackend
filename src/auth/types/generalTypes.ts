@@ -13,7 +13,10 @@ export interface fullName{
 
 export interface contactDetails{
     phoneNumber: String,
-    email: String
+    email: String,
+    additionalMobileNumber?: String,
+    residentialAddress?: String,
+    emergency:emergencyInfo
 }
 
 export interface address {

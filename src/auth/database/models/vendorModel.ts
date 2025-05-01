@@ -17,14 +17,13 @@ const userProfileSchema = new Schema<vendorProfileType>({
             trim:true,
             unique:true,
             required: true
+        },
+        name:{
+            type:String,
+            trim:true
         }
     },
-    address:{
-        region:String,
-        country:String,
-        town:String,
-        GPS_Address: String
-    },
+
     password: {
         type:String,
         required: true,
@@ -44,7 +43,10 @@ const vendorSchema = new Schema<vendorType>({
         companyName:String,
         businessType: String,
         businessDescription: String,
-        webApplicationDemainName: String
+        webApplicationDemainName: String,
+        businessAddress:String,
+        businessRegistrationNumber:String,
+        countryAndCity: String
     },
     userProfile: userProfileSchema ,
     financialDetails: financialDetailSchema,

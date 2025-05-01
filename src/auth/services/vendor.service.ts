@@ -2,7 +2,8 @@ import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
 import VendorModel from "../database/models/vendorModel";
 import { vendorRegisterDto } from "../types/vendor";
-
+import { generateApiKey } from 'generate-api-key';
+import { hashValue } from "../utils/bcryptEn";
 
 
 
@@ -27,6 +28,15 @@ export class VendorAuthService{
 
         // create admin or dispatcher
         const user = await VendorModel.create(registerDto);
+
+        const apiKey = generateApiKey({
+            method: 'uuidv5',
+            name: `${user.businessInfo?.companyName}${user.businessInfo.webApplicationDomainName}` 
+        });
+
+        user.apiKey = await hashValue(apiKey as String);
+
+        await user.save();
 
 
         return {

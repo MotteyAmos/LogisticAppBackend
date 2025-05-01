@@ -1,6 +1,6 @@
 import mongoose, { Date } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "./generalTypes";
-import { Role, accountStatus } from "../enum/general";
+import { auditingAndConfirmation, contactDetails, financialInfo, preference, SessionType, userProfile } from "./generalTypes";
+import { Gender, Role, accountStatus } from "../enum/general";
 
 
 export interface professionalDetails{
@@ -8,24 +8,40 @@ export interface professionalDetails{
     yearsOfDrivingExperience:Number
 }
 
+export interface T3PlPersonalInfo{
+    fullName: String,
+    gender: Gender,
+    dateOfBirth: Date,
+    nationalIdentification:{
+        type:String,
+        number: String,
+        image: String
+    }
+    driverLicenseNumber:String,
+    password:String
+}
+
 export interface T3PLTypes extends mongoose.Document{
-        userProfile: userProfile,
+        userProfile: T3PlPersonalInfo,
+        contactDetails: contactDetails,
+        vehicleInfo:{
+            vehicleType:String,
+            registrationNumber: String
+        },
+        // branch:
         financialDetails: financialInfo,
         role: Role,
         status: accountStatus,
         preference: preference,
         auditingAndConfirmation:auditingAndConfirmation,
         professionalDetails:professionalDetails,
-        vehicleInfo:{
-            vehicleType:String,
-            registrationNumber: String
-        },
+       
         comparePassword(value:String): Promise<Boolean>
 
     }
 
 export interface T3PLRegistrationDTO{
-    userProfile: userProfile,
+    userProfile: T3PlPersonalInfo,
         financialDetails:  financialInfo,
         professionalDetails:{
             licenceImage:String,

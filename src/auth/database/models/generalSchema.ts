@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, SessionType, userProfile } from "../../types/generalTypes";
-import { accountVerificationStatus } from "../../enum/general";
+import { auditingAndConfirmation, contactDetails, emergencyInfo, financialInfo, preference, SessionType, userProfile } from "../../types/generalTypes";
+import { accountVerificationStatus, HumanRelationship } from "../../enum/general";
 import { sevenDaysFromNow } from "../../../utils/date-time";
 
 
@@ -128,3 +128,38 @@ export const sessionSchema = new Schema<SessionType>({
      default: sevenDaysFromNow
     }
  },{_id:false})
+
+
+export const contactDetailsSchema = new Schema<contactDetails>({
+    phoneNumber:{
+        type:String,
+        trim:true
+    },
+    email:{
+        type:String,
+        trim:true,
+        unique:true
+    },
+    additionalMobileNumber:{
+        type:String,
+        trim:true
+    },
+    residentialAddress:{
+        type:String,
+        trim:true
+    },
+    emergency: new Schema<emergencyInfo>({
+        name:{
+            type:String,
+            trim:true
+        },
+        relationship:{
+            type:String,
+            enum: Object.values(HumanRelationship)
+        },
+        phoneNumber:{
+            type:String,
+            trim:true
+        }
+    })
+})

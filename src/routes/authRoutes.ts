@@ -15,6 +15,7 @@ route.post("/login", generalController.login);
 route.get("/refreshToken", generalController.refreshToken);
 route.patch("/verifyVendorAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN,Role.SUPER_ADMIN]),adminDispatcherController.verifyVendorAccount)
 route.patch("/verifyT3PlAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN,Role.SUPER_ADMIN]),adminDispatcherController.verifyT3PlAccount)
+route.patch("/verifyDispatcherAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN,Role.SUPER_ADMIN]),adminDispatcherController.verifyAdminAccount)
 
 
 

@@ -65,4 +65,19 @@ export class AuthService{
 
         // send an email to the vendor
     }
+
+    public async verifyAdminDispatcherAccount(verifyDto:accountVerifyDTO){
+
+        const vendor = await AdminDispatcherModel.findOne({_id:verifyDto.userId})
+
+        if (!vendor){
+            throw new BadRequestException("user does not exit")
+        }
+
+        vendor.status = accountStatus.ACTIVE
+
+        vendor.save();
+
+        // send an email to the vendor
+    }
 }

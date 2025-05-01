@@ -1,17 +1,49 @@
 // 3PL = driver or rider
 
 import mongoose, {Schema} from "mongoose";
-import { auditingAndConfirmationSchema, financialDetailSchema, preferenceSchema, sessionSchema, userProfileSchema } from "./generalSchema";
-import { accountStatus, Role } from "../../enum/general";
+import { auditingAndConfirmationSchema, contactDetailsSchema, financialDetailSchema, preferenceSchema } from "./generalSchema";
+import { accountStatus, Gender, Role } from "../../enum/general";
 import { compareValue, hashValue } from "../../utils/bcryptEn";
-import { professionalDetails, T3PLTypes } from "../../types/3pl";
+import { professionalDetails, T3PlPersonalInfo, T3PLTypes } from "../../types/3pl";
 
 // we wil be using aws s3 bucket, I will change the url later
 const licenceImageRootLoc = "https://s3.amazonaws.com/mybucket"
 
+const userProfileSchema = new Schema<T3PlPersonalInfo>({
+    fullName:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    gender: {
+        type:String,
+        enum: Object.values(Gender),
+        required:true,
+        default:Gender.MALE
+    },
+    dateOfBirth:{
+        type:Date,
+        required:true
+    },
+    password:{
+        type:String,
+        trim:true
+    },
+    nationalIdentification: new Schema({
+        // type of nation identification card eg. voter's id, GH-card etc
+        type:String,
+        // id value or number
+        number:String,
+        image: {
+            type:String,
+             get:(v:String) => `${licenceImageRootLoc}${v}`
+        }
+    },{_id:false}),
+},{_id:false})
 
 const T3PLSchema = new Schema<T3PLTypes>({
     userProfile: userProfileSchema,
+    contactDetails:contactDetailsSchema,
     financialDetails: financialDetailSchema,
     role: {
         type:String,
@@ -39,6 +71,7 @@ const T3PLSchema = new Schema<T3PLTypes>({
     vehicleInfo:{
         vehicleType:String,
         registrationNumber:String
+        
     }
     
 },{
@@ -65,9 +98,6 @@ const T3PLSchema = new Schema<T3PLTypes>({
 })
 
 
-T3PLSchema.virtual("fullName").get(function(){
-    return this.userProfile.fullName + " " + this.userProfile.fullName.middleName + " " + this.userProfile.fullName.firstName
-})
 
 
 T3PLSchema.pre("save", async function(next){

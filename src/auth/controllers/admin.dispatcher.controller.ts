@@ -57,4 +57,17 @@ export class AuthController {
             })
         }
     )
+
+    public verifyAdminAccount = asyncHandler(
+        async (req:Request, res:Response): Promise<any>=>{
+
+            const {userId} = accountVerifySchema.parse(req.body);
+
+            await this.authService.verifyAdminDispatcherAccount({userId})
+
+            return res.status(HTTPSTATUS.OK).json({
+                message:"Account verification successful"
+            })
+        }
+    )
 }
