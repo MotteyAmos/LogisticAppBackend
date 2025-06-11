@@ -1,0 +1,134 @@
+
+
+paths:
+  /api/v1/auth/register/admin:
+    post:
+      tags:
+        - Registration
+      summary: Register an admins
+      description: Admin registration endpoint
+      requestBody:
+        required:
+          - email
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        201:
+          description: Admin successfully registered
+
+
+
+components:
+  schemas:
+    CreateUser:
+      type: object
+      required:
+        - userProfile
+        - role
+      properties:
+        userProfile:
+          type: object
+          required:
+            - fullName
+            - gender
+            - contactDetails
+            - address
+            - emergencyInfo
+            - password
+          properties:
+            fullName:
+              type: string
+            gender:
+              type: string
+              enum: [FEMALE, MALE]
+            contactDetails:
+              $ref: '#/components/schemas/ContactDetails'
+            address:
+              $ref: '#/components/schemas/AddressDetails'
+            emergencyInfo:
+              $ref: '#/components/schemas/EmergencyInfo'
+            password:
+              type: string
+            picture:
+              type: string
+              nullable: true   # Optional field
+
+        financialDetails:
+          type: object
+          nullable: true
+          properties:
+            bankAccountDetails:
+              type: object
+              nullable: true
+              required:
+                - bankName
+                - accountNumber
+                - recipientName
+              properties:
+                bankName:
+                  type: string
+                  example: "Bank of Example"
+                accountNumber:
+                  type: string
+                  example: "1234567890"
+                recipientName:
+                  $ref: '#/components/schemas/Name'
+            mobileMoneyAccount:
+              type: object
+              nullable: true
+              required:
+                - phoneNumber
+                - recipientName
+              properties:
+                phoneNumber:
+                  $ref: '#/components/schemas/PhoneNumber'
+                recipientName:
+                  $ref: '#/components/schemas/Name'
+
+        role:
+          type: string
+          enum: [FINANCE, DISPATCHER, ADMIN, CUSTOMER_SERVICE]
+
+    # Reusable components below
+    ContactDetails:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+
+    AddressDetails:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        zipCode:
+          type: string
+
+    EmergencyInfo:
+      type: object
+      properties:
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        relationship:
+          type: string
+
+    Name:
+      type: string
+
+    PhoneNumber:
+      type: string
+
+
