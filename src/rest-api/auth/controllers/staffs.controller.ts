@@ -24,9 +24,12 @@ export class AuthController {
         ...req.body,
       });
 
+   
+
       // pass it to the auth service
       const { user } = await this.authService.registerStaff(body);
       // return the result
+
 
       return res.status(HTTPSTATUS.CREATED).json({
         // user,

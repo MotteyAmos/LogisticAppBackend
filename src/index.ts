@@ -13,15 +13,24 @@ import swaggerDocs from "./rest-api/swaggerIntegration/swagger.ts";
 import { mergedTypeDefs } from "./graphql/typeDefs/index.ts";
 import { mergedResolvers } from "./graphql/resolvers/index.ts";
 import connectDatabase from "./database/dbConnect.ts";
+import cookieParser from "cookie-parser"
 import env from "dotenv";
 env.config();
 
-console.log(process.env["PORT"])
 
 const app = express();
 
+// app.use(cors({
+//   origin: appConfig.APP_URI,
+//   optionsSuccessStatus: 200,
+//   credentials:true 
+// }))
 app.use(express.json())
 app.use(urlencoded({extended:true}));
+app.use(cookieParser())
+
+
+
 const httpServer = http.createServer(app);
 
 

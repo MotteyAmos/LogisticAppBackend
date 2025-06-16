@@ -124,7 +124,8 @@ export interface updatePreference{
 export interface auditingAndConfirmation{
     lastLogin:Date,
     accountVerificationStatus: accountVerificationStatus,
-    emailVarification:Boolean
+    emailVarification:Boolean,
+    numberOfOtpVerificationTry: number
 }
 
 
@@ -136,7 +137,28 @@ export interface SessionType{
     createdAt?: Date
 }
 
-export type loginDTO = z.infer<typeof loginSchema>
+export interface loginDTO{
+    email:String,
+    password: String,
+    role: "STAFF"|"VENDOR"|"T3PL",
+    userAgent?: String
+}
+
+
+export interface forgotPasswordDTO{
+    email:String,
+    role: "STAFF"|"VENDOR"|"T3PL",
+
+}
+
+export interface verifyOtpDTO{
+    email:String,
+    role: "STAFF"|"VENDOR"|"T3PL",
+    otpCode: String,
+    password: String,
+    userAgent?:String
+}
+
 
 declare global{
     namespace Express{

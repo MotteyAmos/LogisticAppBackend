@@ -81,6 +81,7 @@ const staffSchema = new Schema<IStaff>(
       transform(doc, ret) {
         delete ret.userProfile.password;
         delete ret.preference?.twoFactorSecret;
+
         return ret;
       },
       getters: true,
@@ -89,6 +90,7 @@ const staffSchema = new Schema<IStaff>(
       transform(doc, ret) {
         delete ret.userProfile.password;
         delete ret.preference?.twoFactorSecret;
+    
         return ret;
       },
       virtuals: true,

@@ -5,6 +5,8 @@ import StaffModel from "../../../database/models/auth/staffs.Model";
 import { accountStatus, Gender } from "../enum/general";
 import { staffRegisterDto, updateStaffAccountDTO } from "../types/staffs";
 import mongoose from "mongoose";
+import { sendAccountCreatedEmail } from "../utils/emailTemplate";
+import { appConfig } from "../../config/app.config";
 
 export class AuthService {
   public async registerStaff(registerDto: staffRegisterDto) {
@@ -39,8 +41,28 @@ export class AuthService {
         user.userProfile.picture = girlProfilePic
     }
 
-    await user.save()
+    // work on sending email to users concerning that login details
 
+    await user.save();
+
+    // work on the sender email
+    // it has to be one creating the account, so let work on it again
+    const {error} =await sendAccountCreatedEmail(
+      {
+        sender:"motteyamos770@gmail.com",
+        recipientEmail:registerDto.userProfile.email,
+        recipientName: `${registerDto.userProfile.fullName.surname} ${registerDto.userProfile.fullName.firstName}  ${registerDto.userProfile.fullName?.middleName}`,
+        recipientPassword: `${registerDto.userProfile.password}`,
+        loginLink:`${appConfig.APP_ORIGIN}`
+      }
+    )
+
+    if (error){
+      throw new BadRequestException(
+        "The account was created, but we couldn't deliver the login credentials. Please check the email address and correct it if needed",
+        ErrorCode.INCORRECT_EMAIL
+      );
+    }
     return {
       user,
     };

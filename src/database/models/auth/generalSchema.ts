@@ -112,6 +112,10 @@ export const auditingAndConfirmationSchema = new Schema<auditingAndConfirmation>
     emailVarification:{
         type:Boolean,
         default: false
+    },
+    numberOfOtpVerificationTry:{
+        type:Number,
+        default:0
     }
 })
 

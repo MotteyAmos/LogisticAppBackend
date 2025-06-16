@@ -3,7 +3,10 @@ import { asyncHandler } from "../../middleware/asyncHandler.ts";
 import { HTTPSTATUS } from "../../config/http.config.ts";
 import { GeneralAuthService } from "../services/general.service.ts";
 import {
+  emailSchema,
+  forgotPasswordSchema,
   loginSchema,
+  OTPSchema,
   PermissionId,
   permissionSchema,
   roleId,
@@ -13,8 +16,12 @@ import {
 } from "../validators/general.ts";
 import { UnauthorizedException } from "../../utils/catch-error.ts";
 import RoleModel from "../../../database/models/auth/RoleModel.ts";
-
-// this contorller will handle requests from all users
+import {
+  clearAuthCookies,
+  getAuthCookies,
+  setAuthCookies,
+} from "../utils/cookies.ts";
+import { unknown } from "zod/v4";
 
 export class GeneralAuthController {
   private authService: GeneralAuthService;
@@ -72,7 +79,6 @@ export class GeneralAuthController {
       const body = roleSchema.parse({
         ...req.body,
       });
-
       const role = await this.authService.createRole(body);
 
       return res.status(HTTPSTATUS.CREATED).json({
@@ -86,7 +92,7 @@ export class GeneralAuthController {
     async (req: Request, res: Response): Promise<any> => {
       const roles = await RoleModel.find({}).populate("permissions").exec();
       return res.status(HTTPSTATUS.OK).json({
-        roles
+        roles,
       });
     }
   );
@@ -116,39 +122,93 @@ export class GeneralAuthController {
     }
   );
 
-  // public login = asyncHandler(
-  //     async (req:Request, res:Response): Promise<any>=>{
-  //         const userAgent = req.headers["user-agent"];
+  public login = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const userAgent = req.headers["user-agent"];
 
-  //         const body = loginSchema.parse({...req.body,userAgent})
+      const body = loginSchema.parse({ ...req.body, userAgent });
 
-  //         const {accessToken,refreshToken,user} = await this.authService.login(body)
+      const { accessToken, refreshToken, user } =
+        await this.authService.login(body);
 
-  //         return res.status(HTTPSTATUS.OK).json({
-  //             accessToken,
-  //             refreshToken,
-  //             user,
-  //             message:"User Login Successuful"
-  //         })
-  //     }
-  // )
+      return setAuthCookies({ res, accessToken, refreshToken })
+        .status(HTTPSTATUS.OK)
+        .json({
+          user,
+          message: "Login Successuful",
+        });
+    }
+  );
 
-  // public refreshToken = asyncHandler(
+  public refreshToken = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const { refreshToken } = getAuthCookies(req);
+
+      if (!refreshToken) {
+        throw new UnauthorizedException();
+        // "The refresh token is empty"
+      }
+
+      const { accessToken, newRefreshToken } =
+        await this.authService.refreshToken(refreshToken as string);
+
+      return setAuthCookies({
+        res,
+        accessToken,
+        refreshToken: newRefreshToken as String,
+      })
+        .status(HTTPSTATUS.OK)
+        .json({
+          message: "token refresh successful",
+          //   accessToken: accessToken,
+          //   refreshToken: newRefreshToken || undefined
+        });
+    }
+  );
+
+  public logout = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      await this.authService.logout(req);
+
+      return clearAuthCookies(res).status(HTTPSTATUS.OK).json({
+        message: "Logout successful",
+      });
+    }
+  );
+
+  public forgotPassword = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const body = forgotPasswordSchema.parse(req.body);
+
+      const message = await this.authService.forgotPassword(body);
+
+      return res.status(HTTPSTATUS.OK).json({ message });
+    }
+  );
+
+  public verifyOTP = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const userAgent = req.headers["user-agent"];
+      const body = OTPSchema.parse({ ...req.body, userAgent });
+
+      const { message, accessToken, refreshToken, user } =
+        await this.authService.verifyOTP(body);
+
+      return setAuthCookies({ res, accessToken, refreshToken })
+        .status(HTTPSTATUS.OK)
+        .json({
+          user,
+          message
+        });
+    }
+  );
+
+  //   public handleEmailEvent = asyncHandler(
   //     async (req:Request, res:Response):Promise<any> =>{
-  //         const refreshToken = req.headers["refresh-token"]
+  //         const body = req.body.json()
 
-  //         if (!refreshToken){
-  //             throw new UnauthorizedException("The refresh token is empty");
-  //         }
-
-  //         const {accessToken, newRefreshToken} = await this.authService.refreshToken(refreshToken as string);
-
-  //         return res.status(HTTPSTATUS.OK).json({
-  //             message:"Access token refresh successful",
-  //             accessToken: accessToken,
-  //             refreshToken: newRefreshToken || undefined
-  //         })
+  //         const mesg = this.authService.handleEmailEvent(body);
 
   //     }
-  // )
+  //   )
 }

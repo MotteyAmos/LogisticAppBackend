@@ -13,7 +13,7 @@ type SignOptionsAndSeret = SignOptions & {
 }
 
 const accessTokenSignOptions: SignOptionsAndSeret = {
-    expiresIn:"15Mins" ,
+    expiresIn:"10Mins" ,
     secret: appConfig.JWT_ACCESS_SECRET
 }
 
@@ -25,7 +25,7 @@ export const refreshTokenSignOptions: SignOptionsAndSeret = {
 export interface AccessTokenPayloadType {
     userId:mongoose.Types.ObjectId,
     sessionId: mongoose.Types.ObjectId,
-    role: Role
+    roleId: mongoose.Types.ObjectId
 }
 
 export interface RefreshTokenPayloadType{
@@ -48,8 +48,9 @@ export const verifyJwtToken = <TPayload extends object = AccessTokenPayloadType>
     try{
         const {secret = appConfig.JWT_ACCESS_SECRET, ...opts} = options || {}
         const payload = Jwt.verify(token, secret, {
-            ...defaults, ...opts
-        })
+            ...defaults,
+             ...opts
+        })as TPayload
         return {payload}
     }catch(error:any){
         return {

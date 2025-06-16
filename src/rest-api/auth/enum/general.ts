@@ -1,10 +1,8 @@
 export enum Role {
-  DISPATCHER = "DISPATCHER",
-  ADMIN = "ADMIN",
+  STAFF = "STAFF",
   VENDOR = "VENDOR",
   T3PL = "3PL",
-  FINANCE = "FINANCE",
-  CUSTOMER_SERVICE = "CUSTOMER_SERVICE",
+
 }
 
 export enum AdminRole {

@@ -20,7 +20,7 @@ export class BadRequestException extends AppError{
 
 export class UnauthorizedException extends AppError{
     constructor(message="Unauthorized Access", errorCode?:ErrorCode){
-        super(message, HTTPSTATUS.UNAUTHORIZED, errorCode || ErrorCode.ACCESS_UNAUTHORIZED)
+        super(message, HTTPSTATUS.UNAUTHORIZED, errorCode || ErrorCode.ACCESS_UNAUTHORIZED, )
     }
 }
 

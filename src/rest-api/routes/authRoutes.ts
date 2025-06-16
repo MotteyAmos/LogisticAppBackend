@@ -1,5 +1,5 @@
 import { Router,Response } from "express";
-import { staffsController, generalController } from "../auth/auth.module.ts";
+import { staffsController, generalController, vendorController } from "../auth/auth.module.ts";
 import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
 import { isAuthorized } from "../auth/middlewares/authorized.ts";
 import { Role } from "../auth/enum/general.ts";
@@ -7,7 +7,7 @@ import { Role } from "../auth/enum/general.ts";
 
 const route = Router();
 
-//don't forget only admin can create a role, so we will add it later
+//don't forget only admin can create a role, so let work on it later
 route.post("/permission", generalController.createPermission)
 route.patch("/permission", generalController.updatePermission)
 route.delete("/permission/:id", generalController.deletePermission)
@@ -21,10 +21,17 @@ route.post("/staff",staffsController.register)
 route.patch("/staff", staffsController.updateStaff)
 route.delete("/staff/:id", staffsController.deleteStaff)
 
-// route.post("/register/vendor", vendorController.register)
+route.post("/signin", generalController.login);
+route.get("/refreshToken", generalController.refreshToken);
+route.post("/logout", generalController.logout)
+route.post("/forgotPassword", generalController.forgotPassword);
+
+
+route.post("/register/vendor", vendorController.register)
+
+
+// route.post("/")
 // route.post("/register/T3pl", T3PLController.register)
-// route.post("/login", generalController.login);
-// route.get("/refreshToken", generalController.refreshToken);
 // route.patch("/verifyVendorAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN]),adminDispatcherController.verifyVendorAccount)
 // route.patch("/verifyT3PlAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN]),adminDispatcherController.verifyT3PlAccount)
 // route.patch("/verifyDispatcherAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN]),adminDispatcherController.verifyAdminAccount)

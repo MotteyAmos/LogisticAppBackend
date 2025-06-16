@@ -1,13 +1,15 @@
 // // 3PL = driver or rider
 
 // import mongoose, {Schema} from "mongoose";
-// import { auditingAndConfirmationSchema, contactDetailsSchema, financialDetailSchema, preferenceSchema } from "./generalSchema";
-// import { accountStatus, Gender, Role } from "../../enum/general";
-// import { compareValue, hashValue } from "../../utils/bcryptEn";
-// import { professionalDetails, T3PlPersonalInfo, T3PLTypes } from "../../types/3pl";
+// import { auditingAndConfirmationSchema,  financialDetailSchema, preferenceSchema } from "./generalSchema";
+// import { accountStatus, Gender, Role } from "../../../rest-api/auth/enum/general";
+// import { compareValue, hashValue } from "../../../rest-api/auth/utils/bcryptEn";
+// import { professionalDetails, T3PlContactDetails, T3PlPersonalInfo, T3PLTypes } from "../../../rest-api/auth/types/3pl";
 
-// // we wil be using aws s3 bucket, I will change the url later
-// const licenceImageRootLoc = "https://s3.amazonaws.com/mybucket"
+
+
+
+
 
 // const userProfileSchema = new Schema<T3PlPersonalInfo>({
 //     fullName:{
@@ -35,15 +37,47 @@
 //         // id value or number
 //         number:String,
 //         image: {
-//             type:String,
-//              get:(v:String) => `${licenceImageRootLoc}${v}`
+//             type:String
 //         }
 //     },{_id:false}),
 // },{_id:false})
 
+// const contactDetailsSchema = new Schema<T3PlContactDetails>({
+//     phoneNumber:{
+//         type:String,
+//         trim:true,
+//         requied:true
+//     },
+//     additionalPhoneNumber:{
+//         type:String,
+//         trim:true,
+//         required:true
+//     },
+//     email: {
+//         type:String,
+//         trim:true,
+//         required:true
+//     },
+//     residentailAddress:{
+//         type:String,
+//         trim:true,
+//         required:true
+//     },
+//     emergencyContactName:{
+//         type:String,
+//         trim:true,
+//         required:true
+//     },
+//     emergencyContactNumber:{
+//         type:String,
+//         trim:true,
+//         required:true
+//     }
+// },{_id:false})
+
 // const T3PLSchema = new Schema<T3PLTypes>({
 //     userProfile: userProfileSchema,
-//     // contactDetails:contactDetailsSchema,
+//     contactDetails:contactDetailsSchema,
 //     financialDetails: financialDetailSchema,
 //     role: {
 //         type:String,
@@ -59,9 +93,8 @@
 //     preference: preferenceSchema,
 //     auditingAndConfirmation:auditingAndConfirmationSchema,
 //     professionalDetails: new Schema<professionalDetails>({
-//         licenceImage:{
+//         drivingLicenseImg:{
 //             type:String,
-//             get:(v:String) => `${licenceImageRootLoc}${v}`
 //         },
 //         yearsOfDrivingExperience:{
 //             type:Number,

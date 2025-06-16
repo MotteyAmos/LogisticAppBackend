@@ -4,9 +4,18 @@ import { add } from "date-fns";
 
 export const sevenDaysFromNow = ():Date => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
+
+export const tenMinutesFromNow = ()=>new Date(Date.now() + 10 * 60 * 1000);
+
+export const fiveMinutesFromNow = ()=>new Date(Date.now() + 5 * 60 * 1000);
+
+
+export const fiveMinutesAgo = ()=> new Date(Date.now() - 5 * 60 * 1000);
+
+
 export const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-export const calculateExpirationDate = (expiresIn: string = "15m"): Date=>{
+export const calculateExpirationDate = (expiresIn: string = "10m"): Date=>{
     const match = expiresIn.match(/^(\d+)([mhd])$/);
     if (!match) throw new Error("Invalid format. Use 15m, 1h oe 2d");
     const [,value,unit] = match;

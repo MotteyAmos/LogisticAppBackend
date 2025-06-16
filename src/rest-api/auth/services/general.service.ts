@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Number } from "mongoose";
 
 import { ErrorCode } from "../../enum/errorCode.ts";
 import {
@@ -10,15 +10,20 @@ import {
 import StaffModel from "../../../database/models/auth/staffs.Model.ts";
 import { T3PLRegistrationDTO, T3PLTypes } from "../types/3pl.ts";
 import {
+  forgotPasswordDTO,
   loginDTO,
   PermsissionType,
   RoleDTO,
+  SessionType,
   UpdatePermsissionDTO,
   UpdateRoleDto,
+  verifyOtpDTO,
 } from "../types/generalTypes.ts";
 import { vendorType } from "../types/vendor.ts";
 import {
   calculateExpirationDate,
+  fiveMinutesAgo,
+  fiveMinutesFromNow,
   ONE_DAY_IN_MS,
   sevenDaysFromNow,
 } from "../../utils/date-time.ts";
@@ -37,6 +42,13 @@ import RoleModel from "../../../database/models/auth/RoleModel.ts";
 import { escapeRegex } from "../../utils/general.ts";
 import { roleSchema } from "../validators/general.ts";
 import PermsissionModel from "../../../database/models/auth/PermissionModel.ts";
+import { IStaff } from "../types/staffs.ts";
+import { Request } from "express";
+import { getAuthCookies } from "../utils/cookies.ts";
+import VerificationCodeModel from "../../../database/models/auth/verificationCodeModel.ts";
+import VerificationCodeType from "../enum/verificationCode.ts";
+import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
+import { sendForgotPasswordEmail } from "../utils/emailTemplate.ts";
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -92,13 +104,16 @@ export class GeneralAuthService {
       .populate({
         path: "permissions",
         match: { _id: { $eq: id } },
-      }).exec();
+      })
+      .exec();
 
     if (isPermissionUsed) {
-        const permissionUsedBy = isPermissionUsed.map((p)=> p.name)
+      const permissionUsedBy = isPermissionUsed.map((p) => p.name);
 
       throw new BadRequestException(
-        `Permission is attached to the following role(s): ${permissionUsedBy.join(", ")}. Please detach the permission from these role(s) and try again.`,
+        `Permission is attached to the following role(s): ${permissionUsedBy.join(
+          ", "
+        )}. Please detach the permission from these role(s) and try again.`,
         ErrorCode.PERMISSION_IN_USE
       );
     }
@@ -106,10 +121,12 @@ export class GeneralAuthService {
       _id: id,
     });
 
-     
-      if (!deletedPermission){
-        throw new BadRequestException("Permission does not exist",ErrorCode.PERMISSION_NOT_FOUND);
-      }
+    if (!deletedPermission) {
+      throw new BadRequestException(
+        "Permission does not exist",
+        ErrorCode.PERMISSION_NOT_FOUND
+      );
+    }
 
     return "Permission deleted successful";
   }
@@ -164,123 +181,311 @@ export class GeneralAuthService {
       .populate({
         path: "role",
         match: { _id: { $eq: id } },
-      }).exec();
+      })
+      .exec();
 
-       if (isRoleUsed) {
-        const roleUsedBy = isRoleUsed.map((p)=> p.userProfile.fullName.surname)
+    if (isRoleUsed) {
+      const roleUsedBy = isRoleUsed.map((p) => p.userProfile.fullName.surname);
 
       throw new BadRequestException(
-        `Role is attached to the following staff(s): ${roleUsedBy.join(", ")}. Please detach the role from these staff(s) and try again.`,
+        `Role is attached to the following staff(s): ${roleUsedBy.join(
+          ", "
+        )}. Please detach the role from these staff(s) and try again.`,
         ErrorCode.PERMISSION_IN_USE
       );
     }
     const deletedRole = await RoleModel.findByIdAndDelete({ _id: id });
 
-    if (!deletedRole){
-        throw new BadRequestException("Role does not exist",ErrorCode.ROLE_NOT_FOUND);
-      }
+    if (!deletedRole) {
+      throw new BadRequestException(
+        "Role does not exist",
+        ErrorCode.ROLE_NOT_FOUND
+      );
+    }
     return "Role deleted successful";
   }
 
-  // public async login(loginDTo: loginDTO){
-  //     const {email, password, userAgent, role} = loginDTo;
+  public async login(loginDTo: loginDTO) {
+    const { email, password, userAgent, role } = loginDTo;
 
-  //     let user: T3PLTypes | adminTypes | vendorType
+    let user: IStaff | null = null;
 
-  //     if ([Role.ADMIN ,Role.DISPATCHER,].includes(role)){
+    if (role == "STAFF") {
+      user = (await StaffModel.findOne({
+        "userProfile.email": email,
+      })) as IStaff;
+    }
 
-  //         user = await AdminDispatcherModel.findOne({
-  //             "userProfile.contactDetails.email":email
-  //         }) as  adminTypes
-  //     }else if (role == Role.VENDOR){
+    //   else if (role == Role.VENDOR){
 
-  //         user = await VendorModel.findOne({
-  //             "userProfile.contactDetails.email":email
-  //         }) as vendorType
+    //       user = await VendorModel.findOne({
+    //           "userProfile.contactDetails.email":email
+    //       }) as vendorType
 
-  //     }else{
-  //         user = await T3PLModel.findOne({
-  //             "userProfile.contactDetails.email":email
-  //         }) as T3PLTypes
-  //     }
+    //   }else{
+    //       user = await T3PLModel.findOne({
+    //           "userProfile.contactDetails.email":email
+    //       }) as T3PLTypes
+    //   }
 
-  //     if (!user){
+    if (!user) {
+      throw new BadRequestException(
+        "Invalid email or password",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
 
-  //         throw new BadRequestException("Invalid email or password", ErrorCode.AUTH_USER_NOT_FOUND);
-  //     }
+    // if (user instanceof T3PLModel || user instanceof VendorModel) {
+    //   if (user.status == accountStatus.INACTIVE) {
+    //     throw new UnauthorizedException(
+    //       "Sorry your account is not actived, contact the adminstrator for help"
+    //     );
+    //   }
+    // }
 
-  //     if (user instanceof T3PLModel || user instanceof VendorModel){
-  //         if (user.status == accountStatus.INACTIVE ){
-  //         throw new UnauthorizedException("Sorry your account is not actived, contact the adminstrator for help")
-  //         }
-  //     }
+    const isPassword = await user.comparePassword(password);
 
-  //     const isPassword = await user.comparePassword(password);
+    if (!isPassword) {
+      throw new BadRequestException(
+        "Invalid email or password",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
 
-  //     if (!isPassword){
+    // check whether account has been verified
 
-  //         throw new BadRequestException("Invalid email or password", ErrorCode.AUTH_USER_NOT_FOUND);
-  //     }
+    // if (user.preference.enable2FA == true){
+    //     // send a verification code to user
+    // }
 
-  //     // check whether account has been verified
+    const session = await SessionModel.create({
+      userId: user._id,
+      userAgent: userAgent,
+      roleId: user.role,
+    });
 
-  //     // if (user.preference.enable2FA == true){
-  //     //     // send a verification code to user
-  //     // }
+    const accessToken = signToken({
+      userId: user._id,
+      sessionId: session._id,
+      roleId: user.role,
+    } as AccessTokenPayloadType);
 
-  //     const session = await SessionModel.create({
-  //         userId: user._id,
-  //         userAgent: userAgent,
-  //         userRole: user.role
-  //     })
+    const refreshToken = signToken(
+      { sessionId: session._id } as RefreshTokenPayloadType,
+      refreshTokenSignOptions
+    );
 
-  //     const accessToken = signToken({userId:user._id , sessionId:session._id, role:user.role} as AccessTokenPayloadType)
-  //     const refreshToken = signToken({sessionId:session._id} as RefreshTokenPayloadType, refreshTokenSignOptions)
+    return {
+      user: user,
+      accessToken,
+      refreshToken,
+    };
+  }
 
-  //     return {
-  //         user:user,
-  //         accessToken,
-  //         refreshToken
-  //     }
+  public async refreshToken(refreshToken: string) {
+    const { payload } = verifyJwtToken<RefreshTokenPayloadType>(refreshToken, {
+      secret: appConfig.JWT_REFRESH_SECRET,
+    }) as JwtPayload;
 
-  // }
+    if (!payload) {
+      throw new UnauthorizedException();
+      // "Invalid refresh token"
+    }
 
-  // public async refreshToken(refreshToken:string){
-  //     const {payload} = verifyJwtToken<RefreshTokenPayloadType>(refreshToken,{
-  //         secret:appConfig.JWT_REFRESH_SECRET
-  //     }) as JwtPayload
+    const session = await SessionModel.findById(payload?.sessionId);
 
-  //     if (!payload){
-  //         throw new UnauthorizedException("Invalid refresh token");
-  //     }
+    if (!session) {
+      throw new UnauthorizedException();
+      // "Session does not exist"
+    }
 
-  //     const session = await SessionModel.findById(payload?.sessionId);
+    const now = Date.now();
 
-  //     if (!session){
-  //         throw new UnauthorizedException("Session does not exist");
-  //     }
+    if (session.expiredAt.getTime() <= now) {
+      throw new UnauthorizedException();
+      // "Session expired"
+    }
 
-  //     const now = Date.now();
+    const sessionRequiredRefresh =
+      session.expiredAt.getTime() - now <= ONE_DAY_IN_MS;
 
-  //     if (session.expiredAt.getTime() <= now){
-  //         throw new UnauthorizedException("Session expired")
-  //     }
+    if (sessionRequiredRefresh) {
+      session.expiredAt = sevenDaysFromNow();
+      await session.save();
+    }
 
-  //     const sessionRequiredRefresh = session.expiredAt.getTime() - now <= ONE_DAY_IN_MS;
+    const newRefreshToken = sessionRequiredRefresh
+      ? signToken(
+          { sessionId: session._id } as RefreshTokenPayloadType,
+          refreshTokenSignOptions
+        )
+      : undefined;
 
-  //     if (sessionRequiredRefresh){
-  //         session.expiredAt = calculateExpirationDate(appConfig.JWT_REFRESH_EXPIRES_IN);
-  //         await session.save();
-  //     }
+    const accessToken = signToken({
+      userId: session.userId,
+      roleId: session.roleId,
+      sessionId: session._id,
+    } as AccessTokenPayloadType);
 
-  //     const newRefreshToken = sessionRequiredRefresh ? signToken({sessionId:session._id} as RefreshTokenPayloadType,refreshTokenSignOptions):undefined;
+    return {
+      accessToken,
+      newRefreshToken,
+    };
+  }
 
-  //     const accessToken = signToken({sessionId:session._id , userId:session.userId, role:session.userRole} as AccessTokenPayloadType)
+  public async logout(req: Request) {
+    const { accessToken, refreshToken } = getAuthCookies(req);
 
-  //     return {
-  //         accessToken,
-  //         newRefreshToken
-  //     }
+    const { payload } = verifyJwtToken(accessToken || "");
 
-  // }
+    if (payload) {
+      await SessionModel.findByIdAndDelete(payload.sessionId);
+    }
+  }
+
+  public async forgotPassword(forgotPasswordDTO: forgotPasswordDTO) {
+    const { email, role } = forgotPasswordDTO;
+
+    let user: IStaff | null = null;
+
+    if (role == "STAFF") {
+      user = (await StaffModel.findOne({
+        "userProfile.email": email,
+      })) as IStaff;
+    }
+
+    if (!user) {
+      return "Check your email now—your OTP will expire soon!";
+    }
+
+    const fiveMinAgo = fiveMinutesAgo();
+
+    const count = await VerificationCodeModel.countDocuments({
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+      createdAt: { $gt: fiveMinAgo },
+    });
+
+    if (count >= 1) {
+      throw new BadRequestException(
+        "Too many requests, please try again later",
+        ErrorCode.ABUSE
+      );
+    }
+
+    const code = generateRandomNumber();
+    const verificationCode = await VerificationCodeModel.create({
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+      expiresAt: fiveMinutesFromNow(),
+      verificationCodeNumber: code,
+    });
+
+    const { error } = await sendForgotPasswordEmail({
+      sender: "motteyamos770@gmail.com",
+      recipientEmail: user.userProfile.email,
+      recipientName: `${user.userProfile.fullName.surname} `,
+      code,
+    });
+
+    if (error) {
+      throw new BadRequestException(
+        "An error occurred while sending the email",
+        ErrorCode.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    return "Check your email now—your OTP will expire soon!";
+  }
+
+  public async verifyOTP(verifyOtpDTO: verifyOtpDTO) {
+    const { email, role, otpCode, password, userAgent } = verifyOtpDTO;
+
+    let user: IStaff | null = null;
+
+    if (role == "STAFF") {
+      user = (await StaffModel.findOne({
+        "userProfile.email": email,
+      })) as IStaff;
+    }
+
+    if (!user) {
+      throw new BadRequestException("Invalid OTP Code");
+    }
+
+    if (user.auditingAndConfirmation.numberOfOtpVerificationTry > 4) {
+      if (role == "STAFF") {
+        user.auditingAndConfirmation.numberOfOtpVerificationTry = 0
+        await user.save()
+      }
+
+      throw new BadRequestException(
+        "Oops! That was too many tries. Click 'Resend' to get a new code"
+      );
+    }
+
+    const validCode = await VerificationCodeModel.findOne({
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+      expiresAt: { $gt: new Date() },
+      verificationCodeNumber: otpCode,
+    });
+
+    if (!validCode) {
+      if (role == "STAFF") {
+         user.auditingAndConfirmation.numberOfOtpVerificationTry = user.auditingAndConfirmation.numberOfOtpVerificationTry+1
+        await user.save()
+      }
+      throw new BadRequestException("Invalid OTP Code");
+    }
+
+    if (role == "STAFF") {
+        user.userProfile.password = password
+    }
+
+
+    await user.save()
+
+    await VerificationCodeModel.deleteMany({
+         userId: user._id,
+          type: VerificationCodeType.PasswordReset
+    })
+
+    await SessionModel.deleteMany({
+        userId:user._id
+    })
+
+
+     const session = await SessionModel.create({
+      userId: user._id,
+      userAgent: userAgent,
+      roleId: user.role,
+    });
+
+    const accessToken = signToken({
+      userId: user._id,
+      sessionId: session._id,
+      roleId: user.role,
+    } as AccessTokenPayloadType);
+
+    const refreshToken = signToken(
+      { sessionId: session._id } as RefreshTokenPayloadType,
+      refreshTokenSignOptions
+    );
+
+    return {
+    message:"Password updated successful",
+      user,
+      accessToken,
+      refreshToken,
+    };
+
+   
+  }
+
+  //   public async handleEmailEvent(result:any){
+  //         //  handle email event for instance * recipient email not valid
+  //         // when there is time do work on it
+
+  //   }
 }

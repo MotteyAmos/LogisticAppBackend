@@ -1,45 +1,48 @@
-import mongoose from "mongoose"
-import { address, auditingAndConfirmation, contactDetails, financialInfo, preference, SessionType} from "./generalTypes.ts"
-import { accountStatus, Role } from "../enum/general.ts"
+import mongoose from "mongoose";
+import {
+  address,
+  auditingAndConfirmation,
+  contactDetails,
+  financialInfo,
+  preference,
+  SessionType,
+} from "./generalTypes.ts";
+import { accountStatus, Role } from "../enum/general.ts";
 
+export interface vendorContactDetailsType {
+  name: String;
+  email: String;
+  phoneNumber: String;
+  password: String;
+}
 
-export interface vendorProfileType {
-    contactDetails:{
-        name:String,
-        email:String,
-        phoneNumber:String
-    }
-    password: String,
-    logo?:String,
-   
+export interface vendorBusinessInfo {
+  companyName: String;
+  businessType: String;
+  businessDescription?: String;
+  webApplicationDomainName?: String;
+  businessAddress?: String;
+  businessRegistrationNumber?: String;
+  areaOfOperation?: String;
+  yearsInOpertion: Number;
+  logo?: String;
+}
+
+export interface vendorType extends mongoose.Document {
+  businessInfo: vendorBusinessInfo;
+  contactDetails: vendorContactDetailsType;
+  financialDetails: financialInfo;
+  role: Role;
+  status: accountStatus;
+  preference: preference;
+  auditing: auditingAndConfirmation;
+  apiKey: String;
+  comparePassword(value: String): Promise<Boolean>;
 }
 
 
-export interface businessInfo{
-    companyName: String,
-    businessType: String,
-    businessDescription?: String,
-    webApplicationDomainName: String,
-    businessAddress?:String,
-    businessRegistrationNumber?:String,
-    countryAndCity?: String
-}
-
-export interface vendorType extends mongoose.Document{
-        businessInfo:businessInfo,
-        userProfile: vendorProfileType ,
-        financialDetails: financialInfo,
-        role: Role,
-        status: accountStatus,
-        preference: preference,
-        auditing:auditingAndConfirmation,
-        apiKey: String,
-        comparePassword(value:String): Promise<Boolean>
-    }
-
-export interface vendorRegisterDto{
-        businessInfo:businessInfo,
-        userProfile: vendorProfileType ,
-        financialDetails: financialInfo,
-      
+export interface vendorRegisterDto {
+  businessInfo: vendorBusinessInfo;
+  contactDetails: vendorContactDetailsType;
+  financialDetails: financialInfo;
 }

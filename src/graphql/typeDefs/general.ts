@@ -17,6 +17,20 @@ type Permission {
     updatedAt: DateTime
 }
 
+ type BankAccountDetails{
+        bankName:String
+        accountNumber:String
+        recipientName: String
+    }
+
+    type MobileMoneyAccount{
+        phoneNumber:String,
+        recipientName:String
+    }
+    type financialDetail {
+        bankAccountDetails: BankAccountDetails
+        mobileMoneyAccount: MobileMoneyAccount
+    }
 
 
 

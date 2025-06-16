@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 
 export const emailSchema = z.string().trim().email({message:"Invalid email address"}).min(5).max(255);
-export const passwordSchema = z.string({required_error:"Password is required"}).trim().min(8,{message:"Minimum password length should be 8"}).max(255);
+export const passwordSchema = z.string({required_error:"Password is required"}).trim().min(8,{message:"Minimum password length should be 8 characters"}).max(255);
 export const nameSchema =  z.string().trim().min(2).max(255)
 export const phoneNumberSchema = z.string({required_error:"phone number required"}).min(10,{message:"phone number length is incorrect"}).max(20);
 
@@ -16,6 +16,7 @@ export const fullNameSchma= z.object(
         middleName: nameSchema.optional()
     }
 )
+
 
 
 export const contactDetails = z.object({
@@ -84,7 +85,7 @@ export const financialInfoSchema = z.object({
         recipientName: nameSchema
     }).optional()
 }).refine((val)=> val.bankAccountDetails || val.mobileMoneyAccount, {
-    message: "At least one of bankAccountDetails or mobileMoneyAccount must be provided",
+    message: "Provide at least bankAccount or mobileMoney details ",
     path:[]
 })
 
@@ -130,8 +131,26 @@ export const staffId = z.string({required_error:"staff id required"}).length(24,
 export const loginSchema = z.object({
     email: emailSchema,
     password:passwordSchema,
-    role:z.nativeEnum(Role),
+    role:z.enum(["STAFF","VENDOR","T3PL"]),
     userAgent:z.string().trim().optional()
+})
+
+
+export const forgotPasswordSchema = z.object({
+    email: emailSchema,
+    role:z.enum(["STAFF","VENDOR","T3PL"])
+})
+
+export const OTPSchema = z.object({
+    email: emailSchema,
+    role:z.enum(["STAFF","VENDOR","T3PL"]),
+    otpCode: z.string({required_error:"OTP code required"}).trim(),
+    password:passwordSchema,
+    confirmPassword: passwordSchema,
+    userAgent:z.string().optional()
+}).refine((val)=> val.password === val.confirmPassword,{
+    message:"Confirm password and password do not match",
+    path: ["confirmPassword"]
 })
 
 

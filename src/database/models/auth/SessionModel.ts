@@ -5,8 +5,8 @@ import { Role } from "../../../rest-api/auth/enum/general.ts";
 
 export interface SessionDocument extends Document{
     userId: mongoose.Types.ObjectId;
-    userAgent?: string;
-    userRole:Role;
+    userAgent?: String;
+    roleId: mongoose.Types.ObjectId;
     expiredAt:Date;
     createdAt: Date;
 }
@@ -16,14 +16,13 @@ const sessionSchema = new Schema<SessionDocument>({
         type: Schema.Types.ObjectId,
         required: true
     },
-    userRole: {
-            type:String,
-            enum: Object.values(Role),
-            default:Role.T3PL
-        },
     userAgent: {
         type: String,
         required: false
+    },
+    roleId:{
+        type: Schema.Types.ObjectId,
+        required:true
     },
     createdAt: {
         type: Date,
