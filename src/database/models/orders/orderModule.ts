@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IOrder } from "../../../rest-api/validators/orders/general";
+import { IOrder } from "../../../rest-api/types/orders/general";
 import { orderStatus } from "../../../rest-api/enum/orders";
 
 const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
@@ -13,6 +13,10 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
     unique: true,
   },
   destination: {
+    type: String,
+    required: true,
+  },
+ productDescription: {
     type: String,
     required: true,
   },
@@ -34,7 +38,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   },
   deliveryFee: {
     type: Number,
-    required: true,
+    default:0
   },
   status: {
     type: String,
