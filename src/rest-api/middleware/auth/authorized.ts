@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { asyncHandler } from "../../middleware/asyncHandler.ts";
+import { asyncHandler } from "../asyncHandler.ts";
 import { UnauthorizedException } from "../../utils/catch-error.ts";
-import { Role } from "../enum/general.ts";
+import { Role } from "../../enum/general.ts";
 
 
 

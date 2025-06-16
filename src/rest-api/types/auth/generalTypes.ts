@@ -1,11 +1,8 @@
 
 import { z } from "zod/v4";
 import mongoose from "mongoose"
-import { accountVerificationStatus, Gender, Permissions, Role } from "../enum/general.ts"
-import { loginSchema } from "../validators/general.ts"
-
-
-
+import { accountVerificationStatus, Gender, Permissions, Role } from "../../enum/general.ts"
+import { loginSchema } from "../../validators/auth/general.ts";
 
 
 export interface contactDetails{

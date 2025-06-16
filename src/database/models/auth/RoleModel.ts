@@ -1,7 +1,6 @@
 import mongoose, {Schema} from "mongoose";
-import { Permissions } from "../../../rest-api/auth/enum/general.ts";
-import { RoleType } from "../../../rest-api/auth/types/generalTypes.ts";
 
+import { RoleType } from "../../../rest-api/types/auth/generalTypes.ts";
 
 // const UserPermission = new Schema({
 //   type: {

@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { sevenDaysFromNow } from "../../../rest-api/utils/date-time.ts";
-import { Role } from "../../../rest-api/auth/enum/general.ts";
+import { Role } from "../../../rest-api/enum/general.ts";
 
 
 export interface SessionDocument extends Document{

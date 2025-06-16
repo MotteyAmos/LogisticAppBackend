@@ -7,7 +7,7 @@ import {
   preference,
   SessionType,
 } from "./generalTypes.ts";
-import { accountStatus, Role } from "../enum/general.ts";
+import { accountStatus, Role } from "../../enum/general.ts";
 
 export interface vendorContactDetailsType {
   name: String;
@@ -24,7 +24,7 @@ export interface vendorBusinessInfo {
   businessAddress?: String;
   businessRegistrationNumber?: String;
   areaOfOperation?: String;
-  yearsInOpertion: Number;
+  yearsInOpertion?: Number;
   logo?: String;
 }
 

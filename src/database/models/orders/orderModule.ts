@@ -1,7 +1,6 @@
 import { model, Schema } from "mongoose";
-import { IOrder } from "../../../rest-api/order/types/general";
-import { orderStatus } from "../../../rest-api/order/enum/general";
-
+import { IOrder } from "../../../rest-api/validators/orders/general";
+import { orderStatus } from "../../../rest-api/enum/orders";
 
 const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   orderDate: {

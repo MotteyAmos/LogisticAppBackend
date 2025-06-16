@@ -1,6 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import { PermsissionType} from "../../../rest-api/auth/types/generalTypes.ts";
-
+import { PermsissionType } from "../../../rest-api/types/auth/generalTypes.ts";
 
 
 const permissionSchema = new Schema<PermsissionType>({

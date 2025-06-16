@@ -3,7 +3,7 @@ import {
   updatePreferenceSchema,
   updateUserProfileSchema,
   userProfileSchema,
-} from "./general.ts";
+} from "../../validators/auth/general.ts";
 import mongoose from "mongoose";
 
 const isValidMongooseIdSchema = z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {

@@ -1,12 +1,14 @@
-import { HTTPSTATUS } from "../../config/http.config";
 import { ErrorCode } from "../../enum/errorCode";
+import { HTTPSTATUS } from "../../config/http.config";
 import { BadRequestException } from "../../utils/catch-error";
 import StaffModel from "../../../database/models/auth/staffs.Model";
-import { accountStatus, Gender } from "../enum/general";
-import { staffRegisterDto, updateStaffAccountDTO } from "../types/staffs";
-import mongoose from "mongoose";
-import { sendAccountCreatedEmail } from "../utils/emailTemplate";
+import { Gender } from "../../enum/general";
+import { staffRegisterDto, updateStaffAccountDTO } from "../../types/auth/staffs";
 import { appConfig } from "../../config/app.config";
+import mongoose from "mongoose";
+import { sendAccountCreatedEmail } from "../../utils/auth/emailTemplate";
+
+
 
 export class AuthService {
   public async registerStaff(registerDto: staffRegisterDto) {

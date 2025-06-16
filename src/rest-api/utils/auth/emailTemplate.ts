@@ -1,4 +1,4 @@
-import { sendMail } from "./sendMail"
+import { sendMail } from "../../utils/auth/sendMail"
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -12,14 +12,14 @@ interface Params {
 }
 
 
-const __filename = fileURLToPath(import.meta.url);
+// const __filename = fileURLToPath(import.meta.url);
 
 
-const __dirname = path.dirname(__filename);
-const rest_api_rootDir = path.resolve(__dirname, '../');
+// const __dirname = path.dirname(__filename);
+// const rest_api_rootDir = path.resolve(__dirname, '../');
 
-const company_logo = path.join(rest_api_rootDir, 'static', 'company_logo.jpg');
-const attachment = fs.readFileSync(company_logo).toString('base64');
+// const company_logo = path.join(rest_api_rootDir, 'static', 'company_logo.jpg');
+// const attachment = fs.readFileSync(company_logo).toString('base64');
 
 
 

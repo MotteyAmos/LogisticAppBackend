@@ -1,9 +1,9 @@
 import { ErrorCode } from "../../enum/errorCode";
 import { BadRequestException } from "../../utils/catch-error";
 import VendorModel from "../../../database/models/auth/vendorModel";
-import { vendorRegisterDto } from "../types/vendor";
+import { vendorRegisterDto } from "../../types/auth/vendor";
 import { generateApiKey } from 'generate-api-key';
-import { hashValue } from "../utils/bcryptEn";
+import { hashValue } from "../../utils/auth/bcryptEn";
 
 
 

@@ -1,5 +1,5 @@
 import {z} from "zod";
-import { Gender, Permissions, Role } from "../enum/general.ts";
+import { Gender, Permissions, Role } from "../../enum/general.ts";
 import mongoose from "mongoose";
 
 

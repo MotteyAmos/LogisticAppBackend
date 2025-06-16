@@ -1,12 +1,12 @@
 import mongoose, { Schema } from "mongoose";
-import { IStaff } from "../../../rest-api/auth/types/staffs.ts";
+import { IStaff } from "../../../rest-api/types/auth/staffs.ts";
 import {
   auditingAndConfirmationSchema,
   preferenceSchema,
 } from "./generalSchema.ts";
-import { compareValue, hashValue } from "../../../rest-api/auth/utils/bcryptEn.ts";
-import { userProfile } from "../../../rest-api/auth/types/generalTypes.ts";
-import { Gender } from "../../../rest-api/auth/enum/general.ts";
+import { compareValue, hashValue } from "../../../rest-api/utils/auth/bcryptEn.ts";
+import { userProfile } from "../../../rest-api/types/auth/generalTypes.ts";
+import { Gender } from "../../../rest-api/enum/general.ts";
 
 const userProfileSchema = new Schema<userProfile>({
   fullName: {

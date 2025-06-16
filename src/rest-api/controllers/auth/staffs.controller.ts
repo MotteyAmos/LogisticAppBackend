@@ -5,10 +5,10 @@ import {
   accountVerifySchema,
   staffsRegisterSchema,
   updateStaffSchema,
-} from "../validators/staffs.ts";
-import { AuthService } from "../services/staffs.service.ts";
+} from "../../validators/auth/staffs.ts";
+import { AuthService } from "../../services/auth/staffs.service.ts";
 import StaffModel from "../../../database/models/auth/staffs.Model.ts";
-import { staffId } from "../validators/general.ts";
+import { staffId } from "../../validators/auth/general.ts";
 
 export class AuthController {
   private authService: AuthService;

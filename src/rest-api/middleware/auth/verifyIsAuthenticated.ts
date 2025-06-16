@@ -3,9 +3,10 @@ import { asyncHandler } from "../../middleware/asyncHandler.ts";
 import { UnauthorizedException } from "../../utils/catch-error.ts";
 import { HTTPSTATUS } from "../../config/http.config.ts";
 import InvalidTokenModel from "../../../database/models/auth/InvalidTokens.ts";
-import { AccessTokenPayloadType, verifyJwtToken } from "../utils/jwt.ts";
+
+import { verifyJwtToken } from "../../utils/auth/jwt.ts";
 import { JwtPayload } from "jsonwebtoken";
-import { Role } from "../enum/general.ts";
+import { Role } from "../../enum/general.ts";
 
 
 

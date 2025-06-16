@@ -7,8 +7,9 @@ import {
 } from "../../utils/catch-error.ts";
 // import T3PLModel from "../database/models/3PLModel";
 
+
 import StaffModel from "../../../database/models/auth/staffs.Model.ts";
-import { T3PLRegistrationDTO, T3PLTypes } from "../types/3pl.ts";
+
 import {
   forgotPasswordDTO,
   loginDTO,
@@ -18,8 +19,9 @@ import {
   UpdatePermsissionDTO,
   UpdateRoleDto,
   verifyOtpDTO,
-} from "../types/generalTypes.ts";
-import { vendorType } from "../types/vendor.ts";
+} from "../../types/auth/generalTypes.ts";
+
+import { vendorType } from "../../types/auth/vendor.ts";
 import {
   calculateExpirationDate,
   fiveMinutesAgo,
@@ -27,28 +29,33 @@ import {
   ONE_DAY_IN_MS,
   sevenDaysFromNow,
 } from "../../utils/date-time.ts";
+
 import {
   AccessTokenPayloadType,
   RefreshTokenPayloadType,
   refreshTokenSignOptions,
   signToken,
   verifyJwtToken,
-} from "../utils/jwt.ts";
+} from "../../utils/auth/jwt.ts";
+
 import SessionModel from "../../../database/models/auth/SessionModel.ts";
 import { appConfig } from "../../config/app.config.ts";
 import { JwtPayload } from "jsonwebtoken";
 import { config } from "dotenv";
 import RoleModel from "../../../database/models/auth/RoleModel.ts";
 import { escapeRegex } from "../../utils/general.ts";
-import { roleSchema } from "../validators/general.ts";
+import { roleSchema } from "../../validators/auth/general.ts";
+
 import PermsissionModel from "../../../database/models/auth/PermissionModel.ts";
-import { IStaff } from "../types/staffs.ts";
+import {IStaff} from "../../types/auth/staffs.ts"
 import { Request } from "express";
-import { getAuthCookies } from "../utils/cookies.ts";
+
+import { getAuthCookies } from "../../utils/auth/cookies.ts";
+import VerificationCodeType from "../../enum/verificationCode.ts";
 import VerificationCodeModel from "../../../database/models/auth/verificationCodeModel.ts";
-import VerificationCodeType from "../enum/verificationCode.ts";
 import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
-import { sendForgotPasswordEmail } from "../utils/emailTemplate.ts";
+import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
+
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {

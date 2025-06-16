@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Jwt, { SignOptions, VerifyOptions } from "jsonwebtoken"
 import { appConfig } from "../../config/app.config.ts";
-import { Role } from "../enum/general.ts";
+import { Role } from "../../enum/general.ts";
 
 
 const defaults: SignOptions = {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import VerificationCodeType from "../../../rest-api/auth/enum/verificationCode";
+import VerificationCodeType from "../../../rest-api/enum/verificationCode";
 
 export interface VerificationCodeDocument extends mongoose.Document {
     userId: mongoose.Types.ObjectId;

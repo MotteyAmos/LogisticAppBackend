@@ -6,13 +6,13 @@ import {
   userProfilePictureRootLoc,
 } from "./generalSchema";
 
-import { accountStatus, Role } from "../../../rest-api/auth/enum/general";
-import { compareValue, hashValue } from "../../../rest-api/auth/utils/bcryptEn";
+import { accountStatus, Role } from "../../../rest-api/enum/general";
+import { compareValue, hashValue } from "../../../rest-api/utils/auth/bcryptEn";
 import {
   vendorType,
   vendorContactDetailsType,
   vendorBusinessInfo,
-} from "../../../rest-api/auth/types/vendor";
+} from "../../../rest-api/types/auth/vendor";
 
 const contactSchema = new Schema<vendorContactDetailsType>(
   {

@@ -1,8 +1,9 @@
 import { Router,Response } from "express";
-import { staffsController, generalController, vendorController } from "../auth/auth.module.ts";
-import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
-import { isAuthorized } from "../auth/middlewares/authorized.ts";
-import { Role } from "../auth/enum/general.ts";
+import { staffsController, generalController, vendorController } from "../module/auth.module.ts";
+// import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
+
+import { isAuthorized } from "../middleware/auth/authorized.ts";
+import { Role } from "../enum/general.ts";
 
 
 const route = Router();

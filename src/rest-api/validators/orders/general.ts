@@ -1,6 +1,5 @@
 import { Document } from "mongoose";
-import { orderStatus } from "../enum/general";
-
+import { orderStatus } from "../../enum/orders";
 
 export interface IOrder extends Document {
   orderDate: Date;

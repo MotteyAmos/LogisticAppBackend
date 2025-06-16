@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 
-import { auditingAndConfirmation, contactDetails, emergencyInfo, financialInfo, preference, SessionType, userProfile } from "../../../rest-api/auth/types/generalTypes.ts";
-import { accountVerificationStatus, HumanRelationship} from "../../../rest-api/auth/enum/general.ts";
+import { auditingAndConfirmation, contactDetails, emergencyInfo, financialInfo, preference, SessionType, userProfile } from "../../../rest-api/types/auth/generalTypes.ts";
+import { accountVerificationStatus, HumanRelationship} from "../../../rest-api/enum/general.ts";
 import { sevenDaysFromNow } from "../../../rest-api/utils/date-time.ts";
 
 // we wil be using aws s3 bucket, I will change the url later

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import {financialInfoSchema, passwordSchema, phoneNumberSchema } from "./general.ts";
+import {financialInfoSchema, passwordSchema, phoneNumberSchema } from "../../validators/auth/general.ts";
 
 
 
@@ -14,7 +14,7 @@ const businessInfoSchema = z.object({
     businessAddress: b_infoSchema.optional(),
     businessRegistrationNumber: b_infoSchema.optional(),
     areaOfOperation: b_infoSchema.optional(),
-    yearsInOpertion: z.number({required_error:"Years in operation required"}),
+    yearsInOpertion: z.number().optional(),
     logo: b_infoSchema.optional() 
 })
 

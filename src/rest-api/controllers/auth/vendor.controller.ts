@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler.ts";
 import { HTTPSTATUS } from "../../config/http.config.ts";
-import { vendorRegisterSchema } from "../validators/vendor.ts";
-import { VendorAuthService } from "../services/vendor.service.ts";
+import { vendorRegisterSchema } from "../../validators/auth/vendor.ts";
+import { VendorAuthService } from "../../services/auth/vendor.service.ts";
 
 
 export class VendorAuthController {

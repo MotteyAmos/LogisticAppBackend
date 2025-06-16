@@ -1,10 +1,11 @@
 // import { AuthController } from "./controllers/admin.dispatcher.controller";
-import { AuthController } from "./controllers/staffs.controller.ts";
-import { GeneralAuthController } from "./controllers/general.controller.ts";
-import { AuthService } from "./services/staffs.service.ts";
-import { GeneralAuthService } from "./services/general.service.ts";
-import { VendorAuthService } from "./services/vendor.service.ts";
-import { VendorAuthController } from "./controllers/vendor.controller.ts";
+import { AuthController } from "../controllers/auth/staffs.controller.ts";
+import { GeneralAuthController } from "../controllers/auth/general.controller.ts";
+
+import { AuthService } from "../services/auth/staffs.service.ts";
+import { GeneralAuthService } from "../services/auth/general.service.ts";
+import { VendorAuthService } from "../services/auth/vendor.service.ts";
+import { VendorAuthController } from "../controllers/auth/vendor.controller.ts";
 
 const authService = new AuthService()
 const vendorService = new VendorAuthService()

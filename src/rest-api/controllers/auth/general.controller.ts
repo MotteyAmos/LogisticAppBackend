@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler.ts";
 import { HTTPSTATUS } from "../../config/http.config.ts";
-import { GeneralAuthService } from "../services/general.service.ts";
+import { GeneralAuthService } from "../../services/auth/general.service.ts";
 import {
   emailSchema,
   forgotPasswordSchema,
@@ -13,15 +13,15 @@ import {
   roleSchema,
   updatePermissionSchema,
   updateRoleSchema,
-} from "../validators/general.ts";
+} from "../../validators/auth/general.ts";
 import { UnauthorizedException } from "../../utils/catch-error.ts";
 import RoleModel from "../../../database/models/auth/RoleModel.ts";
 import {
   clearAuthCookies,
   getAuthCookies,
   setAuthCookies,
-} from "../utils/cookies.ts";
-import { unknown } from "zod/v4";
+} from "../../utils/auth/cookies.ts";
+
 
 export class GeneralAuthController {
   private authService: GeneralAuthService;
