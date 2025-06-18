@@ -1,6 +1,5 @@
 
-
-import VendorModel from "../../database/models/auth/vendorModel"
+import VendorModel from "../../../database/models/auth/vendorModel";
 
 
 export const vendorResolves = {

@@ -1,7 +1,6 @@
-import PermsissionModel from "../../database/models/auth/PermissionModel"
-import RoleModel from "../../database/models/auth/RoleModel"
 
-
+import PermsissionModel from "../../../database/models/auth/PermissionModel"
+import RoleModel from "../../../database/models/auth/RoleModel"
 export const generalResolves = {
     Query:{
         permissions: async ()=>{

@@ -3,6 +3,7 @@ import express, {Request, Response, urlencoded} from "express";
 
 import { appConfig } from "./rest-api/config/app.config.ts";
 import { authRoute } from "./rest-api/routes/authRoutes.ts";
+import { orderRoute } from "./rest-api/routes/orderRoutes.ts";
 import { errorHandler } from "./rest-api/middleware/errorHandler.ts";
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
@@ -59,6 +60,10 @@ app.use(
 );
 
 app.use("/api/v1/auth", authRoute)
+
+app.use("/api/v1/order", orderRoute)
+
+
 
 app.use(errorHandler)
 

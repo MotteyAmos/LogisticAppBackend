@@ -9,3 +9,13 @@ export enum orderStatus {
     ORDER_ASSIGNED ="ORDER_ASSIGNED",
     ORDER_RETURNED = "ORDER_RETURNED"
 }
+
+export enum OrderAssignedTo{
+    T3PL = "3PL",
+    RIDER = "RIDER"
+}
+
+export enum OrderSource{
+    VENDOR="VENDOR",
+    SELF="SELF"
+}

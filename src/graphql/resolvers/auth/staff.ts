@@ -1,9 +1,5 @@
 
-
-import mongoose from "mongoose"
-import PermsissionModel from "../../database/models/auth/PermissionModel"
-import RoleModel from "../../database/models/auth/RoleModel"
-import StaffModel from "../../database/models/auth/staffs.Model"
+import StaffModel from "../../../database/models/auth/staffs.Model"
 
 
 export const staffResolves = {

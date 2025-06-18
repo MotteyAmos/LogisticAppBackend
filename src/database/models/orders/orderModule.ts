@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { IOrder } from "../../../rest-api/types/orders/general";
-import { orderStatus } from "../../../rest-api/enum/orders";
+import { OrderSource, orderStatus } from "../../../rest-api/enum/orders";
 
 const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   orderDate: {
@@ -11,6 +11,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
     type: String,
     required: true,
     unique: true,
+    index:true
   },
   destination: {
     type: String,
@@ -24,7 +25,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
     lat: { type: Number },
     lng: { type: Number },
   },
-  recipient: {
+  recipientName: {
     type: String,
     required: true,
   },
@@ -48,7 +49,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   source:{
     type: {
        type:   String,
-       enum :["SELF", "VENDOR"],
+       enum : Object.values(OrderSource),
        required:true
     },
     vendorID:{
@@ -56,15 +57,23 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
         ref:"Vendor"
     }
   },
-  thirdPartyLogistics: {
-    type: String,
-  },
+  assignedTo: new Schema({
+    type:{
+      type:String
+    },
+    entityAssignedId:{
+      type:Schema.Types.ObjectId
+    }
+  },{_id:false}) ,
   deliveryDate: {
     type: Date,
   },
   productImage: {
     type: String,
   },
+  rejectedReasons:{
+    type:String
+  }
 }, { timestamps: true });
 
 
