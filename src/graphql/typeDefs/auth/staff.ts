@@ -36,9 +36,16 @@ export const staffTypeDefs = `#graphql
         auditingAndConfirmation: AuditingAndConfirmation
 
     }
+    
+    type StaffPositiveResult{
+        data:[Staff]
+        totalCount: Int
+        hasNextPage: Boolean
+        currentPage: Int
+    }
 
     type Query{
-        staffs: [Staff]
+        staffs(offset:Int!, limit:Int!): StaffPositiveResult
         staff(id: ID!): Staff
     }
 

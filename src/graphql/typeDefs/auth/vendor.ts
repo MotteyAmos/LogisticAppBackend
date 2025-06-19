@@ -41,8 +41,15 @@ export const vendorTypeDefs = `#graphql
         auditing: AuditingAndConfirmation
     }
 
+    type VendorPositiveResult{
+        data:[Vendor]
+        totalCount:Int
+        hasNextPage:Boolean
+        currentPage:Int
+    }
+
     type Query{
-        vendors: [Vendor]
+        vendors(offset:Int!, limit:Int!):VendorPositiveResult
         vendor(id:ID!): Vendor
     }
 

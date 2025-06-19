@@ -39,8 +39,15 @@ export const generalOrderTypeDef = `#graphql
         updatedAt:DateTime
     }
 
+    type OrdersPositiveResult {
+        orders: [Order]
+        totalCount: Int 
+        hasNextPage: Boolean  
+        currentPage: Int
+    }
+
     type Query{
-        orders:[Order]
+        orders(offset:Int!, limit:Int!):OrdersPositiveResult
         order(id:ID!):Order
     }
 
