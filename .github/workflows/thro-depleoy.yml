@@ -53,7 +53,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ecs/thr-con-test.json
+          task-definition: thr-con-test.json
           container-name: thro-test
           image: ${{ steps.docker-build.outputs.image }}
 
