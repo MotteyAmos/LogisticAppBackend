@@ -1,0 +1,134 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:136899130623:task-definition/thr-con-test:1",
+    "containerDefinitions": [
+        {
+            "name": "thro-test",
+            "image": "motteyamos/throttle-test:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "thro-con-port",
+                    "containerPort": 4000,
+                    "hostPort": 4000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "JWT_ACCESS_SECRET",
+                    "value": "j2133f2d9-4a80-4ac1-b4d9-db47231cb7cf"
+                },
+                {
+                    "name": "JWT_REFRESH_SECRET",
+                    "value": "68706aa7-18e9-4129-9797-c0e44fc6ac06"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "value": "mongodb+srv://motteyamos770:qwertyuiop@cluster0.uilfywi.mongodb.net/logistic?retryWrites=true&w=majority&appName=Cluster0"
+                },
+                {
+                    "name": "PORT",
+                    "value": "4000"
+                },
+                {
+                    "name": "JWT_REFRESH_EXPIRES_IN",
+                    "value": "5Days"
+                },
+                {
+                    "name": "RESEND_API_KEY",
+                    "value": "re_4MkbvnmX_E6pibV1VFFjY8n1m8nTLRJeH"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "development"
+                },
+                {
+                    "name": "EMAIL_PASSWORD",
+                    "value": "hhghm"
+                },
+                {
+                    "name": "EMAIL",
+                    "value": "kd"
+                },
+                {
+                    "name": "MAILER_SENDER",
+                    "value": "onboarding@resend.dev"
+                },
+                {
+                    "name": "JWT_ACCESS_EXPIRES_IN",
+                    "value": "15Mins"
+                },
+                {
+                    "name": "APP_ORIGIN",
+                    "value": "http://localhost:3000"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/",
+                    "mode": "non-blocking",
+                    "awslogs-create-group": "true",
+                    "max-buffer-size": "25m",
+                    "awslogs-region": "eu-west-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "thr-con-test",
+    "executionRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2025-06-20T08:37:18.865Z",
+    "registeredBy": "arn:aws:iam::136899130623:root",
+    "enableFaultInjection": false,
+    "tags": []
+}
