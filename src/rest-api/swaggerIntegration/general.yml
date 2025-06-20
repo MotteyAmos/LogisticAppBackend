@@ -1,0 +1,20 @@
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     CreateuserInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - name
+ *         - password
+ *         - passwordConfirmation
+ *        properties:
+ *          email:
+ *            type:string
+ *            default: jane@gmail.com
+ *          email:
+ *            type:string
+ *            default: jane@gmail.com
+ *      
+ */

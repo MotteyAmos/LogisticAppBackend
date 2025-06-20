@@ -1,0 +1,22 @@
+// import { AuthController } from "./controllers/admin.dispatcher.controller";
+import { AuthController } from "../controllers/auth/staffs.controller.ts";
+import { GeneralAuthController } from "../controllers/auth/general.controller.ts";
+
+import { AuthService } from "../services/auth/staffs.service.ts";
+import { GeneralAuthService } from "../services/auth/general.service.ts";
+import { VendorAuthService } from "../services/auth/vendor.service.ts";
+import { VendorAuthController } from "../controllers/auth/vendor.controller.ts";
+
+const authService = new AuthService()
+const vendorService = new VendorAuthService()
+const staffsController = new AuthController(authService);
+const vendorController = new VendorAuthController(vendorService)
+// const T3PLService = new T3PLAuthService();
+// const T3PLController = new T3PLAuthController(T3PLService)
+const generalService = new GeneralAuthService();
+const generalController = new GeneralAuthController(generalService)
+
+
+
+export {staffsController, generalController ,vendorController}
+

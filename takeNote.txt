@@ -1,0 +1,6 @@
+
+
+when ever a permission on a user is change make user you delete all session stores
+what if an attacker get access to the users login credentials, and decided to change the password.
+    actions like this let us enforce our users to perform multi factor authentication before completing this actions
+    
