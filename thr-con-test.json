@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:136899130623:task-definition/thr-con-test:1",
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:136899130623:task-definition/thro-test-task-1:1",
     "containerDefinitions": [
         {
             "name": "thro-test",
@@ -7,9 +7,9 @@
             "cpu": 0,
             "portMappings": [
                 {
-                    "name": "thro-con-port",
-                    "containerPort": 4000,
-                    "hostPort": 4000,
+                    "name": "4000",
+                    "containerPort": 80,
+                    "hostPort": 80,
                     "protocol": "tcp",
                     "appProtocol": "http"
                 }
@@ -72,7 +72,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/",
+                    "awslogs-group": "/ecs/thro-test-task-1",
                     "mode": "non-blocking",
                     "awslogs-create-group": "true",
                     "max-buffer-size": "25m",
@@ -84,8 +84,9 @@
             "systemControls": []
         }
     ],
-    "family": "thr-con-test",
-    "executionRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
+    "family": "thro-test-task-1",
+    "taskRoleArn": "arn:aws:iam::136899130623:role/thr-role-2",
+    "executionRoleArn": "arn:aws:iam::136899130623:role/thr-role-2",
     "networkMode": "awsvpc",
     "revision": 1,
     "volumes": [],
@@ -102,6 +103,9 @@
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -127,8 +131,8 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2025-06-20T08:37:18.865Z",
+    "registeredAt": "2025-06-21T22:33:29.690Z",
     "registeredBy": "arn:aws:iam::136899130623:root",
-    
+    "enableFaultInjection": false,
     "tags": []
 }
