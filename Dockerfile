@@ -25,6 +25,7 @@ RUN npm config set script-shell /bin/sh
 
 COPY ./src src
 
+EXPOSE 4000
 
 CMD ["npx", "tsx", "watch", "src/index.ts"]
 
