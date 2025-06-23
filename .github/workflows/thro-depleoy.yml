@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: throttle-task-definition
+          task-definition: arn:aws:ecs:eu-west-1:136899130623:task-definition/throttle-task-definition:1
           service: throttle-service
           cluster: throttle-cluster
           wait-for-service-stability: true
