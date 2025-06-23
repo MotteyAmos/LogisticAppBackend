@@ -1,5 +1,4 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:136899130623:task-definition/throttle-task-definition:1",
     "containerDefinitions": [
         {
             "name": "throttle-app",
@@ -88,40 +87,7 @@
     "taskRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 1,
-    "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
     "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
-    ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
@@ -131,8 +97,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2025-06-23T14:32:19.201Z",
-    "registeredBy": "arn:aws:iam::136899130623:root",
+
     "enableFaultInjection": false,
     "tags": []
 }
