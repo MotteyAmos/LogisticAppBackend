@@ -1,33 +1,31 @@
-FROM node:20-bullseye  AS development
-
+FROM node:20-bullseye AS development
 
 WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y tini
-
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
+# Copy config and install dependencies
 COPY package*.json ./
 COPY tsconfig.json ./
-
 RUN npm install
 
-# RUN npm uninstall bcrypt
-# I was having issue with the bcrypt in the container, so I decided to do this
+# Optional: remove and reinstall bcrypt if needed
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 
-RUN npm install swagger-jsdoc swagger-ui-express && \
-    npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
+# Swagger & Dev tools
+RUN npm install swagger-jsdoc swagger-ui-express
+RUN npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 
+# Add tsx runner
 RUN npm install -D tsx
 RUN npm config set script-shell /bin/sh
 
 
-# COPY ./src src
+COPY ./src src
 
-# RUN npm run build
-
+# Start with tsx in watch mode
 CMD ["npx", "tsx", "watch", "src/index.ts"]
 
 
