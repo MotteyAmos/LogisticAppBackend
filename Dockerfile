@@ -5,27 +5,27 @@ WORKDIR /usr/src/app
 RUN apt-get update && apt-get install -y tini
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-# Copy config and install dependencies
+
 COPY package*.json ./
 COPY tsconfig.json ./
 RUN npm install
 
-# Optional: remove and reinstall bcrypt if needed
+
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 
-# Swagger & Dev tools
+
 RUN npm install swagger-jsdoc swagger-ui-express
 RUN npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 
-# Add tsx runner
+
 RUN npm install -D tsx
 RUN npm config set script-shell /bin/sh
 
 
 COPY ./src src
 
-# Start with tsx in watch mode
+
 CMD ["npx", "tsx", "watch", "src/index.ts"]
 
 
