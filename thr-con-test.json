@@ -1,103 +1,52 @@
 {
-    "containerDefinitions": [
+  "containerDefinitions": [
+    {
+      "name": "throttle-app",
+      "image": "motteyamos/throttle-server",
+      "cpu": 0,
+      "portMappings": [
         {
-            "name": "throttle-app",
-            "image": "motteyamos/throttle-server",
-            "cpu": 0,
-            "portMappings": [
-                {
-                    "name": "throttle-app-4000-tcp",
-                    "containerPort": 4000,
-                    "hostPort": 4000,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
-            "essential": true,
-            "environment": [
-                {
-                    "name": "JWT_ACCESS_SECRET",
-                    "value": "j2133f2d9-4a80-4ac1-b4d9-db47231cb7cf"
-                },
-                {
-                    "name": "JWT_REFRESH_SECRET",
-                    "value": "68706aa7-18e9-4129-9797-c0e44fc6ac06"
-                },
-                {
-                    "name": "DATABASE_URL",
-                    "value": "mongodb+srv://motteyamos770:qwertyuiop@cluster0.uilfywi.mongodb.net/logistic?retryWrites=true&w=majority&appName=Cluster0"
-                },
-                {
-                    "name": "PORT",
-                    "value": "4000"
-                },
-                {
-                    "name": "JWT_REFRESH_EXPIRES_IN",
-                    "value": "5Days"
-                },
-                {
-                    "name": "RESEND_API_KEY",
-                    "value": "re_4MkbvnmX_E6pibV1VFFjY8n1m8nTLRJeH"
-                },
-                {
-                    "name": "NODE_ENV",
-                    "value": "development"
-                },
-                {
-                    "name": "EMAIL_PASSWORD",
-                    "value": "hhghm"
-                },
-                {
-                    "name": "EMAIL",
-                    "value": "kd"
-                },
-                {
-                    "name": "MAILER_SENDER",
-                    "value": "onboarding@resend.dev"
-                },
-                {
-                    "name": "JWT_ACCESS_EXPIRES_IN",
-                    "value": "15Mins"
-                },
-                {
-                    "name": "APP_ORIGIN",
-                    "value": "http://localhost:3000"
-                }
-            ],
-            "environmentFiles": [],
-            "mountPoints": [],
-            "volumesFrom": [],
-            "ulimits": [],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/throttle-task-definition",
-                    "mode": "non-blocking",
-                    "awslogs-create-group": "true",
-                    "max-buffer-size": "25m",
-                    "awslogs-region": "eu-west-1",
-                    "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
-            },
-            "systemControls": []
+          "name": "throttle-app-4000-tcp",
+          "containerPort": 4000,
+          "hostPort": 4000,
+          "protocol": "tcp",
+          "appProtocol": "http"
         }
-    ],
-    "family": "throttle-task-definition",
-    "taskRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
-    "networkMode": "awsvpc",
-    "placementConstraints": [],
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
-    "cpu": "1024",
-    "memory": "3072",
-    "runtimePlatform": {
-        "cpuArchitecture": "X86_64",
-        "operatingSystemFamily": "LINUX"
-    },
-
-    "enableFaultInjection": false,
-    "tags": []
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "JWT_ACCESS_SECRET", "value": "j2133f2d9-4a80-4ac1-b4d9-db47231cb7cf" },
+        { "name": "JWT_REFRESH_SECRET", "value": "68706aa7-18e9-4129-9797-c0e44fc6ac06" },
+        { "name": "DATABASE_URL", "value": "mongodb+srv://..." },
+        { "name": "PORT", "value": "4000" },
+        { "name": "JWT_REFRESH_EXPIRES_IN", "value": "5Days" },
+        { "name": "RESEND_API_KEY", "value": "re_4MkbvnmX_E6pibV1VFFjY8n1m8nTLRJeH" },
+        { "name": "NODE_ENV", "value": "development" },
+        { "name": "EMAIL_PASSWORD", "value": "hhghm" },
+        { "name": "EMAIL", "value": "kd" },
+        { "name": "MAILER_SENDER", "value": "onboarding@resend.dev" },
+        { "name": "JWT_ACCESS_EXPIRES_IN", "value": "15Mins" },
+        { "name": "APP_ORIGIN", "value": "http://localhost:3000" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/throttle-task-definition",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "family": "throttle-task-definition",
+  "taskRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::136899130623:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "3072",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  }
 }
