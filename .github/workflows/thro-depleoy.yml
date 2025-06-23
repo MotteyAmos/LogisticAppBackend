@@ -13,17 +13,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Compile TypeScript
-        run: npm run build
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -34,7 +23,7 @@ jobs:
       - name: Build and push Docker image to Docker Hub
         id: docker-build
         env:
-          IMAGE_NAME: motteyamos/throttle-test
+          IMAGE_NAME: motteyamos/throttle-server
           IMAGE_TAG: latest
         run: |
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
@@ -47,20 +36,20 @@ jobs:
         with:
           aws-access-key-id: AKIAR7X6S6T7U35DRAJV
           aws-secret-access-key: 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
-          aws-region: eu-west-1
+          aws-region: 'eu-west-1'
 
       - name: Render ECS task definition with Docker Hub image
-        id: task-def
+        id: throttle-task-definition
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: thr-con-test.json
-          container-name: thro-test
+          container-name: throttle-app
           image: ${{ steps.docker-build.outputs.image }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: thro-app-service
-          cluster: thro-test
+          service: throttle-service
+          cluster: throttle-cluster
           wait-for-service-stability: true
