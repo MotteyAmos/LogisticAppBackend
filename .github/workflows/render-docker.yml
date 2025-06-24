@@ -6,7 +6,7 @@ on:
       - master
 env:
     DOCKER_PASSWORD: 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
-    DOCKER_USERNAME: motteyamos
+    DOCKER_USERNAME: MotteyAmos
     RENDER_DEPLOY_HOOK_URL: https://api.render.com/deploy/srv-d1d7osumcj7s73fhvubg?key=njcEltd7icg
 jobs:
   deploy:
@@ -17,13 +17,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        run: echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
+        run: echo "${{ env.DOCKER_PASSWORD }}" | docker login ghcr.io --username ${{env.DOCKER_USERNAME }} --password ${{env.DOCKER_PASSWORD}}
 
       - name: Build Docker image
-        run: docker build -t ${{ env.DOCKER_USERNAME }}/throttle-app-image:latest .
+        run: docker build -t ghcr.io/motteyamos/throttle-app-image .
 
       - name: Push Docker image
-        run: docker push ${{ env.DOCKER_USERNAME }}/throttle-app-image:latest
+        run: docker push ghcr.io/motteyamos/throttle-app-image
 
       - name: Trigger Deploy on Render
         run: |
