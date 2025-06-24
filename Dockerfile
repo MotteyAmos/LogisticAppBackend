@@ -23,9 +23,15 @@ RUN npm install -D tsx
 RUN npm config set script-shell /bin/sh
 
 
+<<<<<<< HEAD
 COPY ./src src
 
 EXPOSE 4000
+=======
+# COPY ./src src
+EXPOSE 4000
+# RUN npm run build
+>>>>>>> eae2b7187eba5837e4dc3d7663a277da6abbd209
 
 CMD ["npx", "tsx", "watch", "src/index.ts"]
 
