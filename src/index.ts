@@ -36,7 +36,7 @@ const httpServer = http.createServer(app);
 
 
 app.get("/", (req:Request, res: Response)=>{
-    res.send("Hello");
+    res.send("Hello the app is up");
 })
 
 interface MyContext {
