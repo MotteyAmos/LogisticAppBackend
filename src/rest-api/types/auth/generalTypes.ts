@@ -161,7 +161,10 @@ declare global{
     namespace Express{
         interface Request{
             userId:String;
-            role: String
+            role: String,
+            invalidFiles:String[]
+            
+           
         }
     }
 }

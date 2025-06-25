@@ -27,7 +27,6 @@ export class AuthService {
     }
 
    
-    // create admin or dispatcher
     const user = await StaffModel.create(registerDto);
 
     user.role = registerDto.roleId as unknown as mongoose.Types.ObjectId
@@ -39,7 +38,7 @@ export class AuthService {
     if (user.userProfile.gender == Gender.MALE){
         user.userProfile.picture = boyProfilePic
     }
-    if (user.userProfile.gender == Gender.FEMALE){
+    else if (user.userProfile.gender == Gender.FEMALE){
         user.userProfile.picture = girlProfilePic
     }
 
