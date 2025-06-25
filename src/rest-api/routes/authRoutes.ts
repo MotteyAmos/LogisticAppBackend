@@ -1,9 +1,10 @@
 import { Router,Response } from "express";
-import { staffsController, generalController, vendorController } from "../module/auth.module.ts";
+import { staffsController, generalController, vendorController, riderController } from "../module/auth.module.ts";
 // import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
 
 import { isAuthorized } from "../middleware/auth/authorized.ts";
 import { Role } from "../enum/general.ts";
+import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/auth/fileUpload.ts";
 
 
 const route = Router();
@@ -28,9 +29,9 @@ route.post("/logout", generalController.logout)
 route.post("/forgotPassword", generalController.forgotPassword);
 
 
-route.post("/register/vendor", vendorController.register)
+route.post("/register/vendor", VendorUploadFile.single("businessLogo"),vendorController.register)
 
-
+route.post("/register/rider",uploadFile.fields(riderFilefields) ,riderController.registration)
 // route.post("/")
 // route.post("/register/T3pl", T3PLController.register)
 // route.patch("/verifyVendorAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN]),adminDispatcherController.verifyVendorAccount)

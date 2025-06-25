@@ -2,6 +2,7 @@ export enum Role {
   STAFF = "STAFF",
   VENDOR = "VENDOR",
   T3PL = "3PL",
+  RIDER = "RIDER"
 
 }
 

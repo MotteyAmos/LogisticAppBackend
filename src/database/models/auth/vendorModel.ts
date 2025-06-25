@@ -77,8 +77,7 @@ const businessInfoSchema = new Schema<vendorBusinessInfo>(
     },
     logo: {
       type: String,
-      // the v value should look something like this /123.png
-      get: (v: String) => `${userProfilePictureRootLoc}${v}`,
+      default:""
     },
   },
   { _id: false }

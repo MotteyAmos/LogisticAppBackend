@@ -15,16 +15,14 @@ export class VendorAuthController {
     public register = asyncHandler(
         async (req:Request,res:Response):Promise<any>=>{
 
-           const body =  vendorRegisterSchema.parse({
-                ...req.body
-            })
+           const body =  vendorRegisterSchema.parse({...JSON.parse(req?.body.data)})
             
-            const {vendor} = await  this.vendorService.register(body);
+            const msg = await  this.vendorService.register({req, body});
            
 
             return res.status(HTTPSTATUS.CREATED).json({
                 // user,
-                message:"Account created successful",
+                message:msg,
              
             })
         }
