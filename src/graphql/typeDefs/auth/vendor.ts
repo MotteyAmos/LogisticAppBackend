@@ -48,8 +48,10 @@ export const vendorTypeDefs = `#graphql
         currentPage:Int
     }
 
+   
+
     type Query{
-        vendors(offset:Int!, limit:Int!):VendorPositiveResult
+        vendors(offset:Int!, limit:Int!, status:Status!):VendorPositiveResult
         vendor(id:ID!): Vendor
     }
 

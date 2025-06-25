@@ -6,6 +6,8 @@ import { generateApiKey } from 'generate-api-key';
 import { hashValue } from "../../utils/auth/bcryptEn";
 import { storeVendorFileToS3 } from "../../middleware/auth/fileUpload";
 import { Request } from "express";
+import { accountStatus, ApproveStatus } from "../../enum/general";
+import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
 
 
 
@@ -46,5 +48,28 @@ export class VendorAuthService{
 
         return "Account created successfully"
 
+    }
+
+      public async registrationApprovement(dto: ApprovalStatusDTO){
+    
+        const vendor = await VendorModel.findById(dto.id);
+    
+         if (!vendor) {
+          throw new BadRequestException(
+            "vendor does not exist",
+            ErrorCode.AUTH_USER_NOT_FOUND
+          );
+        }
+    
+        if (dto.status == ApproveStatus.APPROVE){
+          vendor.status = accountStatus.ACTIVE
+    
+          await vendor.save();
+          return "Vendor's account approved successfully"
+        }
+        else if(dto.status == ApproveStatus.DENIED){
+          await VendorModel.findByIdAndDelete(dto.id)
+          return "Vendor's account deleted successful"
+        }
     }
 }

@@ -12,7 +12,7 @@ export const generalResolves = {
             // only admin should be able to do this, so remeber to update the code
 
             const roles = await RoleModel.find({}).populate('permissions').exec();
-            console.log(roles)
+          
             return roles
             
         }

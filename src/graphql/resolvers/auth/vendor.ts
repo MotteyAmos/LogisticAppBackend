@@ -1,14 +1,23 @@
 
 import VendorModel from "../../../database/models/auth/vendorModel";
+import { accountStatus } from "../../../rest-api/enum/general";
 
 
 export const vendorResolves = {
     Query:{
-        vendors: async (_:any, {offset,limit}:{offset:number, limit:number})=>{
+        vendors: async (_:any, {offset,limit, status}:{offset:number, limit:number, status:"APPROVED"|"PENDING"})=>{
+ 
+        
+            let tempStatus;
+            if (status == "APPROVED"){
+                tempStatus = accountStatus.ACTIVE
+            }else if(status == 'PENDING'){
+                tempStatus = accountStatus.INACTIVE
+            }
 
             const [staffs,totalCount] = await Promise.all([
-                VendorModel.find({}).sort({createdAt:-1}).skip(offset * limit).limit(limit),
-                VendorModel.countDocuments()
+                VendorModel.find({status:tempStatus}).sort({createdAt:-1}).skip(offset * limit).limit(limit),
+                VendorModel.countDocuments({status:tempStatus})
             ])
 
           
@@ -23,7 +32,7 @@ export const vendorResolves = {
 
         vendor: async (_:any, {id}:{id:String})=>{
 
-           const staffs = await VendorModel.findOne({_id:id});
+           const staffs = await VendorModel.findById(id);
             return staffs
         },
        

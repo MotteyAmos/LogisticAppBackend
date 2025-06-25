@@ -37,6 +37,11 @@ export enum accountStatus {
   INACTIVE = "INACTIVE",
 }
 
+export enum ApproveStatus{
+  DENIED = "DENIED",
+  APPROVE = "APPROVE"
+}
+
 export enum Gender {
   MALE = "MALE",
   FEMALE = "FEMALE",

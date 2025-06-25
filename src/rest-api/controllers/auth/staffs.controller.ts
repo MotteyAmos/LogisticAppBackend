@@ -67,6 +67,9 @@ export class AuthController {
               });
     }
   )
+
+
+  
   // public verifyVendorAccount = asyncHandler(
   //     async (req:Request, res:Response): Promise<any>=>{
 

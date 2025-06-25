@@ -1,7 +1,8 @@
 import RiderModel from "../../../database/models/auth/RiderModel";
 import { ErrorCode } from "../../enum/errorCode";
-import { Gender } from "../../enum/general";
+import { accountStatus, ApproveStatus, Gender } from "../../enum/general";
 import { storeRiderFileToS3 } from "../../middleware/auth/fileUpload";
+import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
 import { RiderRegistrationDTO } from "../../types/auth/rider";
 import { BadRequestException } from "../../utils/catch-error";
 import { Request } from "express";
@@ -48,4 +49,31 @@ export class RiderService {
     return "rider account created successful"
     
 }
+
+  public async registrationApprovement(dto: ApprovalStatusDTO){
+
+    const rider = await RiderModel.findById(dto.id);
+
+     if (!rider) {
+      throw new BadRequestException(
+        "Rider does not exist",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
+
+    if (dto.status == ApproveStatus.APPROVE){
+      rider.status = accountStatus.ACTIVE
+
+      await rider.save();
+      return "Rider's account approved successfully"
+    }
+    else if(dto.status == ApproveStatus.DENIED){
+      await RiderModel.findByIdAndDelete(dto.id)
+      return "Rider's account deleted successful"
+    }
+
+
+  }
+
+
 }

@@ -50,7 +50,7 @@ export class AuthService {
     // it has to be one creating the account, so let work on it again
     const {error} =await sendAccountCreatedEmail(
       {
-        sender:"motteyamos770@gmail.com",
+        sender:appConfig.EMAIL,
         recipientEmail:registerDto.userProfile.email,
         recipientName: `${registerDto.userProfile.fullName.surname} ${registerDto.userProfile.fullName.firstName}  ${registerDto.userProfile.fullName?.middleName}`,
         recipientPassword: `${registerDto.userProfile.password}`,

@@ -32,6 +32,10 @@ type Permission {
         mobileMoneyAccount: MobileMoneyAccount
     }
 
+     enum Status{
+        APPROVED
+        PENDING
+    }
 
 
 type Query{

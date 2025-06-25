@@ -1,6 +1,6 @@
 import {z} from "zod";
 import { emailSchema, emergencyInfoSchema, financialInfoSchema, nameSchema, passwordSchema, phoneNumberSchema } from "./general";
-import { Gender } from "../../enum/general";
+import { ApproveStatus, Gender } from "../../enum/general";
 
 
 const riderProfileSchema = z.object({
@@ -49,3 +49,9 @@ export const riderRegistrationSchema = z.object({
     financialDetails: financialInfoSchema,
     
 });
+
+
+export const approvalStatusSchema = z.object({
+    id: z.string().trim().length(24,{message:"Invalid id"}),
+    status: z.nativeEnum(ApproveStatus)
+})

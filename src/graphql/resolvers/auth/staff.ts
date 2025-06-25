@@ -23,7 +23,7 @@ export const staffResolves = {
 
         staff: async (_:any, {id}:{id:String})=>{
 
-           const staffs = await StaffModel.findOne({_id:id}).populate({path: "role",populate: {path: "permissions"}}).exec();
+           const staffs = await StaffModel.findById(id).populate({path: "role",populate: {path: "permissions"}}).exec();
             return staffs
         },
        

@@ -1,7 +1,7 @@
 
 import { z } from "zod/v4";
 import mongoose from "mongoose"
-import { accountVerificationStatus, Gender, Permissions, Role } from "../../enum/general.ts"
+import { accountVerificationStatus, ApproveStatus, Gender, Permissions, Role } from "../../enum/general.ts"
 import { loginSchema } from "../../validators/auth/general.ts";
 
 
@@ -155,6 +155,12 @@ export interface verifyOtpDTO{
     password: String,
     userAgent?:String
 }
+
+export interface ApprovalStatusDTO{
+    id: String,
+    status: ApproveStatus
+}
+
 
 
 declare global{
