@@ -7,7 +7,6 @@ import {
 } from "../../utils/catch-error.ts";
 // import T3PLModel from "../database/models/3PLModel";
 
-
 import StaffModel from "../../../database/models/auth/staffs.Model.ts";
 
 import {
@@ -47,7 +46,7 @@ import { escapeRegex } from "../../utils/general.ts";
 import { roleSchema } from "../../validators/auth/general.ts";
 
 import PermsissionModel from "../../../database/models/auth/PermissionModel.ts";
-import {IStaff} from "../../types/auth/staffs.ts"
+import { IStaff } from "../../types/auth/staffs.ts";
 import { Request } from "express";
 
 import { getAuthCookies } from "../../utils/auth/cookies.ts";
@@ -55,7 +54,6 @@ import VerificationCodeType from "../../enum/verificationCode.ts";
 import VerificationCodeModel from "../../../database/models/auth/verificationCodeModel.ts";
 import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
 import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
-
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -184,20 +182,13 @@ export class GeneralAuthService {
   }
 
   public async deleteRole(id: String): Promise<String> {
-    const isRoleUsed = await StaffModel.find()
-      .populate({
-        path: "role",
-        match: { _id: { $eq: id } },
-      })
-      .exec();
+    const isRoleUsed = await RoleModel.findById(id)
+      .populate({ path: "assignTo", select: "userProfile.fullName" }).lean().exec();
 
-    if (isRoleUsed) {
-      const roleUsedBy = isRoleUsed.map((p) => p.userProfile.fullName.surname);
+    if (isRoleUsed?.assignTo && isRoleUsed?.assignTo?.length !== 0) {
 
       throw new BadRequestException(
-        `Role is attached to the following staff(s): ${roleUsedBy.join(
-          ", "
-        )}. Please detach the role from these staff(s) and try again.`,
+        `Role is in use`,
         ErrorCode.PERMISSION_IN_USE
       );
     }
@@ -295,21 +286,30 @@ export class GeneralAuthService {
     }) as JwtPayload;
 
     if (!payload) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Invalid refresh token"
     }
 
     const session = await SessionModel.findById(payload?.sessionId);
 
     if (!session) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Session does not exist"
     }
 
     const now = Date.now();
 
-    if (session.expiredAt.getTime() <= now) {
-      throw new UnauthorizedException();
+    if (session.expiredAt.getTime() < now) {
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Session expired"
     }
 
@@ -321,12 +321,12 @@ export class GeneralAuthService {
       await session.save();
     }
 
-    const newRefreshToken = sessionRequiredRefresh
-      ? signToken(
-          { sessionId: session._id } as RefreshTokenPayloadType,
-          refreshTokenSignOptions
-        )
-      : undefined;
+    const newRefreshToken =
+      sessionRequiredRefresh &&
+      signToken(
+        { sessionId: session._id } as RefreshTokenPayloadType,
+        refreshTokenSignOptions
+      );
 
     const accessToken = signToken({
       userId: session.userId,
@@ -422,8 +422,8 @@ export class GeneralAuthService {
 
     if (user.auditingAndConfirmation.numberOfOtpVerificationTry > 4) {
       if (role == "STAFF") {
-        user.auditingAndConfirmation.numberOfOtpVerificationTry = 0
-        await user.save()
+        user.auditingAndConfirmation.numberOfOtpVerificationTry = 0;
+        await user.save();
       }
 
       throw new BadRequestException(
@@ -440,30 +440,29 @@ export class GeneralAuthService {
 
     if (!validCode) {
       if (role == "STAFF") {
-         user.auditingAndConfirmation.numberOfOtpVerificationTry = user.auditingAndConfirmation.numberOfOtpVerificationTry+1
-        await user.save()
+        user.auditingAndConfirmation.numberOfOtpVerificationTry =
+          user.auditingAndConfirmation.numberOfOtpVerificationTry + 1;
+        await user.save();
       }
       throw new BadRequestException("Invalid OTP Code");
     }
 
     if (role == "STAFF") {
-        user.userProfile.password = password
+      user.userProfile.password = password;
     }
 
-
-    await user.save()
+    await user.save();
 
     await VerificationCodeModel.deleteMany({
-         userId: user._id,
-          type: VerificationCodeType.PasswordReset
-    })
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+    });
 
     await SessionModel.deleteMany({
-        userId:user._id
-    })
+      userId: user._id,
+    });
 
-
-     const session = await SessionModel.create({
+    const session = await SessionModel.create({
       userId: user._id,
       userAgent: userAgent,
       roleId: user.role,
@@ -481,13 +480,11 @@ export class GeneralAuthService {
     );
 
     return {
-    message:"Password updated successful",
+      message: "Password updated successful",
       user,
       accessToken,
       refreshToken,
     };
-
-   
   }
 
   //   public async handleEmailEvent(result:any){

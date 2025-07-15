@@ -5,6 +5,7 @@ import { staffsController, generalController, vendorController, riderController 
 import { isAuthorized } from "../middleware/auth/authorized.ts";
 import { Role } from "../enum/general.ts";
 import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/auth/fileUpload.ts";
+import { canCreateRole } from "../middleware/auth/permissions.ts";
 
 
 const route = Router();
@@ -14,17 +15,17 @@ route.post("/permission", generalController.createPermission)
 route.patch("/permission", generalController.updatePermission)
 route.delete("/permission/:id", generalController.deletePermission)
 
-route.post("/role", generalController.createRole)
+route.delete("/role/:id", generalController.deleteRole)
+route.post("/role", canCreateRole(),generalController.createRole)
 route.get("/roles", generalController.getRoles)
 route.patch("/role", generalController.updateRole)
-route.delete("/role/:id", generalController.deleteRole)
 
 route.post("/staff",staffsController.register)
 route.patch("/staff", staffsController.updateStaff)
 route.delete("/staff/:id", staffsController.deleteStaff)
 
 route.post("/signin", generalController.login);
-route.get("/refreshToken", generalController.refreshToken);
+route.post("/refreshToken", generalController.refreshToken);
 route.post("/logout", generalController.logout)
 route.post("/forgotPassword", generalController.forgotPassword);
 

@@ -75,11 +75,14 @@ export interface financialInfo {
 
 export interface RoleType{
     name: String,
+    description?: String,
+    assignTo?: mongoose.Types.ObjectId[]
     permissions?: mongoose.Types.ObjectId[]
 }
 
 export interface RoleDTO{
     name:String,
+    description?:String,
     permissions?:String[]
 }
 
@@ -137,7 +140,7 @@ export interface SessionType{
 export interface loginDTO{
     email:String,
     password: String,
-    role: "STAFF"|"VENDOR"|"T3PL",
+    role: "STAFF"|"VENDOR"|"T3PL"|"RIDER",
     userAgent?: String
 }
 

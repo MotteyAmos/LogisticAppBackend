@@ -29,7 +29,7 @@ export const staffTypeDefs = `#graphql
     }
 
     type Staff {
-        id: ID
+        _id: ID
         userProfile: UserProfile
         role: Role
         preference: Preference

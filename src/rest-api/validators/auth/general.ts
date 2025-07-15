@@ -95,6 +95,7 @@ const isValidMongooseIdSchema = z.string().refine((val) => mongoose.Types.Object
 
 export const roleSchema = z.object({
   name: z.string().min(1, "Name is required").trim(),
+  description: z.string().optional(),
   permissions: z.array(isValidMongooseIdSchema).optional().default([]),
 });
 
@@ -129,9 +130,9 @@ export const staffId = z.string({required_error:"staff id required"}).length(24,
 
 
 export const loginSchema = z.object({
-    email: emailSchema,
-    password:passwordSchema,
-    role:z.enum(["STAFF","VENDOR","T3PL"]),
+    email:z.string({required_error:"email required"}),
+    password:z.string({required_error:"password required"}),
+    role:z.enum(["STAFF","VENDOR","T3PL","RIDER"]),
     userAgent:z.string().trim().optional()
 })
 

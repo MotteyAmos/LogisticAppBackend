@@ -4,7 +4,7 @@ import { sevenDaysFromNow, tenMinutesFromNow } from "../../utils/date-time";
 const secure = process.env.NODE_ENV == "production";
 
 const defaults: CookieOptions = {
-  sameSite: "strict",
+  sameSite: "lax",
   httpOnly: true,
   secure,
 };
@@ -36,7 +36,7 @@ export const clearAuthCookies = (res: Response) => {
   return res.clearCookie("guardsbyxgs").clearCookie("edstscsite", {
     path: "/",
     domain:process.env.APP_ORIGIN,
-    sameSite:'strict',
+    sameSite:'lax',
     secure
   });
 };
@@ -45,6 +45,7 @@ export const clearAuthCookies = (res: Response) => {
 export const getAuthCookies = (req:Request)=>{
     const accessToken= req.cookies["guardsbyxgs"]
     const refreshToken = req.cookies["edstscsite"]
+
 
     return {
         accessToken,

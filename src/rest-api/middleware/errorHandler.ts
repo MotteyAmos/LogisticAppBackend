@@ -69,13 +69,13 @@ export const errorHandler: ErrorRequestHandler = (
 
   if (error instanceof JsonWebTokenError) {
     return res.status(HTTPSTATUS.FORBIDDEN).json({
-      message: "Access token invalid",
+      message: "Invalid access token ",
     });
   }
 
   if (error instanceof TokenExpiredError) {
-    return res.status(HTTPSTATUS.FORBIDDEN).json({
-      message: "Access token expired",
+    return res.status(HTTPSTATUS.UNAUTHORIZED).json({
+      message: "Unauthorized Access",
     });
   }
 

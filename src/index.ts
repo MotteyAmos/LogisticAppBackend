@@ -21,11 +21,13 @@ env.config();
 
 const app = express();
 
-// app.use(cors({
-//   origin: appConfig.APP_URI,
-//   optionsSuccessStatus: 200,
-//   credentials:true 
-// }))
+app.use(cors({
+  origin: appConfig.APP_URI,
+  optionsSuccessStatus: 200,
+  credentials:true,
+  methods: ['GET', 'POST', 'OPTIONS',"DELETE"] 
+}))
+
 app.use(express.json())
 app.use(urlencoded({extended:true}));
 app.use(cookieParser())
@@ -53,13 +55,17 @@ const server = new ApolloServer<MyContext>({
 await server.start();
 
 app.use(
-  '/graphql',
-  cors<cors.CorsRequest>(),
+  '/api/v1/graphql',
+  cors<cors.CorsRequest>({
+  origin: appConfig.APP_URI,
+  optionsSuccessStatus: 200,
+  credentials:true 
+}),
   express.json(),
   expressMiddleware(server),
 );
 
-app.use("/api/v1/auth", authRoute)
+app.use("/api/v1/auth",(req,res,next)=>{console.log("paraaaa",req.params), next()},authRoute)
 
 app.use("/api/v1/order", orderRoute)
 
