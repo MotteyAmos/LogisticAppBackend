@@ -34,7 +34,7 @@ export const staffTypeDefs = `#graphql
         role: Role
         preference: Preference
         auditingAndConfirmation: AuditingAndConfirmation
-
+        createdAt: Date
     }
     
     type StaffPositiveResult{

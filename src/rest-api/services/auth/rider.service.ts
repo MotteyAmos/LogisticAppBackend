@@ -62,7 +62,7 @@ export class RiderService {
     }
 
     if (dto.status == ApproveStatus.APPROVE){
-      rider.status = accountStatus.ACTIVE
+      rider.status = accountStatus.APPROVED
 
       await rider.save();
       return "Rider's account approved successfully"

@@ -37,6 +37,7 @@ type Permission {
      enum Status{
         APPROVED
         PENDING
+        DENIED
     }
 
     type RolePositiveResult{

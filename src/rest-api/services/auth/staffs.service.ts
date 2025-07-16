@@ -3,12 +3,15 @@ import { HTTPSTATUS } from "../../config/http.config";
 import { BadRequestException } from "../../utils/catch-error";
 import StaffModel from "../../../database/models/auth/staffs.Model";
 import { Gender } from "../../enum/general";
-import { staffRegisterDto, updateStaffAccountDTO } from "../../types/auth/staffs";
+import {
+  staffRegisterDto,
+  updateStaffAccountDTO,
+} from "../../types/auth/staffs";
 import { appConfig } from "../../config/app.config";
 import mongoose from "mongoose";
 import { sendAccountCreatedEmail } from "../../utils/auth/emailTemplate";
-
-
+import { passwordGenerator } from "../../utils/auth/passwordGenerator";
+import RoleModel from "../../../database/models/auth/RoleModel";
 
 export class AuthService {
   public async registerStaff(registerDto: staffRegisterDto) {
@@ -26,20 +29,34 @@ export class AuthService {
       );
     }
 
-   
-    const user = await StaffModel.create(registerDto);
+    const password = process.env.NODE_ENV == "production" ? passwordGenerator() : "password123"
 
-    user.role = registerDto.roleId as unknown as mongoose.Types.ObjectId
+    const user = await StaffModel.create({
+      userProfile: {
+        ...registerDto.userProfile,
+        password,
+      },
+      role: registerDto.roleId,
+    });
+
 
     
+    if (user) {
+      const role = await RoleModel.findById(registerDto.roleId);
+      if (role) {
+        if (!role?.assignTo?.includes(user?._id  as unknown as mongoose.Types.ObjectId)) {
+          role.assignTo?.push(user?._id  as unknown as mongoose.Types.ObjectId);
+          await role?.save();
+        }
+      }
+    }
     const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${user.userProfile.fullName.surname}`;
     const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${user.userProfile.fullName.surname}`;
 
-    if (user.userProfile.gender == Gender.MALE){
-        user.userProfile.picture = boyProfilePic
-    }
-    else if (user.userProfile.gender == Gender.FEMALE){
-        user.userProfile.picture = girlProfilePic
+    if (user.userProfile.gender == Gender.MALE) {
+      user.userProfile.picture = boyProfilePic;
+    } else if (user.userProfile.gender == Gender.FEMALE) {
+      user.userProfile.picture = girlProfilePic;
     }
 
     // work on sending email to users concerning that login details
@@ -48,17 +65,15 @@ export class AuthService {
 
     // work on the sender email
     // it has to be one creating the account, so let work on it again
-    const {error} =await sendAccountCreatedEmail(
-      {
-        sender:appConfig.EMAIL,
-        recipientEmail:registerDto.userProfile.email,
-        recipientName: `${registerDto.userProfile.fullName.surname} ${registerDto.userProfile.fullName.firstName}  ${registerDto.userProfile.fullName?.middleName}`,
-        recipientPassword: `${registerDto.userProfile.password}`,
-        loginLink:`${appConfig.APP_ORIGIN}`
-      }
-    )
+    const { error } = await sendAccountCreatedEmail({
+      sender: appConfig.EMAIL,
+      recipientEmail: registerDto.userProfile.email,
+      recipientName: `${registerDto.userProfile.fullName.surname} ${registerDto.userProfile.fullName.firstName}  ${registerDto.userProfile.fullName?.middleName}`,
+      recipientPassword: `${password}`,
+      loginLink: `${appConfig.APP_ORIGIN}`,
+    });
 
-    if (error){
+    if (error) {
       throw new BadRequestException(
         "The account was created, but we couldn't deliver the login credentials. Please check the email address and correct it if needed",
         ErrorCode.INCORRECT_EMAIL
@@ -69,53 +84,66 @@ export class AuthService {
     };
   }
 
+  public async updateStaff(staffDTO: updateStaffAccountDTO) {
+    const staff = await StaffModel.findById(staffDTO.staffId);
 
+    if (!staff) {
+      throw new BadRequestException(
+        "User does not exist",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
 
-  public async updateStaff(staffDTO: updateStaffAccountDTO){
-      const staff = await StaffModel.findById(staffDTO.staffId);
-
-
-       if(!staff){
-          throw new BadRequestException("User does not exist",ErrorCode.AUTH_USER_NOT_FOUND);
-      }
-
-      const updatedStaff = await StaffModel.findByIdAndUpdate(staffDTO.staffId, {
+    const updatedStaff = await StaffModel.findByIdAndUpdate(
+      staffDTO.staffId,
+      {
         ...staffDTO,
-        userProfile:{
-          fullName:{
-            surname: staffDTO?.userProfile?.fullName?.surname || staff.userProfile.fullName.surname,
-            firstName: staffDTO?.userProfile?.fullName?.firstName || staff.userProfile.fullName.firstName,
-            middleName: staffDTO?.userProfile?.fullName?.middleName || staff.userProfile.fullName.middleName
+        userProfile: {
+          fullName: {
+            surname:
+              staffDTO?.userProfile?.fullName?.surname ||
+              staff.userProfile.fullName.surname,
+            firstName:
+              staffDTO?.userProfile?.fullName?.firstName ||
+              staff.userProfile.fullName.firstName,
+            middleName:
+              staffDTO?.userProfile?.fullName?.middleName ||
+              staff.userProfile.fullName.middleName,
           },
           gender: staffDTO?.userProfile?.gender || staff.userProfile.gender,
           contact: staffDTO?.userProfile?.contact || staff.userProfile.contact,
           email: staffDTO?.userProfile?.email || staff.userProfile.email,
           password: staffDTO?.userProfile?.email || staff.userProfile.password,
-          picture:  staff.userProfile.picture,
+          picture: staff.userProfile.picture,
+        },
+      },
+      { new: true }
+    );
 
-        }
-      
-      },{new:true});
+    if (!updatedStaff) {
+      throw new BadRequestException(
+        "An Error occured while updating",
+        ErrorCode.INTERNAL_SERVER_ERROR
+      );
+    }
 
-      if(!updatedStaff){
-          throw new BadRequestException("An Error occured while updating",ErrorCode.INTERNAL_SERVER_ERROR);
-      }
-      
-      return {
-        message: "User details updated successful"
-      }
-
+    return {
+      message: "User details updated successful",
+    };
   }
 
-    public async deleteStaff(id: String): Promise<String> {
-      const deletedStaff = await StaffModel.findByIdAndDelete({ _id: id });
-     
-      if (!deletedStaff){
-        throw new BadRequestException("User does not exist",ErrorCode.AUTH_USER_NOT_FOUND);
-      }
+  public async deleteStaff(id: String): Promise<String> {
+    const deletedStaff = await StaffModel.findByIdAndDelete({ _id: id });
 
-      return `${deletedStaff.userProfile.fullName.surname} account deleted successful`;
+    if (!deletedStaff) {
+      throw new BadRequestException(
+        "User does not exist",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
     }
+
+    return `${deletedStaff.userProfile.fullName.surname} account deleted successful`;
+  }
 
   // public async verifyVendorAccount(verifyDto:accountVerifyDTO){
 

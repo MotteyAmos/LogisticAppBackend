@@ -33,8 +33,9 @@ export enum accountVerificationStatus {
 }
 
 export enum accountStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  DENIED = "DENIED"
 }
 
 export enum ApproveStatus{

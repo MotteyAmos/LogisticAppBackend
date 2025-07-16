@@ -21,12 +21,12 @@ env.config();
 
 const app = express();
 
-app.use(cors({
-  origin: appConfig.APP_URI,
-  optionsSuccessStatus: 200,
-  credentials:true,
-  methods: ['GET', 'POST', 'OPTIONS',"DELETE"] 
-}))
+// app.use(cors({
+//   origin: appConfig.APP_URI,
+//   optionsSuccessStatus: 200,
+//   credentials:true,
+//   methods: ['GET', 'POST', 'OPTIONS',"DELETE"] 
+// }))
 
 app.use(express.json())
 app.use(urlencoded({extended:true}));

@@ -96,7 +96,7 @@ const vendorSchema = new Schema<vendorType>(
     status: {
       type: String,
       enum: Object.values(accountStatus),
-      default: accountStatus.INACTIVE,
+      default: accountStatus.PENDING,
     },
     preference: preferenceSchema,
     auditing: auditingAndConfirmationSchema,

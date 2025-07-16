@@ -24,6 +24,7 @@ export class AuthController {
         ...req.body,
       });
 
+      
    
 
       // pass it to the auth service
@@ -33,7 +34,7 @@ export class AuthController {
 
       return res.status(HTTPSTATUS.CREATED).json({
         // user,
-        message: "User created successful",
+        message: "User created successfully",
       });
     }
   );

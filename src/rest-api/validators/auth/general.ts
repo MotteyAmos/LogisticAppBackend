@@ -13,7 +13,7 @@ export const fullNameSchma= z.object(
     {
         surname: nameSchema,
         firstName: nameSchema,
-        middleName: nameSchema.optional()
+        middleName: z.string().trim().optional()
     }
 )
 
@@ -46,7 +46,7 @@ export const userProfileSchema = z.object({
     gender: z.enum([Gender.FEMALE,Gender.MALE]),
     email: emailSchema,
     contact: phoneNumberSchema,
-    password: passwordSchema,
+    password: z.string().trim().optional(),
     picture: z.string().trim().optional()
 })
 

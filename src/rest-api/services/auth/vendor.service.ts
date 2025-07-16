@@ -62,7 +62,7 @@ export class VendorAuthService{
         }
     
         if (dto.status == ApproveStatus.APPROVE){
-          vendor.status = accountStatus.ACTIVE
+          vendor.status = accountStatus.APPROVED
     
           await vendor.save();
           return "Vendor's account approved successfully"
