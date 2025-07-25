@@ -2,6 +2,7 @@ export const vendorTypeDefs = `#graphql
 
     type VendorContactDetails{
         phoneNumber:String,
+        
         email:String,
         name:String
     }

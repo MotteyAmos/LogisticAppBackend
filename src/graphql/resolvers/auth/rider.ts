@@ -26,10 +26,10 @@ export const riderResolvers = {
       let accountStatusValue;
       switch (status) {
         case "APPROVED":
-          accountStatusValue = accountStatus.ACTIVE;
+          accountStatusValue = accountStatus.APPROVED;
           break;
         case "PENDING":
-          accountStatusValue = accountStatus.INACTIVE;
+          accountStatusValue = accountStatus.PENDING;
           break;
         default:
           throw new UserInputError('Invalid status value', {

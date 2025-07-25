@@ -49,7 +49,8 @@ type Permission {
 
 
 type Query{
-    roles(offset:Int!, limit:Int!): RolePositiveResult
+    roles(offset:Int!, limit:Int!,search:String!): RolePositiveResult
+    role(roleId:ID!): Role
     permissions: [Permission]
 }
 

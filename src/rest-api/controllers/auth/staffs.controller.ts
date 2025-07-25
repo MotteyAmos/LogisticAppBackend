@@ -59,6 +59,8 @@ export class AuthController {
   public deleteStaff = asyncHandler(
     async (req:Request, res:Response): Promise<any> =>{
         const {id} = req.params;
+
+        
         const _id = staffId.parse(id)
 
         const message = await this.authService.deleteStaff(_id)

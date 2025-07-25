@@ -31,7 +31,7 @@ route.post("/forgotPassword", generalController.forgotPassword);
 
 
 route.post("/register/vendor", VendorUploadFile.single("businessLogo"),vendorController.register)
-route.post("/approval/vendor", vendorController.registrationApprovement)
+route.patch("/approval/vendor", vendorController.registrationApprovement)
 
 route.post("/register/rider",uploadFile.fields(riderFilefields) ,riderController.registration)
 route.post("/approval/rider", riderController.registrationApprovement)

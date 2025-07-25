@@ -21,18 +21,18 @@ env.config();
 
 const app = express();
 
-// app.use(cors({
-//   origin: appConfig.APP_URI,
-//   optionsSuccessStatus: 200,
-//   credentials:true,
-//   methods: ['GET', 'POST', 'OPTIONS',"DELETE"] 
-// }))
+app.use(cors({
+  origin: appConfig.APP_URI,
+  optionsSuccessStatus: 200,
+  credentials:true,
+  methods: ['GET', 'POST', 'OPTIONS',"DELETE","PATCH"] 
+}))
 
 app.use(express.json())
 app.use(urlencoded({extended:true}));
 app.use(cookieParser())
 
-
+// app.use((req,res,next)=>{console.log(req); next()})
 
 const httpServer = http.createServer(app);
 
@@ -65,7 +65,7 @@ app.use(
   expressMiddleware(server),
 );
 
-app.use("/api/v1/auth",(req,res,next)=>{console.log("paraaaa",req.params), next()},authRoute)
+app.use("/api/v1/auth",authRoute)
 
 app.use("/api/v1/order", orderRoute)
 

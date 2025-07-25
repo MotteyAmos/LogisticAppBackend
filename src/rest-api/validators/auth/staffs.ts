@@ -18,7 +18,7 @@ export const staffsRegisterSchema = z.object({
 export const updateStaffSchema = z.object({
   staffId: z.string({required_error:"staff id required"}).length(24,{message:"Invalid staff id"}),
   userProfile: updateUserProfileSchema.optional(),
-  roleId: z.string({required_error:"role required"}).length(24,{message:"Invalid role id"}).optional(),
+  roleId: z.string({required_error:"role required"}).optional(),
   preference: updatePreferenceSchema.optional()
 });
 

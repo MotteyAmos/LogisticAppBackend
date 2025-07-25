@@ -44,7 +44,7 @@ export const emergencyInfoSchema = z.object({
 export const userProfileSchema = z.object({
     fullName: fullNameSchma,
     gender: z.enum([Gender.FEMALE,Gender.MALE]),
-    email: emailSchema,
+    email:emailSchema,
     contact: phoneNumberSchema,
     password: z.string().trim().optional(),
     picture: z.string().trim().optional()
@@ -52,17 +52,17 @@ export const userProfileSchema = z.object({
 
 export const updateFullNameSchma= z.object(
     {
-        surname: nameSchema.optional(),
-        firstName: nameSchema.optional(),
-        middleName: nameSchema.optional()
+        surname: z.string().optional(),
+        firstName: z.string().optional(),
+        middleName: z.string().optional()
     }
 )
 
 export const updateUserProfileSchema = z.object({
     fullName: updateFullNameSchma.optional(),
     gender: z.enum([Gender.FEMALE,Gender.MALE]).optional(),
-    email: emailSchema.optional(),
-    contact: phoneNumberSchema.optional(),
+    email: z.string().trim().email({message:"Invalid email address"}).optional(),
+    contact: z.string().trim().optional(),
     password: passwordSchema.optional(),
     picture: z.string().trim().optional()
 })
@@ -117,6 +117,7 @@ export const updatePermissionSchema = z.object({
 export const updateRoleSchema = z.object({
     id: z.string({required_error:"Id of the role required"}).length(24, {message:"Invalid id"}).trim(),
     name: z.string().trim().optional(),
+    description:z.string().trim().optional(),
     permissions: z.array(isValidMongooseIdSchema).optional() 
 }).refine((val)=> val.name || val.permissions, {
     message: "Provide at least name or permission for update",

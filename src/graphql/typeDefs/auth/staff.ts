@@ -45,7 +45,7 @@ export const staffTypeDefs = `#graphql
     }
 
     type Query{
-        staffs(offset:Int!, limit:Int!): StaffPositiveResult
+        staffs(offset:Int!, limit:Int!,search:String!): StaffPositiveResult
         staff(id: ID!): Staff
     }
 

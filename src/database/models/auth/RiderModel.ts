@@ -82,7 +82,7 @@ const RiderSchema = new Schema<RiderType>({
     status:{
         type:String,
         enum: Object.values(accountStatus),
-        default: accountStatus.INACTIVE
+        default: accountStatus.PENDING
     },
     preference: preferenceSchema,
     auditingAndConfirmation:auditingAndConfirmationSchema,

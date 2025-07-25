@@ -14,9 +14,15 @@ export class VendorAuthController {
 
   public register = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
+      
+      
+      
       const body = vendorRegisterSchema.parse({
-        ...JSON.parse(req?.body.data),
+        businessInfo: JSON.parse(req.body.businessInfo || "{}"),
+        contactDetails:  JSON.parse(req.body.contactDetails || "{}"),
+        financialDetails: JSON.parse(req.body.financialDetails || "{}"),
       });
+
 
       const msg = await this.vendorService.register({ req, body });
 
@@ -33,7 +39,7 @@ export class VendorAuthController {
 
       const msg = await this.vendorService.registrationApprovement(body);
 
-      return res.status(HTTPSTATUS.CREATED).json({
+      return res.status(HTTPSTATUS.OK).json({
         message: msg,
       });
     }

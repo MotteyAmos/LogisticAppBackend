@@ -15,7 +15,8 @@ const businessInfoSchema = z.object({
     businessRegistrationNumber: b_infoSchema.optional(),
     areaOfOperation: b_infoSchema.optional(),
     yearsInOpertion: z.number().optional(),
-    logo: b_infoSchema.optional() 
+    logo: b_infoSchema.optional() ,
+    country_city: z.string().optional()
 })
 
 const contactDetailsSchema = z.object({

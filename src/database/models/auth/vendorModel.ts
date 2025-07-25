@@ -79,6 +79,9 @@ const businessInfoSchema = new Schema<vendorBusinessInfo>(
       type: String,
       default:""
     },
+    country_city:{
+      type: String
+    }
   },
   { _id: false }
 );

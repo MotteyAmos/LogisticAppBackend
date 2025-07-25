@@ -68,8 +68,9 @@ export class VendorAuthService{
           return "Vendor's account approved successfully"
         }
         else if(dto.status == ApproveStatus.DENIED){
-          await VendorModel.findByIdAndDelete(dto.id)
-          return "Vendor's account deleted successful"
+          vendor.status = accountStatus.DENIED
+          await vendor.save();
+          return "Vendor's account denied successfully"
         }
     }
 }

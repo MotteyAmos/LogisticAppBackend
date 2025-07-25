@@ -54,6 +54,7 @@ import VerificationCodeType from "../../enum/verificationCode.ts";
 import VerificationCodeModel from "../../../database/models/auth/verificationCodeModel.ts";
 import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
 import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
+import { RiderType } from "../../types/auth/rider.ts";
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -165,11 +166,15 @@ export class GeneralAuthService {
       );
     }
 
-    if (roleExist && role.name) {
+    if (roleExist && role?.name) {
       roleExist.name = role.name;
     }
 
-    if (roleExist && role.permissions) {
+    if (roleExist && role?.description) {
+      roleExist.description = role.description;
+    }
+
+    if (roleExist && role?.permissions) {
       roleExist.permissions =
         role.permissions as unknown as mongoose.Types.ObjectId[];
     }
@@ -183,10 +188,11 @@ export class GeneralAuthService {
 
   public async deleteRole(id: String): Promise<String> {
     const isRoleUsed = await RoleModel.findById(id)
-      .populate({ path: "assignTo", select: "userProfile.fullName" }).lean().exec();
+      .populate({ path: "assignTo", select: "userProfile.fullName" })
+      .lean()
+      .exec();
 
     if (isRoleUsed?.assignTo && isRoleUsed?.assignTo?.length !== 0) {
-
       throw new BadRequestException(
         `Role is in use`,
         ErrorCode.PERMISSION_IN_USE
@@ -321,12 +327,12 @@ export class GeneralAuthService {
       await session.save();
     }
 
-    const newRefreshToken =
-      sessionRequiredRefresh &&
-      signToken(
-        { sessionId: session._id } as RefreshTokenPayloadType,
-        refreshTokenSignOptions
-      );
+    const newRefreshToken = sessionRequiredRefresh
+      ? signToken(
+          { sessionId: session._id } as RefreshTokenPayloadType,
+          refreshTokenSignOptions
+        )
+      : refreshToken;
 
     const accessToken = signToken({
       userId: session.userId,

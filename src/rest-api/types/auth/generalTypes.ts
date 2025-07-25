@@ -102,6 +102,7 @@ export interface UpdatePermsissionDTO{
 export interface UpdateRoleDto{
     id:String,
     name?:String,
+    description?:String,
     permissions?: String[]
 }
 

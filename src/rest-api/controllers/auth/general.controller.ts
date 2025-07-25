@@ -146,8 +146,10 @@ export class GeneralAuthController {
       // console.log( "my cooo" ,req)
       const token= getAuthCookies(req);
 
-      console.log("kdddkkdd",token.refreshToken)
+    
       if (!token.refreshToken) {
+      
+
         throw new UnauthorizedException("Token expired, Please relogin!!!", ErrorCode.EXPIRED_REFRESH_TOKEN);
         // "The refresh token is empty"
       }
