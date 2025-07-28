@@ -1,5 +1,5 @@
 import { Router,Response } from "express";
-import { staffsController, generalController, vendorController, riderController } from "../module/auth.module.ts";
+import { staffsController, generalController, vendorController, riderController, T3PLController } from "../module/auth.module.ts";
 // import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
 
 import { isAuthorized } from "../middleware/auth/authorized.ts";
@@ -32,9 +32,18 @@ route.post("/forgotPassword", generalController.forgotPassword);
 
 route.post("/register/vendor", VendorUploadFile.single("businessLogo"),vendorController.register)
 route.patch("/approval/vendor", vendorController.registrationApprovement)
+route.delete("/vendor/:id", vendorController.deleteVendor)
+
 
 route.post("/register/rider",uploadFile.fields(riderFilefields) ,riderController.registration)
-route.post("/approval/rider", riderController.registrationApprovement)
+route.patch("/approval/rider", riderController.registrationApprovement)
+route.delete("/rider/:id", riderController.deleteRider)
+
+
+route.post("/register/3pl", VendorUploadFile.single("businessLogo"),T3PLController.register)
+route.patch("/approval/3pl", T3PLController.registrationApprovement)
+route.delete("/3pl/:id",T3PLController.deleteVendor)
+
 // route.post("/")
 // route.post("/register/T3pl", T3PLController.register)
 // route.patch("/verifyVendorAccount",verifyIsAuthenticated,isAuthorized([Role.ADMIN]),adminDispatcherController.verifyVendorAccount)

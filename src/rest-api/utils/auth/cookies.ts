@@ -1,5 +1,6 @@
 import { CookieOptions, Response,Request } from "express";
 import { sevenDaysFromNow, tenMinutesFromNow } from "../../utils/date-time";
+import { appConfig } from "../../config/app.config";
 
 const secure = process.env.NODE_ENV == "production";
 
@@ -33,12 +34,14 @@ export const setAuthCookies = ({ res, accessToken, refreshToken }: Params) => {
 };
 
 export const clearAuthCookies = (res: Response) => {
-  return res.clearCookie("guardsbyxgs").clearCookie("edstscsite", {
-    path: "/",
-    domain:process.env.APP_ORIGIN,
-    sameSite:'lax',
-    secure
-  });
+    const cookieOptions = {
+    sameSite: "lax" as const,
+    secure: true,
+  };
+
+  return res
+    .clearCookie("guardsbyxgs", cookieOptions)
+    .clearCookie("edstscsite", cookieOptions);
 };
 
 

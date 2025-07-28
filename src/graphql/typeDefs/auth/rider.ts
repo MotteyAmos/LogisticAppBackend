@@ -38,7 +38,8 @@ export const riderTypeDefs = `#graphql
     }
 
     type Rider{
-        userProfile: RiderPersonalInfo
+        _id: ID
+        userProfile: RiderProfile
         contactDetails: RiderContactDetails
         financialDetails: financialDetail 
         preference: Preference

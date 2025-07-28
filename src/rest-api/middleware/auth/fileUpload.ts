@@ -153,3 +153,32 @@ export const storeVendorFileToS3 = async (
 
   return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
 };
+
+
+export const storeT3PLFileToS3 = async (
+  T3plId: String,
+  req: Request
+): Promise<String> => {
+  if (req.invalidFiles) {
+    throw new BadRequestException(
+      `File you uploaded under the field ${req.invalidFiles[0]} is not supported. Please provide an image or pdf`
+    );
+  }
+
+  const file = req.file;
+
+  const fileKey = `T3PLDoc/${T3plId}-${file?.originalname}`;
+
+  const params = {
+    Bucket: appConfig.S3_NAME,
+    Key: fileKey,
+    Body: file?.buffer,
+    ContentType: file?.mimetype,
+  };
+
+  const command = new PutObjectCommand(params);
+
+  S3.send(command);
+
+  return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
+};

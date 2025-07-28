@@ -1,153 +1,145 @@
-// // 3PL = driver or rider
-
-// import mongoose, {Schema} from "mongoose";
-// import { auditingAndConfirmationSchema,  financialDetailSchema, preferenceSchema } from "./generalSchema";
-// import { accountStatus, Gender, Role } from "../../../rest-api/auth/enum/general";
-// import { compareValue, hashValue } from "../../../rest-api/auth/utils/bcryptEn";
-// import { professionalDetails, T3PlContactDetails, T3PlPersonalInfo, T3PLTypes } from "../../../rest-api/auth/types/3pl";
-
+import mongoose, { Schema } from "mongoose";
+import {
+  auditingAndConfirmationSchema,
+  financialDetailSchema,
+  preferenceSchema,
+} from "./generalSchema";
 
 
+import { accountStatus, Role } from "../../../rest-api/enum/general";
+import { compareValue, hashValue } from "../../../rest-api/utils/auth/bcryptEn";
+
+import { T3PLCompanyInfo, T3PLContactDetailsType, T3PLType } from "../../../rest-api/types/auth/3pl";
 
 
+const contactSchema = new Schema<T3PLContactDetailsType>(
+  {
+    phoneNumber: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+      unique: true,
+      required: true,
+    },
+    name: {
+      type: String,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
 
-// const userProfileSchema = new Schema<T3PlPersonalInfo>({
-//     fullName:{
-//         type:String,
-//         required:true,
-//         trim:true
-//     },
-//     gender: {
-//         type:String,
-//         enum: Object.values(Gender),
-//         required:true,
-//         default:Gender.MALE
-//     },
-//     dateOfBirth:{
-//         type:Date,
-//         required:true
-//     },
-//     password:{
-//         type:String,
-//         trim:true
-//     },
-//     nationalIdentification: new Schema({
-//         // type of nation identification card eg. voter's id, GH-card etc
-//         type:String,
-//         // id value or number
-//         number:String,
-//         image: {
-//             type:String
-//         }
-//     },{_id:false}),
-// },{_id:false})
+const businessInfoSchema = new Schema<T3PLCompanyInfo>(
+  {
+    companyName: {
+      type: String,
+      requird: true,
+      trim: true,
+    },
 
-// const contactDetailsSchema = new Schema<T3PlContactDetails>({
-//     phoneNumber:{
-//         type:String,
-//         trim:true,
-//         requied:true
-//     },
-//     additionalPhoneNumber:{
-//         type:String,
-//         trim:true,
-//         required:true
-//     },
-//     email: {
-//         type:String,
-//         trim:true,
-//         required:true
-//     },
-//     residentailAddress:{
-//         type:String,
-//         trim:true,
-//         required:true
-//     },
-//     emergencyContactName:{
-//         type:String,
-//         trim:true,
-//         required:true
-//     },
-//     emergencyContactNumber:{
-//         type:String,
-//         trim:true,
-//         required:true
-//     }
-// },{_id:false})
+    businessDescription: {
+      type: String,
+      trim: true,
+    },
+    webApplicationDomainName: {
+      type: String,
+      trim: true,
+    },
+    businessAddress: {
+      type: String,
+      trim: true,
+    },
+    businessRegistrationNumber: {
+      type: String,
+      trim: true,
+    },
+    areaOfOperation: {
+      type: String,
+      trim: true,
+    },
+    yearsInOpertion: {
+      type: Number,
+      default: 0,
+    },
+    logo: {
+      type: String,
+      default:""
+    },
+    country_city:{
+      type: String
+    }
+  },
+  { _id: false }
+);
 
-// const T3PLSchema = new Schema<T3PLTypes>({
-//     userProfile: userProfileSchema,
-//     contactDetails:contactDetailsSchema,
-//     financialDetails: financialDetailSchema,
-//     role: {
-//         type:String,
-//         enum: Object.values(Role),
-//         default:Role.T3PL,
-//         required:true
-//     },
-//     status:{
-//         type:String,
-//         enum: Object.values(accountStatus),
-//         default: accountStatus.INACTIVE
-//     },
-//     preference: preferenceSchema,
-//     auditingAndConfirmation:auditingAndConfirmationSchema,
-//     professionalDetails: new Schema<professionalDetails>({
-//         drivingLicenseImg:{
-//             type:String,
-//         },
-//         yearsOfDrivingExperience:{
-//             type:Number,
-//             default:0
-//         }
-//     },{_id:false}),
-//     vehicleInfo:{
-//         vehicleType:String,
-//         registrationNumber:String
-        
-//     }
-    
-// },{
-//     toJSON: {
-//         virtuals:true,
-//         transform(doc,ret){
-//             delete ret.userProfile.password
-//             delete ret.preference?.twoFactorSecret
-//             return ret
-//         },
-//         getters:true
-//     },
-//     toObject:{
-//         transform(doc,ret){
-//             delete ret.userProfile.password
-//             delete ret.preference?.twoFactorSecret
-//             return ret
-//         },
-//         virtuals: true,
-//         getters: true
-//     },
-//     collection:"T3PL",
-//     timestamps:true
-// })
+const T3PLSchema = new Schema<T3PLType>(
+  {
+    businessInfo: businessInfoSchema,
+    contactDetails: contactSchema,
+    financialDetails: financialDetailSchema,
+    role: {
+      type: String,
+      enum: Object.values(Role),
+      default: Role.T3PL,
+    },
+    status: {
+      type: String,
+      enum: Object.values(accountStatus),
+      default: accountStatus.PENDING,
+    },
+    preference: preferenceSchema,
+    auditing: auditingAndConfirmationSchema,
+    apiKey: {
+      type: String,
+      default: "",
+    },
+  },
+  {
+    toJSON: {
+      virtuals: true,
+      transform(doc, ret) {
+        delete ret.contactDetails.password;
+        delete ret.preference?.twoFactorSecret;
+        return ret;
+      },
+      getters: true,
+    },
+    toObject: {
+      transform(doc, ret) {
+        delete ret.contactDetails.password;
+        delete ret.preference?.twoFactorSecret;
+        return ret;
+      },
+      virtuals: true,
+      getters: true,
+    },
+    collection: "T3PLs",
+    timestamps: true,
+  }
+);
 
+T3PLSchema.pre("save", async function (next) {
+  // let check whether this works
+  if (!this.isModified("contactDetails.password")) {
+    next();
+  }
+  this.contactDetails.password = await hashValue(this.contactDetails.password);
+  next();
+});
 
+T3PLSchema.methods.comparePassword = async function (value: String) {
+  return await compareValue(value, this.contactDetails.password);
+};
 
+const T3PLModel = mongoose.model<T3PLType>("T3PL", T3PLSchema);
 
-// T3PLSchema.pre("save", async function(next){
-//     // let check whether this works
-//     if (!this.isModified("userProfile.password")){
-//         next()
-//     }
-//     this.userProfile.password = await hashValue(this.userProfile.password);
-//     next();
-// });
-
-// T3PLSchema.methods.comparePassword = async function (value:string){
-//     return await compareValue(value, this.userProfile.password);
-// }
-
-
-
-// const T3PLModel = mongoose.model<T3PLTypes>("T3PL", T3PLSchema);
-
-// export default T3PLModel;
+export default T3PLModel;

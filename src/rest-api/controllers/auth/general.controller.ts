@@ -174,7 +174,7 @@ export class GeneralAuthController {
   public logout = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
       await this.authService.logout(req);
-
+        console.log("kdkdkdddddd")
       return clearAuthCookies(res).status(HTTPSTATUS.OK).json({
         message: "Logout successful",
       });

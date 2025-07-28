@@ -6,7 +6,7 @@ export const riderResolvers = {
   Query: {
    riders: async (
       _: any,
-      { offset, limit, status }: { offset: number; limit: number; status: "APPROVED" | "PENDING" }
+      { offset, limit, status }: { offset: number; limit: number;  status:"APPROVED"|"PENDING"| "DENIED" }
     ) => {
      
       if (offset < 0) {
@@ -22,29 +22,16 @@ export const riderResolvers = {
         });
       }
 
-      
-      let accountStatusValue;
-      switch (status) {
-        case "APPROVED":
-          accountStatusValue = accountStatus.APPROVED;
-          break;
-        case "PENDING":
-          accountStatusValue = accountStatus.PENDING;
-          break;
-        default:
-          throw new UserInputError('Invalid status value', {
-            validValues: ["APPROVED", "PENDING"],
-          });
-      }
+     
 
       try {
         const [riders, totalCount] = await Promise.all([
-          RiderModel.find({ status: accountStatusValue })
+          RiderModel.find({ status })
             .sort({ createdAt: -1 })
             .skip(offset)
             .limit(limit)
             .lean(),
-          RiderModel.countDocuments({ status: accountStatusValue })
+          RiderModel.countDocuments({ status})
         ]);
 
         return {

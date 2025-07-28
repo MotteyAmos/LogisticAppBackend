@@ -125,6 +125,8 @@ export const updateRoleSchema = z.object({
 })
 
 export const roleId = z.string({required_error:"role id required"}).length(24,{message:"Invalid id"}).trim()
+export const IdSchema = z.string({required_error:"role id required"}).length(24,{message:"Invalid id"}).trim()
+
 export const PermissionId = z.string({required_error:"role id required"}).length(24, {message:"Invalid id"}).trim()
 export const staffId = z.string({required_error:"staff id required"}).length(24, {message:"Invalid id"}).trim()
 

@@ -68,12 +68,25 @@ export class RiderService {
       return "Rider's account approved successfully"
     }
     else if(dto.status == ApproveStatus.DENIED){
-      await RiderModel.findByIdAndDelete(dto.id)
-      return "Rider's account deleted successful"
+      rider.status = accountStatus.DENIED;
+      await rider.save()
+      return "Rider's account denied successful"
     }
 
-
   }
+
+  
+      public async deleteRider(id: String): Promise<String> {
+        const deletedRider = await RiderModel.findByIdAndDelete({ _id: id });
+    
+        if (!deletedRider) {
+          throw new BadRequestException(
+            "Rider does not exist",
+            ErrorCode.ROLE_NOT_FOUND
+          );
+        }
+        return "Rider account deleted successful";
+      }
 
 
 }

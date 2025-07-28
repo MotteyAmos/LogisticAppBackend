@@ -4,6 +4,7 @@ import { HTTPSTATUS } from "../../config/http.config.ts";
 import { vendorRegisterSchema } from "../../validators/auth/vendor.ts";
 import { VendorAuthService } from "../../services/auth/vendor.service.ts";
 import { approvalStatusSchema } from "../../validators/auth/rider.ts";
+import { IdSchema } from "../../validators/auth/general.ts";
 
 export class VendorAuthController {
   private vendorService: VendorAuthService;
@@ -44,4 +45,17 @@ export class VendorAuthController {
       });
     }
   );
+
+    public deleteVendor = asyncHandler(
+      async (req: Request, res: Response): Promise<any> => {
+        const { id } = req.params;
+        const _id = IdSchema.parse(id);
+    
+        const message = await this.vendorService.deleteVendor(_id)
+        return res.status(HTTPSTATUS.OK).json({
+          message,
+        });
+      }
+    );
+  
 }
