@@ -8,65 +8,7 @@ import { sevenDaysFromNow } from "../../../rest-api/utils/date-time.ts";
 export const userProfilePictureRootLoc = "https://s3.amazonaws.com/mybucket"
 
 
-// export const userProfileSchema = new Schema<userProfile>({
-//     fullName:{
-//         surname: {
-//             type: String,
-//             required: true,
-//             trim:true
-//         },
-//         firstName: {
-//             type:String,
-//             required:true,
-//             trim:true
-//         },
-//         middleName: {
-//             type:String,
-//             trim:true
-//         }
-       
-//     },
-//     contactDetails:{
-//         phoneNumber:{
-//             type:String,
-//             trim:true,
-//             required:true
-//         },
-//         email:{
-//             type:String,
-//             trim:true,
-//             unique:true,
-//             required: true
-//         }
-//     },
-//     address:{
-//         region:String,
-//         country:String,
-//         town:String,
-//         GPS_Address: String,
-//         nationalIdentification: new Schema({
-//             // type of nation identification card eg. voter's id, GH-card etc
-//             type:String,
-//             // id value or number
-//             value:String
-//         },{_id:false}),
-//     },
-//     emergencyInfo:{
-//         name: String,
-//         relationship:String,
-//         phoneNunber:String
-//     },
-//     password: {
-//         type:String,
-//         required: true,
-//         trim:true
-//     },
-//     picture:{
-//         type: String,
-//         // the v value should look something like this /123.png
-//         get: (v: String) => `${userProfilePictureRootLoc}${v}`
-//     }
-// },{_id:false})
+
 
 
 
