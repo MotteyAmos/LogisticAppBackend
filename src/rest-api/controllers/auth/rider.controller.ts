@@ -17,8 +17,7 @@ export class RiderController {
 
   public registration = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      console.log(req);
-
+    
       const riderInfo = riderRegistrationSchema.parse({
         userProfile: JSON.parse(req.body.userProfile || "{}"),
         professionalDetails: JSON.parse(req.body.professionalDetails || "{}"),

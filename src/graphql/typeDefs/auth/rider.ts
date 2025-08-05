@@ -57,7 +57,7 @@ export const riderTypeDefs = `#graphql
     }
 
     type Query{
-        riders(offset:Int!, limit:Int!, status:Status!): RiderPositiveResult
+        riders(offset:Int!, limit:Int!, status:Status!,search:String!): RiderPositiveResult
         rider(id: ID!): Rider
     }
 

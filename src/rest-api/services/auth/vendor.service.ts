@@ -4,7 +4,7 @@ import VendorModel from "../../../database/models/auth/vendorModel";
 import { vendorRegisterDto } from "../../types/auth/vendor";
 import { generateApiKey } from "generate-api-key";
 import { hashValue } from "../../utils/auth/bcryptEn";
-import { storeVendorFileToS3 } from "../../middleware/auth/fileUpload";
+import { storeVendorFileToS3 } from "../../middleware/fileUpload";
 import { Request } from "express";
 import { accountStatus, ApproveStatus } from "../../enum/general";
 import { ApprovalStatusDTO } from "../../types/auth/generalTypes";

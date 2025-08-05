@@ -27,9 +27,10 @@ const enum ErrorCode {
     FORBIDDEN= "FORBIDDEN",
     PERMISSION_IN_USE = "PERMISSION_IN_USE",
     INCORRECT_EMAIL= "INCORRECT_EMAIL",
-    ABUSE="ABUSE"
+    ABUSE="ABUSE",
     
 
+    MISSING_FIELDS = "MISSING_FIELDS"
 }
 
 export {ErrorCode};

@@ -1,5 +1,7 @@
 import { Document } from "mongoose";
 import { OrderAssignedTo, orderStatus } from "../../enum/orders";
+import { Request } from "express";
+
 
 export interface IOrder extends Document {
   orderDate?: Date;
@@ -31,15 +33,15 @@ export interface IOrder extends Document {
 
 export interface IAddOrder{
   destination: String;
-  productDescription:String
+  productDescription?:String
   location?: {
     lat: Number;
     lng: Number;
   };
   recipientName: String;
   recipientNumber: String;
-  paymentAmount: Number;
-  deliveryFee?: Number;
+  paymentAmount: String;
+  deliveryFee?: String;
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String
@@ -48,11 +50,19 @@ export interface IAddOrder{
     type: OrderAssignedTo,
     entityAssignedId: String
   },
-  productImage?: {
-    imageFile?:String,
-    imageUrl?:String
-  };
+  productImage?:String
+  //  {
+  //   imageFile?:String,
+  //   imageUrl?:String
+  // };
 }
+
+
+
+
+
+
+export interface AddSingleOrderDTO  {req:Request, body: IAddOrder}
 
 export  type AddOrderDTO = IAddOrder[]
 
@@ -79,10 +89,11 @@ interface UpdatedAbleOptions{
     type?: OrderAssignedTo,
     entityAssignedId?: String
   },
-  productImage?: {
-    imageFile?:String,
-    imageUrl?:String
-  }
+  productImage?:String
+  //  {
+  //   imageFile?:String,
+  //   imageUrl?:String
+  // }
   rejectedReason?:String
 }
 

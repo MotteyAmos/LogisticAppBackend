@@ -1,40 +1,154 @@
 import { OrderIdPoolModel } from "../../../database/models/orders/orderIdPool";
 import OrderModel from "../../../database/models/orders/orderModule";
-import { AddOrderDTO, DeleteOrderIdDTO, IUpdateOrderDTO } from "../../types/orders/general";
+import { OrderImageUploadToS3 } from "../../middleware/fileUpload";
+import { Request, Response } from "express";
+import {
+  AddOrderDTO,
+  AddSingleOrderDTO,
+  DeleteOrderIdDTO,
+  IAddOrder,
+  IUpdateOrderDTO,
+} from "../../types/orders/general";
 import { BadRequestException } from "../../utils/catch-error";
 import { incrementOrderId } from "../../utils/orders/generateOrderId";
 import { indexToOrderId } from "../../utils/orders/IndexToOrderId";
 import { numberToOrderId } from "../../utils/orders/numberToOrderId";
 import { orderIdToNumber } from "../../utils/orders/orderIdToNumber";
+import { parseCSV, parseExcel } from "../../utils/orders/excleCsvParser";
+import { PathLike } from "fs";
+import { AppError } from "../../utils/AppError";
+import { ErrorCode } from "../../enum/errorCode";
+import { BulkWriteResult, WriteError } from "mongodb";
 
 export class GeneralOrderService {
-  public async addSingleOrder(orderDTO: AddOrderDTO) {
-    // this.createOrderIdPool()
-  
+  public async addSingleOrder(orderDTO: AddSingleOrderDTO) {
+    const orderId = await this.assignOrderId();
+
+    const order = await OrderModel.create({
+      ...orderDTO.body,
+      orderId: orderId,
+    });
+
+    if (orderDTO?.req?.file) {
+      const orderImageUri = await OrderImageUploadToS3(
+        order._id as String,
+        orderDTO.req
+      );
+
+      order.productImage = orderImageUri as String;
+    }
+
+    await order.save();
+
+    return "Order uploaded successful";
+  }
+
+  public async uploadOrderByCsvExcell(req: Request, res: Response) {
+    const filePath = req?.file?.path;
+    const originalName = req?.file?.originalname;
+
+    if (originalName?.endsWith(".csv")) {
+      const { orders, errors } = await parseCSV(filePath as PathLike);
+
+      if (errors.length > 0) {
+        throw new BadRequestException(
+          `${errors[0]?.message} on row number ${errors[0]?.row}`,
+          ErrorCode.MISSING_FIELDS
+        );
+      }
+
+      const { success, failed } = await this.addBulkOrders(orders);
+        console.log(success)
+      if (failed.length > 0) {
+        console.error("Failed orders:");
+        throw new AppError("Sorry an error while saving some of the orders")
+        // failed.forEach((f) => {
+
+        //   console.log(`- Order ${f.index + 1}: ${f.errorMessage}`);
+        //   console.log(`  Document: ${JSON.stringify(f.document)}`);
+        // });
+      }
+
+      return "Orders uploaded successfully"
+
+   
+    } else if (originalName?.endsWith(".xls") || originalName?.endsWith(".xlsx") ) {
+      const { orders, errors } = parseExcel(filePath as string);
+
+      if (errors.length > 0) {
+        throw new BadRequestException(
+          `${errors[0]?.message} on row number ${errors[0]?.row}`,
+          ErrorCode.MISSING_FIELDS
+        );
+      }
+
+       const { success, failed } = await this.addBulkOrders(orders);
+        console.log(success)
+
+      if (failed.length > 0) {
+        console.error("Failed bulk orders:");
+        throw new AppError("Sorry an error while saving some of the orders")
+        // failed.forEach((f) => {
+
+        //   console.log(`- Order ${f.index + 1}: ${f.errorMessage}`);
+        //   console.log(`  Document: ${JSON.stringify(f.document)}`);
+        // });
+      }
+
+      return "Orders uploaded successfully"
+
+
+    } else {
+      // console.log("an error occured");
+      throw new AppError("Unsupported file type");
+      // res.status(400).json({ error: "Unsupported file type" });
+    }
+  }
+
+  private async addBulkOrders(orderDTO: IAddOrder[]) {
     const orderBulk = OrderModel.collection.initializeUnorderedBulkOp();
+
+    const documentsByIndex = new Map<number, IAddOrder>();
+    let index = 0;
 
     for (const order of orderDTO) {
       const orderId = await this.assignOrderId();
 
-      let productImage;
-      if (order?.productImage?.imageUrl) {
-        productImage = order.productImage.imageUrl;
-      } else if (order?.productImage?.imageFile) {
-        // upload image to S3 and assign to productImage
-        // productImage = await uploadToS3(order.productImage.imageFile);
+      index += 1;
+      orderBulk.insert({ ...order, orderId });
+      documentsByIndex.set(index, order);
+    }
+
+    try {
+      const result = await orderBulk.execute();
+
+      // Get inserted count from result (new way)
+      const successCount = result.insertedCount;
+
+      if (result.hasWriteErrors()) {
+        const errors = result.getWriteErrors().map((err) => ({
+          index: err.index,
+          errorCode: err.code,
+          errorMessage: err.errmsg,
+          document: documentsByIndex.get(err.index),
+        }));
+
+        return {
+          success: successCount,
+          failed: errors,
+        };
       }
 
-      orderBulk.insert({ ...order, orderId, productImage });
-    }
-
-    if (orderDTO.length > 0) {
-      await orderBulk.execute();
-    }
-
-    if (orderDTO.length === 1) {
-      return "Order added successful";
-    } else {
-      return "Orders added successul";
+      return {
+        success: successCount,
+        failed: [],
+      };
+    } catch (err) {
+      return {
+        success: 0,
+        failed: [],
+        error: err instanceof Error ? err.message : "Unknown error",
+      };
     }
   }
 
@@ -87,33 +201,33 @@ export class GeneralOrderService {
     }
   }
 
-  public async deleteOrders(orders:DeleteOrderIdDTO){
-// I used this approach to get high performance
-    const _ids = orders.map(order=>order.id)    
-    const ordersToDelete = await OrderModel.find({_id: {$in: _ids}}).lean(); // lean() makes it faster
+  public async deleteOrders(orders: DeleteOrderIdDTO) {
+    // I used this approach to get high performance
+    const _ids = orders.map((order) => order.id);
+    const ordersToDelete = await OrderModel.find({ _id: { $in: _ids } }).lean(); // lean() makes it faster
 
-    if (ordersToDelete.length ===0){
-        throw new BadRequestException("No orders found matching criteria")
+    if (ordersToDelete.length === 0) {
+      throw new BadRequestException("No orders found matching criteria");
     }
 
-    const deleteResult = await OrderModel.deleteMany({_id: {$in: _ids}});
+    const deleteResult = await OrderModel.deleteMany({ _id: { $in: _ids } });
 
-    const orderPollBulk = OrderIdPoolModel.collection.initializeUnorderedBulkOp();
+    const orderPollBulk =
+      OrderIdPoolModel.collection.initializeUnorderedBulkOp();
 
-    for (const order of ordersToDelete){
-      const orderId = order.orderId
-      orderPollBulk.find({ orderId: orderId }).update({ $set: {assigned:false} });
-
-    }
-  
-    orderPollBulk.execute()
-    
-
-    if (orders.length >1){
-      return "Orders delete successful"
-    }else{
-      return "Order deleted successful"
+    for (const order of ordersToDelete) {
+      const orderId = order.orderId;
+      orderPollBulk
+        .find({ orderId: orderId })
+        .update({ $set: { assigned: false } });
     }
 
+    orderPollBulk.execute();
+
+    if (orders.length > 1) {
+      return "Orders delete successful";
+    } else {
+      return "Order deleted successful";
+    }
   }
 }

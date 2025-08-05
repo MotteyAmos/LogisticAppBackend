@@ -1,7 +1,7 @@
 import RiderModel from "../../../database/models/auth/RiderModel";
 import { ErrorCode } from "../../enum/errorCode";
 import { accountStatus, ApproveStatus, Gender } from "../../enum/general";
-import { storeRiderFileToS3 } from "../../middleware/auth/fileUpload";
+import { storeRiderFileToS3 } from "../../middleware/fileUpload";
 import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
 import { RiderRegistrationDTO } from "../../types/auth/rider";
 import { BadRequestException } from "../../utils/catch-error";

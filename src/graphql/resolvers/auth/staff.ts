@@ -1,7 +1,7 @@
 import StaffModel from "../../../database/models/auth/staffs.Model";
 import { escapeRegex } from "../../../rest-api/utils/general";
 import { UserInputError } from "../../utils/catch-error";
-import { PipelineStage } from 'mongoose';
+import { PipelineStage } from "mongoose";
 
 export const staffResolves = {
   Query: {
@@ -27,7 +27,7 @@ export const staffResolves = {
       }
 
       const searchRegex = new RegExp(escapeRegex(search.trim()), "i");
-      const filterBy:PipelineStage[] = [
+      const filterBy: PipelineStage[] = [
         {
           $lookup: {
             from: "roles",
@@ -113,7 +113,7 @@ export const staffResolves = {
 
     staff: async (_: any, { id }: { id: String }) => {
       const staffs = await StaffModel.findById(id)
-        .populate({ path: "role", populate: { path: "permissions" }})
+        .populate({ path: "role", populate: { path: "permissions" } })
         .exec();
       return staffs;
     },

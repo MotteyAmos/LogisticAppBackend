@@ -4,7 +4,7 @@ import { staffsController, generalController, vendorController, riderController,
 
 import { isAuthorized } from "../middleware/auth/authorized.ts";
 import { Role } from "../enum/general.ts";
-import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/auth/fileUpload.ts";
+import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/fileUpload.ts";
 import { canCreateRole } from "../middleware/auth/permissions.ts";
 
 

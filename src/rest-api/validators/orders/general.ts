@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { OrderAssignedTo, OrderSource, orderStatus } from "../../enum/orders";
 
-export const addOrderSchema =z.array(
- z.object({
+
+
+export const addSingleOrderSchema =  z.object({
   destination: z.string(),
-  productDescription: z.string({
-    required_error: "Product description required",
-  }),
+  productDescription: z.string().optional(),
   location: z
     .object({
       lat: z.number(),
@@ -19,8 +18,8 @@ export const addOrderSchema =z.array(
     required_error: "Recipient phone number required",
   }),
 
-  paymentAmount: z.number({ required_error: "Payment amount required" }),
-  deliveryFee: z.number({ required_error: "Delivery fee required" }).optional(),
+  paymentAmount: z.string({ required_error: "Payment amount required" }),
+  deliveryFee: z.string({ required_error: "Delivery fee required" }).optional(),
 
   source: z.object({
     type: z.nativeEnum(OrderSource),
@@ -39,14 +38,20 @@ export const addOrderSchema =z.array(
     })
     .optional(),
 
-  productImage: z
-    .object({
-      imageFile: z.string().optional(),
-      imageUrl: z.string().optional(),
-    })
-    .optional(),
+  // productImage:z.string().optional()
+  //  z
+  //   .object({
+  //     imageFile: z.string().optional(),
+  //     imageUrl: z.string().optional(),
+  //   })
+  //   .optional(),
 })
+
+
+
+export const addOrderSchema =z.array(addSingleOrderSchema
 )
+
 
 
 export const updateOrderSchema = z.array(

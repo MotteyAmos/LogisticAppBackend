@@ -1,0 +1,8 @@
+Order Date, Time,Order ID,Destination,Recipient,Recipient's Tel,Payment Amt,Status,Vendor,3PLs,Delivery Fee,Delivery Date,Order Image
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Completed","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Rejected","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","In Progress","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Completed","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Failed","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Assigned","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""
+"21-12-2024, 01:53","A0M600","Tema newton, Hse No 36b, Greater Accra","Ama Nelson","+233 54 786 6565","GHC350.00","Returned","Ishtari Ghana","Robert","GHC350.00","21-12-2024",""

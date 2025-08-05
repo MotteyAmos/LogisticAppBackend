@@ -1,9 +1,9 @@
 import multer from "multer";
 import { Request, Response } from "express";
-import { BadRequestException } from "../../utils/catch-error";
+import { BadRequestException } from "../utils/catch-error";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import sharp from "sharp";
-import { appConfig } from "../../config/app.config";
+import { appConfig } from "../config/app.config";
 
 const S3 = new S3Client({
   credentials: {
@@ -126,6 +126,7 @@ export const VendorUploadFile = multer({
   }
 });
 
+
 export const storeVendorFileToS3 = async (
   vendorId: String,
   req: Request
@@ -182,3 +183,57 @@ export const storeT3PLFileToS3 = async (
 
   return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
 };
+
+
+
+export const OrderImageUploadFile = multer({
+  storage,
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype.startsWith("image")) {
+      cb(null, true);
+    } else {
+      req.invalidFiles = [file.fieldname];
+      cb(
+        new BadRequestException(
+          `Unsupported file format under the field ${file.fieldname}`
+        )
+      );
+    }
+  },
+   limits:{
+    fileSize: 1 * 1024 * 1024
+  }
+});
+
+
+export const OrderImageUploadToS3 = async (
+  sourceId: String,
+  req: Request
+): Promise<String> => {
+  if (req.invalidFiles) {
+    throw new BadRequestException(
+      `File you uploaded under the field ${req.invalidFiles[0]} is not supported. Please provide an image or pdf`
+    );
+  }
+
+  const file = req.file;
+
+  const fileKey = `OrdersDoc/${sourceId}-${file?.originalname}`;
+
+  const params = {
+    Bucket: appConfig.S3_NAME,
+    Key: fileKey,
+    Body: file?.buffer,
+    ContentType: file?.mimetype,
+  };
+
+  const command = new PutObjectCommand(params);
+
+  S3.send(command);
+
+  return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
+};
+
+
+
+export const uploadOrder = multer({ dest: 'uploads/' });
