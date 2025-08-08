@@ -4,10 +4,12 @@ import { Request, Response } from "express";
 import {
   addOrderSchema,
   addSingleOrderSchema,
+  assignToSchema,
   deleteOrderSchema,
   updateOrderSchema,
 } from "../../validators/orders/general";
 import { HTTPSTATUS } from "../../config/http.config";
+import { IdSchema } from "../../validators/auth/general";
 
 export class GeneralOrderController {
   private orderService: GeneralOrderService;
@@ -65,4 +67,31 @@ export class GeneralOrderController {
       });
     }
   );
+
+  public assignTo = asyncHandler(
+    async (req:Request, res:Response): Promise<any> =>{
+      console.log(req.body)
+      const assignToBody = assignToSchema.parse(req.body);
+
+      const msg = await this.orderService.assignOrder(assignToBody);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  )
+
+
+    public OrderInTransit = asyncHandler(
+    async (req:Request, res:Response): Promise<any> =>{
+      const { id } = req.params;
+      const _id= IdSchema.parse(id)
+
+      const msg = await this.orderService.OrderInTransit(_id);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  )
 }

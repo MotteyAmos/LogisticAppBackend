@@ -1,6 +1,7 @@
-import { Document } from "mongoose";
-import { OrderAssignedTo, orderStatus } from "../../enum/orders";
+import { Document,Types } from "mongoose";
+import { OrderAssignedTo, orderStatus, PaymentStatus } from "../../enum/orders";
 import { Request } from "express";
+import { Schema } from "zod";
 
 
 export interface IOrder extends Document {
@@ -17,17 +18,17 @@ export interface IOrder extends Document {
   paymentAmount: Number;
   deliveryFee?: Number;
   status?: orderStatus;
+  paymentStatus?: PaymentStatus,
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String
   };
-  assignedTo:{
-    type:String,
-    entityAssignedId:String
-  } ;
+  assignedTo?:Types.ObjectId;
+  assignToModelName?: "Rider"|"T3PL";
   deliveryDate?: Date;
   productImage?: String;
   rejectedReasons?:String
+  confirmDeliverOTP?:String
 }
 
 
@@ -42,14 +43,13 @@ export interface IAddOrder{
   recipientNumber: String;
   paymentAmount: String;
   deliveryFee?: String;
+  status?:String;
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String
   };
-  assignedTo?:{
-    type: OrderAssignedTo,
-    entityAssignedId: String
-  },
+  // assignedTo?:Types.ObjectId;
+  // assignToModelName?: "Rider"|"Rider";
   productImage?:String
   //  {
   //   imageFile?:String,
@@ -85,10 +85,8 @@ interface UpdatedAbleOptions{
     vendorID?:String
   };
   deliveryDate?:String
-  assignedTo?:{
-    type?: OrderAssignedTo,
-    entityAssignedId?: String
-  },
+  assignedTo?:Types.ObjectId;
+  assignToModelName?: "Rider"|"T3PL";
   productImage?:String
   //  {
   //   imageFile?:String,
@@ -97,6 +95,13 @@ interface UpdatedAbleOptions{
   rejectedReason?:String
 }
 
+
+export interface AssignOrderDTO{
+  orderId:String,
+  deliveryFee: Number,
+  assignToID: String,
+  assignToModelName:"Rider" | "T3PL"
+}
 export  type IUpdateOrderDTO = UpdatedAbleOptions[]
 
 interface delOrder{

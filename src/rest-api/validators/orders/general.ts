@@ -26,17 +26,13 @@ export const addSingleOrderSchema =  z.object({
     vendorID: z.string().optional(),
   }),
 
-  assignedTo: z
-    .object({
-      type: z.nativeEnum(OrderAssignedTo),
-      entityAssignedId: z
-        .string({
-          required_error:
-            "Provide the id of the entity you want to assign order to (3PL | Rider) id",
-        })
-        .length(24, { message: "Invalid (3PL or Rider) id" }),
-    })
-    .optional(),
+
+  // assignedTo: z.string({
+  //         required_error:
+  //           "Provide the id of the entity you want to assign order to (3PL | Rider) id",
+  //       })
+  //       .length(24, { message: "Invalid (3PL or Rider) id" }).optional()
+    
 
   // productImage:z.string().optional()
   //  z
@@ -95,3 +91,16 @@ export const deleteOrderSchema = z.array(
     orderId:z.string()
   })
 )
+
+export const assignToSchema = z.object({
+  orderId: z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+  deliveryFee: z.number({required_error:"Delivery fee is required"}),
+
+  assignToID: z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+  assignToModelName: z.enum(["T3PL","Rider"])
+})
+

@@ -3,7 +3,7 @@ import { IAddOrder } from "../../types/orders/general";
 import {parse} from "csv-parse";
 import xlsx from "xlsx";
 import { BadRequestException, HttpException } from "../catch-error";
-import { OrderSource } from "../../enum/orders";
+import { OrderSource, orderStatus } from "../../enum/orders";
 import { AppError } from "../AppError";
 
 interface ICSVError {
@@ -59,6 +59,8 @@ export async function parseCSV(filePath: PathLike): Promise<{ orders: IAddOrder[
           }
 
           row["source"]= { type: OrderSource.SELF}
+          row["status"] = orderStatus.ORDER_PLACED
+
           // // Transform/validate data types
           // if (row.lat && row.lng) {
           //   row.location = {
@@ -197,6 +199,7 @@ export function parseExcel(filePath: string): IParseResult {
           source: {
             type: rowData.source_type || 'SELF',
           },
+          status: orderStatus.ORDER_PLACED
         };
 
         if (rowData.productDescription) order.productDescription = rowData.productDescription;

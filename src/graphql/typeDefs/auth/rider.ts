@@ -49,6 +49,8 @@ export const riderTypeDefs = `#graphql
         createdAt: DateTime
     }
 
+    
+
        type RiderPositiveResult{
         data:[Rider]
         totalCount: Int

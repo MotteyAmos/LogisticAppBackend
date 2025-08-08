@@ -6,6 +6,9 @@ import { staffResolves } from "./auth/staff.ts";
 import { vendorResolves } from "./auth/vendor.ts";
 import { orderResolvers } from "./order/general.ts";
 import { riderResolvers } from "./auth/rider.ts";
+import { T3plResolves } from "./auth/T3pl.ts";
+
+
 
 export const mergedResolvers: IResolvers = mergeResolvers([
   scalarResolvers,
@@ -13,5 +16,6 @@ export const mergedResolvers: IResolvers = mergeResolvers([
   staffResolves,
   vendorResolves,
   riderResolvers,
-  orderResolvers
+  orderResolvers,
+  T3plResolves
 ]);

@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { IOrder } from "../../../rest-api/types/orders/general";
-import { OrderSource, orderStatus } from "../../../rest-api/enum/orders";
+import { OrderSource, orderStatus, PaymentStatus } from "../../../rest-api/enum/orders";
 
 const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   orderDate: {
@@ -44,7 +44,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   status: {
     type: String,
     enum: Object.values(orderStatus),
-    default: orderStatus.PENDING,
+    default: orderStatus.ORDER_PLACED,
   },
   source:{
     type: {
@@ -57,19 +57,28 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
         ref:"Vendor"
     }
   },
-  assignedTo: new Schema({
-    type:{
-      type:String
-    },
-    entityAssignedId:{
-      type:Schema.Types.ObjectId
-    }
-  },{_id:false}) ,
+  assignedTo:{
+    type:Schema.Types.ObjectId,
+    refPath: "assignToModelName"
+  },
+  assignToModelName:{
+    type:String,
+    enum:["Rider","T3PL"]
+  },
+ 
   deliveryDate: {
     type: Date,
   },
+  paymentStatus:{
+    type:String,
+    enum: Object.values(PaymentStatus),
+    default: PaymentStatus.PENDING
+  },
   productImage: {
     type: String,
+  },
+  confirmDeliverOTP:{
+    type:String
   },
   rejectedReasons:{
     type:String
@@ -81,3 +90,13 @@ const OrderModel = model<IOrder>("Order", OrderSchema);
 
 
 export default OrderModel;
+
+
+//  assignedTo: new Schema({
+//     type:{
+//       type:String
+//     },
+//     entityAssignedId:{
+//       type:Schema.Types.ObjectId
+//     }
+//   },{_id:false}) ,

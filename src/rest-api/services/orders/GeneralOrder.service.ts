@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import {
   AddOrderDTO,
   AddSingleOrderDTO,
+  AssignOrderDTO,
   DeleteOrderIdDTO,
   IAddOrder,
   IUpdateOrderDTO,
@@ -19,6 +20,12 @@ import { PathLike } from "fs";
 import { AppError } from "../../utils/AppError";
 import { ErrorCode } from "../../enum/errorCode";
 import { BulkWriteResult, WriteError } from "mongodb";
+
+import { assignToSchema } from "../../validators/orders/general";
+import { Types } from "mongoose";
+import { orderStatus } from "../../enum/orders";
+import { sendMessage } from "../../utils/SNS";
+import { generateRandomNumber } from "../../utils/generateRandomNumber";
 
 export class GeneralOrderService {
   public async addSingleOrder(orderDTO: AddSingleOrderDTO) {
@@ -83,7 +90,7 @@ export class GeneralOrderService {
       }
 
        const { success, failed } = await this.addBulkOrders(orders);
-        console.log(success)
+     
 
       if (failed.length > 0) {
         console.error("Failed bulk orders:");
@@ -230,4 +237,45 @@ export class GeneralOrderService {
       return "Order deleted successful";
     }
   }
+
+
+  public async assignOrder(assignDTO:AssignOrderDTO){
+
+    const order = await OrderModel.findById(assignDTO.orderId);
+
+    if (!order){
+      throw new BadRequestException("Order does not exist");
+    }
+
+    order.assignedTo = assignDTO.assignToID as unknown as Types.ObjectId;
+    order.assignToModelName = assignDTO.assignToModelName 
+    order.deliveryFee =assignDTO.deliveryFee 
+    order.status = orderStatus.ASSIGNED
+    await order.save()
+
+    return "Order assign successful"
+  }
+
+    public async OrderInTransit(orderId:String){
+
+    const order = await OrderModel.findById(orderId);
+
+    if (!order){
+      throw new BadRequestException("Order does not exist");
+    }
+
+
+
+    order.status = orderStatus.IN_TRANSIT
+
+    const otp = generateRandomNumber()
+    await sendMessage({msg:otp,to:""})
+    
+    order.confirmDeliverOTP = otp
+    await order.save()
+
+    return "Order In Transit"
+  }
+
+  
 }

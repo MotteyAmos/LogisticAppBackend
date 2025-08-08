@@ -13,6 +13,13 @@ route.delete("/",generalController.deleteOrder)
 
 
 
-route.post("/uploadByCsvExcel",(req,res,next)=>{console.log(req);next()},  uploadOrder.single("Orders"),  generalController.uploadOrderByCsvExcell)
+route.post("/uploadByCsvExcel", uploadOrder.single("Orders"),  generalController.uploadOrderByCsvExcell)
+route.patch("/assignTo",generalController.assignTo)
+route.patch("/transit/:id", generalController.OrderInTransit)
+
+
+
+
+
 export const orderRoute = route;
 

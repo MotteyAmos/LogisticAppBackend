@@ -2,7 +2,6 @@
 
 
 export const generalOrderTypeDef = `#graphql
-
     type Location {
         lat:Float
         lng:Float
@@ -13,10 +12,9 @@ export const generalOrderTypeDef = `#graphql
         vendorID:ID
     }
 
-    type OrderAssignedTo{
-        type:String
-        entityAssignedId:ID
-    }
+ 
+    union AssignedTo = Rider | T3PL
+
 
     type Order{
         _id:ID
@@ -29,10 +27,11 @@ export const generalOrderTypeDef = `#graphql
         recipientNumber:String
         paymentNumber:String
         paymentAmount:Float 
+        paymentStatus:String
         deliveryFee: Float
         status:String
         source: OrderSource
-        assignedTo:OrderAssignedTo
+        assignedTo:AssignedTo 
         deliveryDate: DateTime 
         productImage:String 
         rejectedReasons:String 

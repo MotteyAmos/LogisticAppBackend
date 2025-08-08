@@ -5,6 +5,8 @@ import { staffTypeDefs } from "./auth/staff.ts";
 import { vendorTypeDefs } from "./auth/vendor.ts";
 import { generalOrderTypeDef } from "./order/general.ts";
 import { riderTypeDefs } from "./auth/rider.ts";
+import { T3plTypeDefs } from "./auth/T3PL.ts";
+
 
 export const mergedTypeDefs = mergeTypeDefs([
   scalarTypeDefs,
@@ -12,5 +14,6 @@ export const mergedTypeDefs = mergeTypeDefs([
   staffTypeDefs,
  vendorTypeDefs,
  riderTypeDefs,
- generalOrderTypeDef
+ generalOrderTypeDef,
+ T3plTypeDefs
 ]);
