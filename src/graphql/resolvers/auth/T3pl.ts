@@ -6,7 +6,7 @@ import { PipelineStage } from "mongoose";
 
 export const T3plResolves = {
   Query: {
-    staffs:async (
+    T3pls:async (
       _: any,
       { offset, limit, status,search }: { offset: number; limit: number;  status:"APPROVED"|"PENDING"| "DENIED"; search:string }
     ) => {

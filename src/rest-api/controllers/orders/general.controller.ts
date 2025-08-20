@@ -6,10 +6,16 @@ import {
   addSingleOrderSchema,
   assignToSchema,
   deleteOrderSchema,
+  orderDeliveredSchema,
+  orderFailedSchema,
   updateOrderSchema,
 } from "../../validators/orders/general";
 import { HTTPSTATUS } from "../../config/http.config";
 import { IdSchema } from "../../validators/auth/general";
+import { getAuthCookies } from "../../utils/auth/cookies";
+import { UnauthorizedException } from "../../utils/catch-error";
+import OrderCounterModel from "../../../database/models/orders/OrderCounter";
+import { ErrorCode } from "../../enum/errorCode";
 
 export class GeneralOrderController {
   private orderService: GeneralOrderService;
@@ -20,11 +26,13 @@ export class GeneralOrderController {
 
   public addSingleOrder = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
+      
       const order = addSingleOrderSchema.parse({
         ...req.body,
         source: JSON.parse(req.body.source || "{}"),
       });
 
+ 
       const msg = await this.orderService.addSingleOrder({ req, body: order });
 
       return res.status(HTTPSTATUS.CREATED).json({
@@ -68,9 +76,22 @@ export class GeneralOrderController {
     }
   );
 
+  public deleteOneOrder = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const orderId = IdSchema.parse(req.params?.id);
+
+      const msg = await this.orderService.deleteOneOrder(orderId);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  );
+
+
   public assignTo = asyncHandler(
     async (req:Request, res:Response): Promise<any> =>{
-      console.log(req.body)
+     
       const assignToBody = assignToSchema.parse(req.body);
 
       const msg = await this.orderService.assignOrder(assignToBody);
@@ -94,4 +115,57 @@ export class GeneralOrderController {
       });
     }
   )
+
+  public OrderCompleted = asyncHandler(
+    async (req:Request,res:Response):Promise<any> =>{
+
+      const body = orderDeliveredSchema.parse(req?.body);
+
+      const msg = await this.orderService.OrderCompleted(body);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  )
+
+ 
+  public filedOrder = asyncHandler(
+    async (req:Request,res:Response):Promise<any> =>{
+
+      const body =orderFailedSchema.parse(req?.body);
+
+      const msg = await this.orderService.FiledOrder(body);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  )
+
+   public rejectedOrder = asyncHandler(
+    async (req:Request,res:Response):Promise<any> =>{
+
+      const body =orderFailedSchema.parse(req?.body);
+
+      const msg = await this.orderService.RejectedOrder(body);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  )
+
+  public createOrderCounter = asyncHandler(
+    async(req:Request, res:Response):Promise<any> =>{
+
+        const orderCounter = await OrderCounterModel.create(req.body);
+
+         return res.status(HTTPSTATUS.OK).json({
+       orderCounter
+      });
+    }
+  )
+
+
 }

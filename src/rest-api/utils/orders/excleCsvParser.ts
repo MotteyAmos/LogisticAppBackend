@@ -5,7 +5,8 @@ import xlsx from "xlsx";
 import { BadRequestException, HttpException } from "../catch-error";
 import { OrderSource, orderStatus } from "../../enum/orders";
 import { AppError } from "../AppError";
-
+import { Request } from "express";
+import { getPayloadFromAccessToken } from "../auth/cookies";
 interface ICSVError {
   row: number;
   message: string;
@@ -13,10 +14,11 @@ interface ICSVError {
 }
 
 
-export async function parseCSV(filePath: PathLike): Promise<{ orders: IAddOrder[]; errors: ICSVError[] }> {
+export async function parseCSV(filePath: PathLike, req:Request): Promise<{ orders: IAddOrder[]; errors: ICSVError[] }> {
   const orders: IAddOrder[] = [];
   const errors: ICSVError[] = [];
   let rowCount = 0;
+
 
   return new Promise((resolve, reject) => {
     const stream = fs.createReadStream(filePath)
@@ -58,6 +60,7 @@ export async function parseCSV(filePath: PathLike): Promise<{ orders: IAddOrder[
 
           }
 
+         
           row["source"]= { type: OrderSource.SELF}
           row["status"] = orderStatus.ORDER_PLACED
 

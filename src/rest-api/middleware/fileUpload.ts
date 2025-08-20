@@ -189,9 +189,12 @@ export const storeT3PLFileToS3 = async (
 export const OrderImageUploadFile = multer({
   storage,
   fileFilter: function (req, file, cb) {
+
     if (file.mimetype.startsWith("image")) {
       cb(null, true);
     } else {
+    
+
       req.invalidFiles = [file.fieldname];
       cb(
         new BadRequestException(

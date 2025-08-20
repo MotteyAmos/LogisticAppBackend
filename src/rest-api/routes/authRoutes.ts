@@ -2,27 +2,27 @@ import { Router,Response } from "express";
 import { staffsController, generalController, vendorController, riderController, T3PLController } from "../module/auth.module.ts";
 // import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
 
-import { isAuthorized } from "../middleware/auth/authorized.ts";
 import { Role } from "../enum/general.ts";
 import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/fileUpload.ts";
-import { canCreateRole } from "../middleware/auth/permissions.ts";
+import {  canCreateStaff } from "../middleware/auth/permissions.ts";
+import { verifyIsAuthenticated } from "../middleware/auth/verifyIsAuthenticated.ts";
 
 
 const route = Router();
 
 //don't forget only admin can create a role, so let work on it later
-route.post("/permission", generalController.createPermission)
-route.patch("/permission", generalController.updatePermission)
-route.delete("/permission/:id", generalController.deletePermission)
+// route.post("/permission", generalController.createPermission)
+// route.patch("/permission", generalController.updatePermission)
+// route.delete("/permission/:id", generalController.deletePermission)
 
-route.delete("/role/:id", generalController.deleteRole)
-route.post("/role", canCreateRole(),generalController.createRole)
-route.get("/roles", generalController.getRoles)
-route.patch("/role", generalController.updateRole)
+route.delete("/role/:id", canCreateStaff(), generalController.deleteRole)
+route.post("/role", canCreateStaff(),generalController.createRole)
+route.get("/roles",canCreateStaff(), generalController.getRoles)
+route.patch("/role",canCreateStaff(), generalController.updateRole)
 
-route.post("/staff",staffsController.register)
-route.patch("/staff", staffsController.updateStaff)
-route.delete("/staff/:id", staffsController.deleteStaff)
+route.post("/staff",canCreateStaff(),staffsController.register)
+route.patch("/staff",canCreateStaff(), staffsController.updateStaff)
+route.delete("/staff/:id",canCreateStaff(), staffsController.deleteStaff)
 
 route.post("/signin", generalController.login);
 route.post("/refreshToken", generalController.refreshToken);

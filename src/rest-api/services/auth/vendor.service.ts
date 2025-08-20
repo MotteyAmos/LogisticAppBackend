@@ -8,7 +8,10 @@ import { storeVendorFileToS3 } from "../../middleware/fileUpload";
 import { Request } from "express";
 import { accountStatus, ApproveStatus } from "../../enum/general";
 import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
-
+import { sendAccountCreatedEmail } from "../../utils/auth/emailTemplate";
+import { appConfig } from "../../config/app.config";
+import { getVendorInitials } from "../../utils/orders/generateVendorInitials";
+import OrderCounterModel from "../../../database/models/orders/OrderCounter";
 export class VendorAuthService {
   public async register(registerDto: {
     req: Request;
@@ -25,7 +28,7 @@ export class VendorAuthService {
       );
     }
 
-    const vendor = await VendorModel.create(registerDto.body);
+    const vendor = await VendorModel.create({...registerDto.body, tempPassword:registerDto.body.contactDetails.password});
 
     if (registerDto.req.file) {
       const bussinessLogoUri = await storeVendorFileToS3(
@@ -59,6 +62,45 @@ export class VendorAuthService {
 
     if (dto.status == ApproveStatus.APPROVE) {
       vendor.status = accountStatus.APPROVED;
+
+      // if admin is approving for the first time 
+      if (vendor.tempPassword.trim().length >0){
+        let vendorInitial = getVendorInitials(vendor.businessInfo.companyName);
+        let lastValue ="";
+
+        let vendorInitialExist =await OrderCounterModel.findOne({initials:vendorInitial})
+
+        if(vendorInitialExist){
+          const lastDigit = vendorInitialExist.initials?.split("")[vendorInitialExist.initials.length -1]
+
+          if (/^\d+$/.test(lastDigit as string)){
+            const count = Number(lastDigit) + 1;
+            lastValue  = `${count}`;
+          }else{
+              lastValue =`${2}`
+          }
+
+        }
+
+        const newOrderCounter = await OrderCounterModel.create({
+          vendorId: dto.id,
+          initials: (lastValue?.length >0) ? `${vendorInitial}${lastValue}` : vendorInitial,
+          source:"VENDOR"
+        })
+      }
+
+      const passwordInfo = vendor.tempPassword.trim().length >0 ? vendor.tempPassword:"Use your current password"
+      const {error}= await sendAccountCreatedEmail({
+            sender: appConfig.EMAIL,
+            recipientEmail: `${vendor.contactDetails.email}`,
+            recipientName: `${vendor.businessInfo.companyName}`,
+            recipientPassword: `${passwordInfo}`,
+            loginLink: `${appConfig.APP_ORIGIN}`,
+            
+          })
+
+         vendor.tempPassword = ""
+
 
       await vendor.save();
       return "Vendor's account approved successfully";

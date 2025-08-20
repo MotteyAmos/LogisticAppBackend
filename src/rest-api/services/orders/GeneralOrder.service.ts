@@ -10,7 +10,10 @@ import {
   IAddOrder,
   IUpdateOrderDTO,
 } from "../../types/orders/general";
-import { BadRequestException } from "../../utils/catch-error";
+import {
+  BadRequestException,
+  UnauthorizedException,
+} from "../../utils/catch-error";
 import { incrementOrderId } from "../../utils/orders/generateOrderId";
 import { indexToOrderId } from "../../utils/orders/IndexToOrderId";
 import { numberToOrderId } from "../../utils/orders/numberToOrderId";
@@ -23,25 +26,48 @@ import { BulkWriteResult, WriteError } from "mongodb";
 
 import { assignToSchema } from "../../validators/orders/general";
 import { Types } from "mongoose";
-import { orderStatus } from "../../enum/orders";
-import { sendMessage } from "../../utils/SNS";
+import { orderStatus, PaymentStatus } from "../../enum/orders";
+import { sendMessage } from "../../utils/SMS";
 import { generateRandomNumber } from "../../utils/generateRandomNumber";
+import {
+  getAuthCookies,
+  getPayloadFromAccessToken,
+} from "../../utils/auth/cookies";
+import OrderCounterModel from "../../../database/models/orders/OrderCounter";
 
 export class GeneralOrderService {
   public async addSingleOrder(orderDTO: AddSingleOrderDTO) {
-    const orderId = await this.assignOrderId();
+    const orderId = await this.assignOrderId(orderDTO.req);
 
-    const order = await OrderModel.create({
+    const payload = getPayloadFromAccessToken(orderDTO.req)
+
+
+    const order = 
+      payload.UserType !== "VENDOR"?
+    await OrderModel.create({
       ...orderDTO.body,
+      paymentAmount: Number.parseFloat(orderDTO?.body?.paymentAmount as string),
+      deliveryFee: orderDTO?.body?.deliveryFee ?  Number.parseFloat(orderDTO?.body?.deliveryFee as string): 0,
       orderId: orderId,
-    });
+
+    }):
+        await OrderModel.create({
+      ...orderDTO.body,
+      paymentAmount: Number.parseFloat(orderDTO?.body?.paymentAmount as string),
+      deliveryFee: orderDTO?.body?.deliveryFee ?  Number.parseFloat(orderDTO?.body?.deliveryFee as string): 0,
+      orderId: orderId,
+      source:{
+        type:"VENDOR",
+        vendorID: payload.userId
+      }
+    })
+
 
     if (orderDTO?.req?.file) {
       const orderImageUri = await OrderImageUploadToS3(
         order._id as String,
         orderDTO.req
       );
-
       order.productImage = orderImageUri as String;
     }
 
@@ -55,7 +81,7 @@ export class GeneralOrderService {
     const originalName = req?.file?.originalname;
 
     if (originalName?.endsWith(".csv")) {
-      const { orders, errors } = await parseCSV(filePath as PathLike);
+      const { orders, errors } = await parseCSV(filePath as PathLike, req);
 
       if (errors.length > 0) {
         throw new BadRequestException(
@@ -64,11 +90,11 @@ export class GeneralOrderService {
         );
       }
 
-      const { success, failed } = await this.addBulkOrders(orders);
-        console.log(success)
+      const { success, failed } = await this.addBulkOrders(orders,req);
+     
       if (failed.length > 0) {
-        console.error("Failed orders:");
-        throw new AppError("Sorry an error while saving some of the orders")
+    
+        throw new AppError("Sorry an error while saving some of the orders");
         // failed.forEach((f) => {
 
         //   console.log(`- Order ${f.index + 1}: ${f.errorMessage}`);
@@ -76,10 +102,11 @@ export class GeneralOrderService {
         // });
       }
 
-      return "Orders uploaded successfully"
-
-   
-    } else if (originalName?.endsWith(".xls") || originalName?.endsWith(".xlsx") ) {
+      return "Orders uploaded successfully";
+    } else if (
+      originalName?.endsWith(".xls") ||
+      originalName?.endsWith(".xlsx")
+    ) {
       const { orders, errors } = parseExcel(filePath as string);
 
       if (errors.length > 0) {
@@ -89,12 +116,11 @@ export class GeneralOrderService {
         );
       }
 
-       const { success, failed } = await this.addBulkOrders(orders);
-     
+      const { success, failed } = await this.addBulkOrders(orders,req);
 
       if (failed.length > 0) {
         console.error("Failed bulk orders:");
-        throw new AppError("Sorry an error while saving some of the orders")
+        throw new AppError("Sorry an error while saving some of the orders");
         // failed.forEach((f) => {
 
         //   console.log(`- Order ${f.index + 1}: ${f.errorMessage}`);
@@ -102,9 +128,7 @@ export class GeneralOrderService {
         // });
       }
 
-      return "Orders uploaded successfully"
-
-
+      return "Orders uploaded successfully";
     } else {
       // console.log("an error occured");
       throw new AppError("Unsupported file type");
@@ -112,17 +136,31 @@ export class GeneralOrderService {
     }
   }
 
-  private async addBulkOrders(orderDTO: IAddOrder[]) {
+  private async addBulkOrders(orderDTO: IAddOrder[],req:Request) {
     const orderBulk = OrderModel.collection.initializeUnorderedBulkOp();
-
+    const payload = getPayloadFromAccessToken(req)
     const documentsByIndex = new Map<number, IAddOrder>();
     let index = 0;
 
     for (const order of orderDTO) {
-      const orderId = await this.assignOrderId();
+      const orderId = await this.assignOrderId(req);
 
       index += 1;
-      orderBulk.insert({ ...order, orderId });
+      if (payload.UserType !=="VENDOR"){
+      orderBulk.insert({ ...order, orderId,
+        orderDate: new Date(),
+        createdAt:new Date(),
+        updatedAt:new Date()
+       });
+      } else{
+              orderBulk.insert({ ...order, orderId,
+        source:{
+            type:"VENDOR",
+            vendorID: payload.userId
+        }
+       });
+      }
+
       documentsByIndex.set(index, order);
     }
 
@@ -159,17 +197,58 @@ export class GeneralOrderService {
     }
   }
 
-  private async assignOrderId() {
-    const orderIdDoc = await OrderIdPoolModel.findOneAndUpdate(
-      { assigned: false },
-      { $set: { assigned: true } },
-      { new: true }
-    );
+  // private async assignOrderId() {
+  //   const orderIdDoc = await OrderIdPoolModel.findOneAndUpdate(
+  //     { assigned: false },
+  //     { $set: { assigned: true } },
+  //     { new: true }
+  //   );
 
-    if (!orderIdDoc)
-      throw new Error("No available Order IDs. Delete some of your orders");
+  //   if (!orderIdDoc)
+  //     throw new Error("No available Order IDs. Delete some of your orders");
 
-    return orderIdDoc.orderId;
+  //   return orderIdDoc.orderId;
+  // }
+
+  private async assignOrderId(req: Request) {
+    const payload = getPayloadFromAccessToken(req);
+
+    if (!payload.UserType) {
+      throw new UnauthorizedException(
+        "Expired access token",
+        ErrorCode.EXPIRED_ACCESS_TOKEN
+      );
+    }
+
+    if (payload.UserType === "STAFF") {
+      const counter = await OrderCounterModel.findOneAndUpdate(
+        { source: "SELF" },
+        { $inc: { lastOrderCounter: 1 } },
+        { upsert: true, returnDocument: "after" }
+      );
+      let orderNumber;
+      if (counter?.lastOrderCounter) {
+        orderNumber = counter?.lastOrderCounter?.toString().padStart(5, "0");
+      }
+      const orderId = `SELF${orderNumber}`;
+
+      return orderId;
+    } else if (payload.UserType === "VENDOR") {
+      const counter = await OrderCounterModel.findOneAndUpdate(
+        { vendorId: payload.userId },
+        { $inc: { lastOrderCounter: 1 } },
+        { upsert: true, returnDocument: "after" }
+      );
+
+      let orderId;
+      if (counter?.lastOrderCounter && counter?.initials) {
+        let orderNumber = counter?.lastOrderCounter
+          ?.toString()
+          .padStart(5, "0");
+        orderId = `${counter?.initials}${orderNumber}`;
+      }
+      return orderId;
+    }
   }
 
   private async createOrderIdPool() {
@@ -238,44 +317,120 @@ export class GeneralOrderService {
     }
   }
 
+  public async deleteOneOrder(orderId: String) {
+    const order = await OrderModel.findByIdAndDelete(orderId);
 
-  public async assignOrder(assignDTO:AssignOrderDTO){
+    if (!order) {
+      throw new BadRequestException("Order does not exist");
+    }
 
+    return "Order deleted successfull";
+  }
+
+  public async assignOrder(assignDTO: AssignOrderDTO) {
     const order = await OrderModel.findById(assignDTO.orderId);
 
-    if (!order){
+    if (!order) {
       throw new BadRequestException("Order does not exist");
     }
 
     order.assignedTo = assignDTO.assignToID as unknown as Types.ObjectId;
-    order.assignToModelName = assignDTO.assignToModelName 
-    order.deliveryFee =assignDTO.deliveryFee 
-    order.status = orderStatus.ASSIGNED
-    await order.save()
+    order.assignToModelName = assignDTO.assignToModelName;
+    order.deliveryFee = assignDTO.deliveryFee;
+    order.status = orderStatus.ASSIGNED;
+    await order.save();
 
-    return "Order assign successful"
+    return "Order assign successful";
   }
 
-    public async OrderInTransit(orderId:String){
-
+  public async OrderInTransit(orderId: String) {
     const order = await OrderModel.findById(orderId);
 
-    if (!order){
+    if (!order) {
       throw new BadRequestException("Order does not exist");
     }
 
+    order.status = orderStatus.IN_TRANSIT;
 
+    const otp = generateRandomNumber();
+    // const resul =await sendMessage({to:order?.recipientNumber as string,text:otp})
 
-    order.status = orderStatus.IN_TRANSIT
+    // return resul
+    // order.confirmDeliverOTP = otp
+    order.confirmDeliverOTP = "54321";
 
-    const otp = generateRandomNumber()
-    await sendMessage({msg:otp,to:""})
-    
-    order.confirmDeliverOTP = otp
-    await order.save()
+    await order.save();
 
-    return "Order In Transit"
+    return "Order In Transit";
   }
 
-  
+  public async OrderCompleted({
+    orderId,
+    otpCode,
+  }: {
+    orderId: String;
+    otpCode: String;
+  }) {
+    const order = await OrderModel.findById(orderId);
+
+    if (!order) {
+      throw new BadRequestException("Order does not exist");
+    }
+
+    if (order?.confirmDeliverOTP !== otpCode) {
+      throw new BadRequestException("Incorrect OTP code");
+    }
+
+    order.confirmDeliverOTP = "";
+
+    order.status = orderStatus.COMPLETED;
+    order.paymentStatus = PaymentStatus.PAID;
+    order.deliveryDate = new Date();
+
+    await order.save();
+    return "Order In Completed Successfully";
+  }
+
+  public async FiledOrder({
+    orderId,
+    remark,
+  }: {
+    orderId: String;
+    remark: String;
+  }) {
+    const order = await OrderModel.findById(orderId);
+
+    if (!order) {
+      throw new BadRequestException("Order does not exist");
+    }
+
+    order.rejectedReasons = remark;
+
+    order.status = orderStatus.FAILED;
+    order.deliveryDate = new Date();
+
+    await order.save();
+    return "Sorry for the bad news😔😔";
+  }
+
+  public async RejectedOrder({
+    orderId,
+    remark,
+  }: {
+    orderId: String;
+    remark: String;
+  }) {
+    const order = await OrderModel.findById(orderId);
+
+    if (!order) {
+      throw new BadRequestException("Order does not exist");
+    }
+
+    order.rejectedReasons = remark;
+
+    order.status = orderStatus.REJECTED;
+    order.deliveryDate = new Date();
+    await order.save();
+    return "Sorry for the bad news😔😔";
+  }
 }

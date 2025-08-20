@@ -6,7 +6,9 @@ import mongoose from "mongoose";
 export const emailSchema = z.string().trim().email({message:"Invalid email address"}).min(5).max(255);
 export const passwordSchema = z.string({required_error:"Password is required"}).trim().min(8,{message:"Minimum password length should be 8 characters"}).max(255);
 export const nameSchema =  z.string().trim().min(2).max(255)
-export const phoneNumberSchema = z.string({required_error:"phone number required"}).min(10,{message:"phone number length is incorrect"}).max(20);
+export const phoneNumberSchema = z.string({required_error:"phone number required"})
+
+// .min(10,{message:"phone number length is incorrect"})
 
 
 export const fullNameSchma= z.object(
@@ -81,7 +83,7 @@ export const financialInfoSchema = z.object({
         recipientName: nameSchema
     }).optional(),
     mobileMoneyAccount: z.object({
-        phoneNumber:phoneNumberSchema,
+        phoneNumber:phoneNumberSchema.optional(),
         recipientName: nameSchema
     }).optional()
 }).refine((val)=> val.bankAccountDetails || val.mobileMoneyAccount, {

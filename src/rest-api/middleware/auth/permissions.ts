@@ -10,12 +10,12 @@ import RoleModel from "../../../database/models/auth/RoleModel";
 
 
 
-export const canCreateRole = () => {
+export const canCreateStaff = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const create_role_permissionID_value = "686c105ddab000c00a555367";
+    const create_staff_permissionID_value = "689b716f75819fdee8a17fca";
 
     const { accessToken } = getAuthCookies(req);
-
+    
     if (!accessToken) {
       throw new UnauthorizedException(
         "Expired access token",
@@ -34,20 +34,20 @@ export const canCreateRole = () => {
       );
     }
 
-    const hasPermission = await RoleModel.find({
+  
+    const hasPermission = await RoleModel.findOne({
       _id: payload.roleId,
-      permissions: { $in: [create_role_permissionID_value] },
+      permissions: { $all: [create_staff_permissionID_value] },
     }).lean();
 
+    
     if (!hasPermission) {
-      console.log("has no permission-------------------");
+  
       throw new UnauthorizedException(
-        "Expired access token",
+        "You are not authorized to access this resource",
         ErrorCode.EXPIRED_ACCESS_TOKEN
       );
     }
-
-    console.log("has permsission----------------------");
 
     next();
   };

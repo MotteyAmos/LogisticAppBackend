@@ -30,7 +30,8 @@ export const generalOrderTypeDef = `#graphql
         paymentStatus:String
         deliveryFee: Float
         status:String
-        source: OrderSource
+        source:  Vendor
+     
         assignedTo:AssignedTo 
         deliveryDate: DateTime 
         productImage:String 
@@ -44,10 +45,18 @@ export const generalOrderTypeDef = `#graphql
         totalCount: Int 
         hasNextPage: Boolean  
         currentPage: Int
+        totalNumberOfOrders:Int
+        totalNumOfOderPlaced: Int
+        totalNumOfInTransit: Int
+        totalNumberOfAssigned: Int
+        totalNumberOfCompleted: Int
+        totalNumberOfReturned: Int
+        totalNumberOfFailed: Int
+        totalNumberOfRejected: Int
     }
 
     type Query{
-        orders(offset:Int!, limit:Int!, search: String!):OrdersPositiveResult
+        orders(offset:Int!, limit:Int!, search: String!,entityFilter:String!,orderIds:[String]):OrdersPositiveResult
         order(id:ID!):Order
     }
 

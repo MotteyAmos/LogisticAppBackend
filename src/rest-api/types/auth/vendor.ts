@@ -33,6 +33,7 @@ export interface vendorType extends mongoose.Document {
   businessInfo: vendorBusinessInfo;
   contactDetails: vendorContactDetailsType;
   financialDetails: financialInfo;
+  tempPassword: String;
   role: Role;
   status: accountStatus;
   preference: preference;

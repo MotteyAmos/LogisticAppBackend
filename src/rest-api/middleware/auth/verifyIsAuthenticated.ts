@@ -7,31 +7,26 @@ import InvalidTokenModel from "../../../database/models/auth/InvalidTokens.ts";
 import { verifyJwtToken } from "../../utils/auth/jwt.ts";
 import { JwtPayload } from "jsonwebtoken";
 import { Role } from "../../enum/general.ts";
+import { getAuthCookies } from "../../utils/auth/cookies.ts";
+import { ErrorCode } from "../../enum/errorCode.ts";
 
 
 
-export const verifyIsAuthenticated = asyncHandler(
+export const verifyIsAuthenticated = ()=>asyncHandler(
     async (req:Request, res:Response,next:NextFunction): Promise<any> =>{
 
-        const accessToken = req.headers?.authorization
+        const {accessToken, refreshToken} = getAuthCookies(req);
 
         if (!accessToken){
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Token expired", ErrorCode.EXPIRED_ACCESS_TOKEN);
         }
 
-        // remember the accesskey can still be valid even after user has logout, we mignt forget to delete it on the brower 
-        //  since we are not using cookies store at the backend.
-        //  so I'm storing users who have logout accesskey here for security reasons
-        const tokenIsInvalid = await InvalidTokenModel.findOne({invalidToken:accessToken})
         
-        if (tokenIsInvalid){
-            throw new UnauthorizedException()
-        }
-
-        const decodeAccessToken = await verifyJwtToken(accessToken) as JwtPayload;
+        const decodeAccessToken =  verifyJwtToken(accessToken) as JwtPayload;
         
         req.userId = decodeAccessToken?.payload?.userId;
-        req.role = decodeAccessToken?.payload?.role 
+        req.userType = decodeAccessToken?.payload?.UserType;
+
          next()
     }
 )

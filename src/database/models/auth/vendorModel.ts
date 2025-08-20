@@ -91,6 +91,10 @@ const vendorSchema = new Schema<vendorType>(
     businessInfo: businessInfoSchema,
     contactDetails: contactSchema,
     financialDetails: financialDetailSchema,
+    tempPassword:{
+      type:String,
+      default:""
+    },
     role: {
       type: String,
       enum: Object.values(Role),

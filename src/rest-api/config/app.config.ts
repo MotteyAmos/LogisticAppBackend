@@ -30,9 +30,8 @@ const config = ()=>({
     S3_REGION: getEnv("S3_REGION"),
     AWS_ACCESS_KEY: getEnv("AWS_ACCESS_KEY"),
     AWS_SECRET_ACCESS_KEY: getEnv("AWS_SECRET_ACCESS_KEY"),
-    TWILIO_SNS_SID: getEnv("TWILIO_SNS_SID"),
-    TWILIO_AUTH_TOKEN:getEnv("TWILIO_AUTH_TOKEN"),
-    TWILIO_SNS_SENDTO:getEnv("TWILIO_SNS_SENDTO")
+    SMS_API_KEY: getEnv("SMS_API_KEY"),
+    SMS_SECRET:getEnv("SMS_SECRET")
 })
 
 

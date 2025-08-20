@@ -41,7 +41,7 @@ export interface IAddOrder{
   };
   recipientName: String;
   recipientNumber: String;
-  paymentAmount: String;
+  paymentAmount:String;
   deliveryFee?: String;
   status?:String;
   source: {
@@ -77,8 +77,8 @@ interface UpdatedAbleOptions{
   };
   recipientName?: String;
   recipientNumber?: String;
-  paymentAmount?: Number;
-  deliveryFee?: Number;
+  paymentAmount?: String;
+  deliveryFee?: String;
   status?:orderStatus
   source?: {
     type?: "SELF"|"VENDOR",

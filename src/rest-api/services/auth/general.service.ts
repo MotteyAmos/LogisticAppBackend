@@ -14,6 +14,7 @@ import {
   loginDTO,
   PermsissionType,
   RoleDTO,
+  RoleType,
   SessionType,
   UpdatePermsissionDTO,
   UpdateRoleDto,
@@ -55,6 +56,8 @@ import VerificationCodeModel from "../../../database/models/auth/verificationCod
 import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
 import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
 import { RiderType } from "../../types/auth/rider.ts";
+import VendorModel from "../../../database/models/auth/vendorModel.ts";
+import { accountStatus } from "../../enum/general.ts";
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -212,25 +215,31 @@ export class GeneralAuthService {
   public async login(loginDTo: loginDTO) {
     const { email, password, userAgent, role } = loginDTo;
 
-    let user: IStaff | null = null;
+    let user: IStaff | vendorType | null = null;
 
+    let viewAbleTabs: String[] = [];
     if (role == "STAFF") {
       user = (await StaffModel.findOne({
         "userProfile.email": email,
-      })) as IStaff;
+      })
+        .populate({ path: "role", populate: { path: "permissions" } })
+        .exec()) as IStaff;
+
+      const roles = user?.role as RoleType;
+      const permissions = roles?.permissions as unknown as PermsissionType[];
+      viewAbleTabs = permissions?.map((perm) => {
+        return perm?.name;
+      });
+    } else if (role == "VENDOR") {
+      user = (await VendorModel.findOne({
+        "contactDetails.email": email,
+      })) as vendorType;
     }
-
-    //   else if (role == Role.VENDOR){
-
-    //       user = await VendorModel.findOne({
-    //           "userProfile.contactDetails.email":email
-    //       }) as vendorType
-
-    //   }else{
-    //       user = await T3PLModel.findOne({
-    //           "userProfile.contactDetails.email":email
-    //       }) as T3PLTypes
-    //   }
+    // else{
+    //     user = await T3PLModel.findOne({
+    //         "userProfile.contactDetails.email":email
+    //     }) as T3PLTypes
+    // }
 
     if (!user) {
       throw new BadRequestException(
@@ -262,16 +271,40 @@ export class GeneralAuthService {
     //     // send a verification code to user
     // }
 
-    const session = await SessionModel.create({
-      userId: user._id,
-      userAgent: userAgent,
-      roleId: user.role,
-    });
+    if (role == "VENDOR") {
+      const _user = user as vendorType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["Vendor","View Orders", "Add Order", "Cash on Delivery"];
+    }
+
+    let session
+    if (role == "STAFF") {
+       session = await SessionModel.create({
+        userId: user._id,
+        userAgent: userAgent,
+        roleId: user.role,
+        UserType: role,
+      });
+    } else {
+      session = await SessionModel.create({
+        userId: user._id,
+        userAgent: userAgent,
+        UserType: role,
+      });
+    }
+
 
     const accessToken = signToken({
       userId: user._id,
       sessionId: session._id,
-      roleId: user.role,
+      roleId: role == "STAFF" ? user.role : "",
+      UserType: role,
     } as AccessTokenPayloadType);
 
     const refreshToken = signToken(
@@ -280,6 +313,7 @@ export class GeneralAuthService {
     );
 
     return {
+      viewAbleTabs,
       user: user,
       accessToken,
       refreshToken,
@@ -336,8 +370,9 @@ export class GeneralAuthService {
 
     const accessToken = signToken({
       userId: session.userId,
-      roleId: session.roleId,
+      roleId: session?.roleId,
       sessionId: session._id,
+      UserType: session.UserType,
     } as AccessTokenPayloadType);
 
     return {
@@ -359,7 +394,7 @@ export class GeneralAuthService {
   public async forgotPassword(forgotPasswordDTO: forgotPasswordDTO) {
     const { email, role } = forgotPasswordDTO;
 
-    let user: IStaff | null = null;
+    let user: IStaff | vendorType | null = null;
 
     if (role == "STAFF") {
       user = (await StaffModel.findOne({

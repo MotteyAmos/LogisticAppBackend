@@ -1,5 +1,5 @@
 import mongoose, { Date } from "mongoose";
-import { auditingAndConfirmation, financialInfo, preference, SessionType,  updatePreference, updateUserProfile, userProfile } from "./generalTypes.ts";
+import { auditingAndConfirmation, financialInfo, preference, RoleType, SessionType,  updatePreference, updateUserProfile, userProfile } from "./generalTypes.ts";
 import { Role, accountStatus } from "../../enum/general.ts";
 import {z} from "zod"
 import { accountVerifySchema, staffsRegisterSchema } from "../../validators/auth/staffs.ts";
@@ -8,7 +8,7 @@ import { accountVerifySchema, staffsRegisterSchema } from "../../validators/auth
 
 export interface IStaff extends mongoose.Document{
         userProfile: userProfile,
-        role: mongoose.Types.ObjectId,
+        role: RoleType| mongoose.Types.ObjectId,
         // status: accountStatus,
         preference: preference,
         auditingAndConfirmation:auditingAndConfirmation,

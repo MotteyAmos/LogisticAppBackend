@@ -1,5 +1,6 @@
 import { GraphQLError } from 'graphql';
 import { ApolloServerErrorCode } from '@apollo/server/errors';
+import { ErrorCode } from '../../rest-api/enum/errorCode';
 
 export class UserInputError extends GraphQLError {
   constructor(message: string, properties?: Record<string, any>) {
@@ -19,6 +20,15 @@ export class ServerError extends GraphQLError {
         code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
       
       }
+    });
+  }
+}
+export class UnauthorizedException extends GraphQLError {
+  constructor(message: string, code: ErrorCode = ErrorCode.EXPIRED_ACCESS_TOKEN) {
+    super(message, {
+      extensions: {
+        code, 
+      },
     });
   }
 }

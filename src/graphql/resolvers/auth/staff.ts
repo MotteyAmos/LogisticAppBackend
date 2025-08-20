@@ -13,6 +13,8 @@ export const staffResolves = {
         search,
       }: { offset: number; limit: number; search: string }
     ) => {
+   
+
       if (offset < 0) {
         throw new UserInputError("Offset cannot be negative", {
           argumentName: "offset",
@@ -25,6 +27,8 @@ export const staffResolves = {
           limitValue: limit,
         });
       }
+
+
 
       const searchRegex = new RegExp(escapeRegex(search.trim()), "i");
       const filterBy: PipelineStage[] = [

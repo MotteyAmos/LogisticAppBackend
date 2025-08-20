@@ -1,3 +1,5 @@
+import { GraphContext } from "../../..";
+import OrderCounterModel from "../../../database/models/orders/OrderCounter";
 import OrderModel from "../../../database/models/orders/orderModule";
 import { T3PLType } from "../../../rest-api/types/auth/3pl";
 import { RiderType } from "../../../rest-api/types/auth/rider";
@@ -13,35 +15,97 @@ export const orderResolvers = {
         offset,
         limit,
         search,
-      }: { offset: number; limit: number; search: string }
+        entityFilter,
+        orderIds,
+      }: {
+        offset: number;
+        limit: number;
+        search: string;
+        entityFilter: string;
+        orderIds: string[];
+      },
+      { payload }: GraphContext
     ) => {
       // Input validation (unchanged)
+        
+      let orderIdInitail = "SELF";
+      if (payload?.UserType == "VENDOR") {
+        const orderCounter = await OrderCounterModel.findOne({
+          vendorId: payload?.userId,
+        });
+
+        if (orderCounter?.initials) {
+          orderIdInitail = orderCounter.initials;
+        }
+      }
+
       if (offset < 0) throw new UserInputError("Offset cannot be negative");
       if (limit <= 0 || limit > 100)
         throw new UserInputError("Limit must be 1-100");
 
       const searchRegex = new RegExp(escapeRegex(search.trim()), "i");
+      const entityFilterRegex = new RegExp(
+        escapeRegex(entityFilter.trim()),
+        "i"
+      );
+
+      const matchStages: PipelineStage[] = [];
+
+      if (orderIds.length > 0) {
+        matchStages.push({
+          $match: {
+            orderId: {
+              $in: orderIds,
+              // $regex: `^${orderIdInitail}`,
+              $options: "i",
+            },
+          },
+        });
+      }
+
+      if (search.trim()) {
+        matchStages.push({
+          $match: {
+            $expr: {
+              $or: [
+                { $regexMatch: { input: "$status", regex: searchRegex } },
+                // { $regexMatch: { input: "$destination", regex: searchRegex } },
+                // ... other search fields
+              ],
+            },
+          },
+        });
+      }
 
       // Base pipeline stages
       const basePipeline: PipelineStage[] = [
         {
           $lookup: {
-            from: "Riders", // <- lowercased collection name
+            from: "Riders",
             localField: "assignedTo",
             foreignField: "_id",
             as: "riderDetails",
           },
         },
-        // Lookup T3PLs
+
         {
           $lookup: {
-            from: "T3PLS", // <- lowercase (unless you manually set your collection name)
+            from: "T3PLS",
             localField: "assignedTo",
             foreignField: "_id",
             as: "t3plDetails",
           },
         },
-        // Determine which one to use based on model type
+
+        {
+          $lookup: {
+            from: "Vendors",
+            localField: "source.vendorID",
+            foreignField: "_id",
+            as: "vendorDetails",
+          },
+        },
+
         {
           $addFields: {
             assignedTo: {
@@ -57,50 +121,148 @@ export const orderResolvers = {
                 },
               ],
             },
+            source:{
+              $cond:[
+                { $eq: ["$source.type", "VENDOR"] },
+                { $arrayElemAt: ["$vendorDetails", 0] },
+                null
+              ]
+            }
           },
         },
-        // Clean up the extra lookup results
-        { $project: { riderDetails: 0, t3plDetails: 0 } },
-        { $sort: { createdAt: -1 } },
-        { $skip: offset },
-        { $limit: limit },
+
+        {
+          $project: {
+            riderDetails: 0,
+            t3plDetails: 0
+          },
+        },
       ];
 
-      // Add search filter if needed
-      const fullPipeline =
-        search.trim().length === 0
-          ? basePipeline
-          : [
-              {
-                $match: {
-                  $expr: {
-                    $or: [
-                      {
-                        $regexMatch: {
-                          input: "$destination",
-                          regex: searchRegex,
-                        },
-                      },
-                      // ... other search fields ...
-                    ],
+      if (entityFilter.trim()) {
+        basePipeline.push({
+          $match: {
+            $expr: {
+              $or: [
+                {
+                  $regexMatch: {
+                    input: {
+                      $ifNull: ["$assignedTo.userProfile.companyName", ""],
+                    },
+                    regex: entityFilterRegex,
                   },
                 },
+                {
+                  $regexMatch: {
+                    input: {
+                      $ifNull: ["$assignedTo.businessInfo.fullName", ""],
+                    },
+                    regex: entityFilterRegex,
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      basePipeline.push(
+        { $sort: { createdAt: -1 } },
+        { $skip: offset },
+        { $limit: limit }
+      );
+
+      const fullPipeline =
+        orderIdInitail !== "SELF"
+          ? [
+              {
+                $match: {
+                  orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                },
               },
+              ...matchStages,
               ...basePipeline,
+            ]
+          : [...matchStages, ...basePipeline];
+
+      const counters =
+        orderIdInitail === "SELF"
+          ? [
+              OrderModel.countDocuments(),
+              OrderModel.countDocuments({ status: "ORDER PLACED" }),
+              OrderModel.countDocuments({ status: "IN TRANSIT" }),
+              OrderModel.countDocuments({ status: "ASSIGNED" }),
+              OrderModel.countDocuments({ status: "COMPLETED" }),
+              OrderModel.countDocuments({ status: "RETURNED" }),
+              OrderModel.countDocuments({ status: "FAILED" }),
+              OrderModel.countDocuments({ status: "REJECTED" }),
+            ]
+          : [
+              OrderModel.countDocuments({
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "ORDER PLACED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "IN TRANSIT",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "ASSIGNED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "COMPLETED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "RETURNED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "FAILED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
+              OrderModel.countDocuments({
+                status: "REJECTED",
+                orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+              }),
             ];
 
-      // Execute query
-      const [orders, totalCount] = await Promise.all([
+      const [
+        orders,
+        totalCount,
+        totalNumberOfOrders,
+        totalNumOfOderPlaced,
+        totalNumOfInTransit,
+        totalNumberOfAssigned,
+        totalNumberOfCompleted,
+        totalNumberOfReturned,
+        totalNumberOfFailed,
+        totalNumberOfRejected,
+      ] = await Promise.all([
         OrderModel.aggregate(fullPipeline),
-        search.trim().length === 0
-          ? OrderModel.countDocuments()
-          : OrderModel.aggregate([
-              ...fullPipeline.slice(0, 1),
-              { $count: "totalCount" },
-            ]).then((res) => res[0]?.totalCount || 0),
+        OrderModel.aggregate([
+          ...matchStages,
+          ...basePipeline.filter(
+            (stage) => !("$skip" in stage) && !("$limit" in stage)
+          ),
+          { $count: "totalCount" },
+        ]).then((res) => res[0]?.totalCount || 0),
+        ...counters,
       ]);
 
       return {
+        totalNumberOfOrders,
+        totalNumOfOderPlaced,
+        totalNumOfInTransit,
+        totalNumberOfAssigned,
+        totalNumberOfCompleted,
+        totalNumberOfReturned,
+        totalNumberOfFailed,
+        totalNumberOfRejected,
         data: orders,
         totalCount,
         hasNextPage: offset + limit < totalCount,
@@ -109,19 +271,18 @@ export const orderResolvers = {
     },
 
     order: async (_: any, { id }: { id: String }) => {
-      console.log("it's working")
       const order = await OrderModel.findById(id).populate("assignedTo");
-      
+
       return order;
     },
   },
 
   AssignedTo: {
-  __resolveType(obj: any) {
-    if (!obj) return null;
-    if (obj.vehicleType || obj.userProfile) return "Rider";
-    if (obj.businessInfo || obj.t3plId) return "T3PL";
-    return null;
+    __resolveType(obj: any) {
+      if (!obj) return null;
+      if (obj.vehicleType || obj.userProfile) return "Rider";
+      if (obj.businessInfo || obj.t3plId) return "T3PL";
+      return null;
+    },
   },
-},
 };

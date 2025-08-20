@@ -36,6 +36,7 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
   paymentAmount: {
     type: Number,
     required: true,
+    default:0
   },
   deliveryFee: {
     type: Number,

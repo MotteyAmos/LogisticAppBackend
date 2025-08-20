@@ -77,7 +77,7 @@ export interface RoleType{
     name: String,
     description?: String,
     assignTo?: mongoose.Types.ObjectId[]
-    permissions?: mongoose.Types.ObjectId[]
+    permissions?:PermsissionType | mongoose.Types.ObjectId[]
 }
 
 export interface RoleDTO{
@@ -171,7 +171,8 @@ declare global{
     namespace Express{
         interface Request{
             userId:String;
-            role: String,
+            userType: String,
+            
             invalidFiles:String[]
             
            

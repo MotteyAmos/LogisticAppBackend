@@ -104,3 +104,18 @@ export const assignToSchema = z.object({
   assignToModelName: z.enum(["T3PL","Rider"])
 })
 
+
+export const orderDeliveredSchema = z.object({
+  orderId:z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+   otpCode: z.string()   
+})
+
+export const orderFailedSchema = z.object({
+  orderId:z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+   remark: z.string().min(1,"remark is required")   
+})
+
