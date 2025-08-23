@@ -1,6 +1,8 @@
+import { ObjectId } from "mongodb";
 import { GraphContext } from "../../..";
 import OrderCounterModel from "../../../database/models/orders/OrderCounter";
 import OrderModel from "../../../database/models/orders/orderModule";
+import { orderStatus } from "../../../rest-api/enum/orders";
 import { T3PLType } from "../../../rest-api/types/auth/3pl";
 import { RiderType } from "../../../rest-api/types/auth/rider";
 import { escapeRegex } from "../../../rest-api/utils/general";
@@ -27,7 +29,7 @@ export const orderResolvers = {
       { payload }: GraphContext
     ) => {
       // Input validation (unchanged)
-        
+
       let orderIdInitail = "SELF";
       if (payload?.UserType == "VENDOR") {
         const orderCounter = await OrderCounterModel.findOne({
@@ -121,20 +123,20 @@ export const orderResolvers = {
                 },
               ],
             },
-            source:{
-              $cond:[
+            source: {
+              $cond: [
                 { $eq: ["$source.type", "VENDOR"] },
                 { $arrayElemAt: ["$vendorDetails", 0] },
-                null
-              ]
-            }
+                null,
+              ],
+            },
           },
         },
 
         {
           $project: {
             riderDetails: 0,
-            t3plDetails: 0
+            t3plDetails: 0,
           },
         },
       ];
@@ -274,6 +276,293 @@ export const orderResolvers = {
       const order = await OrderModel.findById(id).populate("assignedTo");
 
       return order;
+    },
+
+    cod: async (
+      _: any,
+      {
+        offset,
+        limit,
+        search,
+        orderIds,
+        pickupDateFrom,
+        pickupDateTo,
+        deliveryDateFrom,
+        deliveryDateTo,      
+        vendorId,
+        assignedTo,
+      }: {
+        offset: number;
+        limit: number;
+        search: string;
+
+        orderIds: string[];
+        pickupDateFrom: string;
+        pickupDateTo: string;
+        deliveryDateFrom: string;
+        deliveryDateTo: string;
+        vendorId: string;
+        assignedTo: string;
+      },
+      { payload }: GraphContext
+    ) => {
+      let orderIdInitail = "SELF";
+
+      if (payload?.UserType == "VENDOR") {
+        const orderCounter = await OrderCounterModel.findOne({
+          vendorId: payload?.userId,
+        });
+
+        if (orderCounter?.initials) {
+          orderIdInitail = orderCounter.initials;
+        }
+      }
+
+      if (offset < 0) throw new UserInputError("Offset cannot be negative");
+      if (limit <= 0 || limit > 100)
+        throw new UserInputError("Limit must be 1-100");
+
+      const searchRegex = new RegExp(escapeRegex(search.trim()), "i");
+
+      const matchStages: PipelineStage[] = [
+        {
+          $match: {
+            $or: [
+              {
+                status: orderStatus.COMPLETED,
+              },
+              {
+                status: orderStatus.FAILED,
+              },
+              {
+                status: orderStatus.REJECTED,
+              },
+            ],
+          },
+        },
+      ];
+
+      // if (orderIds.length > 0) {
+      //   matchStages.push({
+      //     $match: {
+      //       orderId: {
+      //         $in: orderIds,
+      //         // $regex: `^${orderIdInitail}`,
+      //         $options: "i",
+      //       },
+      //     },
+      //   });
+      // }
+
+      if (pickupDateFrom && !pickupDateTo) {
+       
+        matchStages.push({
+          $match: {
+            orderDate: { $gte: new Date(pickupDateFrom) },
+          },
+        });
+      }
+
+      if (!pickupDateFrom && pickupDateTo) {
+    
+        matchStages.push({
+          $match: {
+            orderDate: { $lte: new Date(pickupDateTo) },
+          },
+        });
+      }
+
+      if (pickupDateFrom && pickupDateTo) {
+        matchStages.push({
+          $match: {
+            orderDate: {
+              $gte: new Date(pickupDateFrom),
+              $lte: new Date(pickupDateTo),
+            },
+          },
+        });
+      }
+
+      if (deliveryDateFrom && !deliveryDateTo) {
+       
+
+        matchStages.push({
+          $match: {
+            deliveryDate: { $gte: new Date(deliveryDateFrom) },
+          },
+        });
+      }
+
+      if (!deliveryDateFrom && deliveryDateTo) {
+        matchStages.push({
+          $match: {
+            deliveryDate: { $lte: new Date(deliveryDateTo) },
+          },
+        });
+      }
+
+      if (deliveryDateFrom && deliveryDateTo) {
+        matchStages.push({
+          $match: {
+            deliveryDate: {
+              $gte: new Date(deliveryDateFrom),
+              $lte: new Date(deliveryDateTo),
+            },
+          },
+        });
+      }
+
+      
+      if (assignedTo) {
+        matchStages.push({
+          $match: {
+            assignedTo:new ObjectId(assignedTo)
+          },
+        });
+      }
+
+   
+      if (vendorId === "SELF") {
+       
+        matchStages.push({
+          $match: {
+            "source.type": "SELF",
+          },
+        });
+      } else if (vendorId && vendorId !== "SELF") {
+         
+        matchStages.push({
+          $match: {
+            "source.vendorID": new ObjectId(vendorId) ,
+          },
+        });
+      }
+
+         const basePipeline: PipelineStage[] = [
+        {
+          $lookup: {
+            from: "Riders",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "riderDetails",
+          },
+        },
+
+        {
+          $lookup: {
+            from: "T3PLS",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "t3plDetails",
+          },
+        },
+
+        {
+          $lookup: {
+            from: "Vendors",
+            localField: "source.vendorID",
+            foreignField: "_id",
+            as: "vendorDetails",
+          },
+        },
+
+        {
+          $addFields: {
+            assignedTo: {
+              $cond: [
+                { $eq: ["$assignToModelName", "Rider"] },
+                { $arrayElemAt: ["$riderDetails", 0] },
+                {
+                  $cond: [
+                    { $eq: ["$assignToModelName", "T3PL"] },
+                    { $arrayElemAt: ["$t3plDetails", 0] },
+                    null,
+                  ],
+                },
+              ],
+            },
+            source: {
+              $cond: [
+                { $eq: ["$source.type", "VENDOR"] },
+                { $arrayElemAt: ["$vendorDetails", 0] },
+                null,
+              ],
+            },
+          },
+        },
+
+        {
+          $project: {
+            riderDetails: 0,
+            t3plDetails: 0,
+          },
+        },
+      ];
+
+      const accumelator = [
+        ...matchStages,
+ {
+        $group: {
+          _id: null,
+          completedOrderNum: {
+            $sum: 1,
+          },
+          totalRevenue: { $sum: { $add: ["$paymentAmount", "$deliveryFee"] } },
+          totalDeliveryFee: { $sum: "$deliveryFee" },
+          pendingRemittance: {
+            $sum: {
+              $cond: [
+                { $ne: ["$paymentStatus", "PAID"] },
+                "$paymentAmount",
+                0,
+              ],
+            },
+          },
+          paidToVendor: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "PAID"] }, "$paymentAmount", 0],
+            },
+          },
+         
+        },
+      }
+      ]
+    
+
+      // matchStages.push(
+      //   { $sort: { createdAt: -1 } },
+      //   { $skip: offset },
+      //   { $limit: limit }
+      // );
+
+       
+      const [accumulatedValues,orders,totalCount] = await Promise.all([
+        OrderModel.aggregate(accumelator),
+        OrderModel.aggregate( [
+        ...matchStages,
+         ...basePipeline,
+         { $sort: { createdAt: -1 } },
+        { $skip: offset },
+        { $limit: limit }
+      ]),
+      OrderModel.aggregate([
+          ...matchStages,
+          ...basePipeline.filter(
+            (stage) => !("$skip" in stage) && !("$limit" in stage)
+          ),
+          { $count: "totalCount" },
+        ]).then((res) => res[0]?.totalCount || 0)
+      ]);
+      console.log(accumulatedValues)
+      console.log(orders);
+
+      return {
+        data: orders,
+        totalCount,
+        hasNextPage: offset + limit < totalCount,
+        currentPage: Math.floor(offset / limit) + 1,
+        ...accumulatedValues[0]
+      };
     },
   },
 

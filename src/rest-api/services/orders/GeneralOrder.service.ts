@@ -384,7 +384,7 @@ export class GeneralOrderService {
     order.confirmDeliverOTP = "";
 
     order.status = orderStatus.COMPLETED;
-    order.paymentStatus = PaymentStatus.PAID;
+    // order.paymentStatus = PaymentStatus.PAID;
     order.deliveryDate = new Date();
 
     await order.save();

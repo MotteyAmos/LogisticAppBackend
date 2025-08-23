@@ -1,6 +1,3 @@
-
-
-
 export const generalOrderTypeDef = `#graphql
     type Location {
         lat:Float
@@ -55,10 +52,28 @@ export const generalOrderTypeDef = `#graphql
         totalNumberOfRejected: Int
     }
 
+    type CODPositiveResult {
+        data: [Order]
+        totalCount: Int 
+        hasNextPage: Boolean  
+        currentPage: Int
+        completedOrderNum: Int 
+        totalRevenue: Int 
+        totalDeliveryFee: Int  
+        pendingRemittance: Int  
+        paidToVendor: Int
+    }
+
+input OrderSourcFilterInput {
+  type: String
+  vendorId: String
+}
+
     type Query{
         orders(offset:Int!, limit:Int!, search: String!,entityFilter:String!,orderIds:[String]):OrdersPositiveResult
-        order(id:ID!):Order
+        order(id:ID!):Order,
+        cod(offset:Int!, limit:Int!, search: String!,orderIds:[String],pickupDateFrom:String,pickupDateTo:String,deliveryDateFrom:String,deliveryDateTo:String,  vendorId:String,assignedTo:String): CODPositiveResult
     }
 
 
-`
+`;
