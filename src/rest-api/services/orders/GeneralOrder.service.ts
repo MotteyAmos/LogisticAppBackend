@@ -433,4 +433,21 @@ export class GeneralOrderService {
     await order.save();
     return "Sorry for the bad news😔😔";
   }
+
+  public async payedToVendor(ids:String[]){
+
+    const payedOrders = await OrderModel.updateMany(
+      {_id: {$in: ids}},
+      {
+        $set: {
+        paymentStatus: PaymentStatus.PAID,
+        paidDate : new Date()
+      }
+      }     
+    )
+
+    if (payedOrders){
+      return "Payment made successfully"
+    }
+  }
 }

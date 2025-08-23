@@ -75,6 +75,9 @@ const OrderSchema: Schema<IOrder> = new Schema<IOrder>({
     enum: Object.values(PaymentStatus),
     default: PaymentStatus.PENDING
   },
+  paidDate:{
+    type:Date
+  },
   productImage: {
     type: String,
   },

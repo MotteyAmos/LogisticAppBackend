@@ -21,7 +21,7 @@ route.patch("/transit/:id", generalController.OrderInTransit)
 route.patch("/completed", generalController.OrderCompleted)
 route.patch("/failed", generalController.filedOrder);
 route.patch("/rejected", generalController.rejectedOrder)
-
+route.patch("/payedToVendor", generalController.payedToVendor)
 
 
 

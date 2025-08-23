@@ -19,6 +19,7 @@ export interface IOrder extends Document {
   deliveryFee?: Number;
   status?: orderStatus;
   paymentStatus?: PaymentStatus,
+  paidDate:Date;
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String

@@ -27,8 +27,8 @@ export const generalOrderTypeDef = `#graphql
         paymentStatus:String
         deliveryFee: Float
         status:String
-        source:  Vendor
-     
+        source:  Vendor   
+        paidDate: DateTime
         assignedTo:AssignedTo 
         deliveryDate: DateTime 
         productImage:String 

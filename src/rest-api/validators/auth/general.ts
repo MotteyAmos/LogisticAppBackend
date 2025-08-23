@@ -132,6 +132,7 @@ export const IdSchema = z.string({required_error:"role id required"}).length(24,
 export const PermissionId = z.string({required_error:"role id required"}).length(24, {message:"Invalid id"}).trim()
 export const staffId = z.string({required_error:"staff id required"}).length(24, {message:"Invalid id"}).trim()
 
+export const IdsSchema = z.array(IdSchema);
 
 
 export const loginSchema = z.object({

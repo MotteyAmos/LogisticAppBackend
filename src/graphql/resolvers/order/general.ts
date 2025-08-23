@@ -288,7 +288,7 @@ export const orderResolvers = {
         pickupDateFrom,
         pickupDateTo,
         deliveryDateFrom,
-        deliveryDateTo,      
+        deliveryDateTo,
         vendorId,
         assignedTo,
       }: {
@@ -342,20 +342,16 @@ export const orderResolvers = {
         },
       ];
 
-      // if (orderIds.length > 0) {
-      //   matchStages.push({
-      //     $match: {
-      //       orderId: {
-      //         $in: orderIds,
-      //         // $regex: `^${orderIdInitail}`,
-      //         $options: "i",
-      //       },
-      //     },
-      //   });
-      // }
+    
+      if (orderIds.length > 0) {
+        matchStages.push({
+          $match: {
+            orderId: { $in: orderIds },
+          },
+        });
+      }
 
       if (pickupDateFrom && !pickupDateTo) {
-       
         matchStages.push({
           $match: {
             orderDate: { $gte: new Date(pickupDateFrom) },
@@ -364,7 +360,6 @@ export const orderResolvers = {
       }
 
       if (!pickupDateFrom && pickupDateTo) {
-    
         matchStages.push({
           $match: {
             orderDate: { $lte: new Date(pickupDateTo) },
@@ -384,8 +379,6 @@ export const orderResolvers = {
       }
 
       if (deliveryDateFrom && !deliveryDateTo) {
-       
-
         matchStages.push({
           $match: {
             deliveryDate: { $gte: new Date(deliveryDateFrom) },
@@ -412,33 +405,29 @@ export const orderResolvers = {
         });
       }
 
-      
       if (assignedTo) {
         matchStages.push({
           $match: {
-            assignedTo:new ObjectId(assignedTo)
+            assignedTo: new ObjectId(assignedTo),
           },
         });
       }
 
-   
       if (vendorId === "SELF") {
-       
         matchStages.push({
           $match: {
             "source.type": "SELF",
           },
         });
       } else if (vendorId && vendorId !== "SELF") {
-         
         matchStages.push({
           $match: {
-            "source.vendorID": new ObjectId(vendorId) ,
+            "source.vendorID": new ObjectId(vendorId),
           },
         });
       }
 
-         const basePipeline: PipelineStage[] = [
+      const basePipeline: PipelineStage[] = [
         {
           $lookup: {
             from: "Riders",
@@ -501,33 +490,37 @@ export const orderResolvers = {
 
       const accumelator = [
         ...matchStages,
- {
-        $group: {
-          _id: null,
-          completedOrderNum: {
-            $sum: 1,
-          },
-          totalRevenue: { $sum: { $add: ["$paymentAmount", "$deliveryFee"] } },
-          totalDeliveryFee: { $sum: "$deliveryFee" },
-          pendingRemittance: {
-            $sum: {
-              $cond: [
-                { $ne: ["$paymentStatus", "PAID"] },
-                "$paymentAmount",
-                0,
-              ],
+        {
+          $group: {
+            _id: null,
+            completedOrderNum: {
+              $sum: 1,
+            },
+            totalRevenue: {
+              $sum: { $add: ["$paymentAmount", "$deliveryFee"] },
+            },
+            totalDeliveryFee: { $sum: "$deliveryFee" },
+            pendingRemittance: {
+              $sum: {
+                $cond: [
+                  { $ne: ["$paymentStatus", "PAID"] },
+                  "$paymentAmount",
+                  0,
+                ],
+              },
+            },
+            paidToVendor: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$paymentStatus", "PAID"] },
+                  "$paymentAmount",
+                  0,
+                ],
+              },
             },
           },
-          paidToVendor: {
-            $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "PAID"] }, "$paymentAmount", 0],
-            },
-          },
-         
         },
-      }
-      ]
-    
+      ];
 
       // matchStages.push(
       //   { $sort: { createdAt: -1 } },
@@ -535,25 +528,24 @@ export const orderResolvers = {
       //   { $limit: limit }
       // );
 
-       
-      const [accumulatedValues,orders,totalCount] = await Promise.all([
+      const [accumulatedValues, orders, totalCount] = await Promise.all([
         OrderModel.aggregate(accumelator),
-        OrderModel.aggregate( [
-        ...matchStages,
-         ...basePipeline,
-         { $sort: { createdAt: -1 } },
-        { $skip: offset },
-        { $limit: limit }
-      ]),
-      OrderModel.aggregate([
+        OrderModel.aggregate([
+          ...matchStages,
+          ...basePipeline,
+          { $sort: { createdAt: -1 } },
+          { $skip: offset },
+          { $limit: limit },
+        ]),
+        OrderModel.aggregate([
           ...matchStages,
           ...basePipeline.filter(
             (stage) => !("$skip" in stage) && !("$limit" in stage)
           ),
           { $count: "totalCount" },
-        ]).then((res) => res[0]?.totalCount || 0)
+        ]).then((res) => res[0]?.totalCount || 0),
       ]);
-      console.log(accumulatedValues)
+      console.log(accumulatedValues);
       console.log(orders);
 
       return {
@@ -561,7 +553,7 @@ export const orderResolvers = {
         totalCount,
         hasNextPage: offset + limit < totalCount,
         currentPage: Math.floor(offset / limit) + 1,
-        ...accumulatedValues[0]
+        ...accumulatedValues[0],
       };
     },
   },

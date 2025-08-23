@@ -11,7 +11,7 @@ import {
   updateOrderSchema,
 } from "../../validators/orders/general";
 import { HTTPSTATUS } from "../../config/http.config";
-import { IdSchema } from "../../validators/auth/general";
+import { IdSchema, IdsSchema } from "../../validators/auth/general";
 import { getAuthCookies } from "../../utils/auth/cookies";
 import { UnauthorizedException } from "../../utils/catch-error";
 import OrderCounterModel from "../../../database/models/orders/OrderCounter";
@@ -163,6 +163,18 @@ export class GeneralOrderController {
 
          return res.status(HTTPSTATUS.OK).json({
        orderCounter
+      });
+    }
+  )
+
+
+  public payedToVendor = asyncHandler(
+    async(req:Request, res:Response):Promise<any> =>{
+
+        const body = IdsSchema.parse(req?.body);
+        const msg = await this.orderService.payedToVendor(body)
+         return res.status(HTTPSTATUS.OK).json({
+            message:msg
       });
     }
   )
