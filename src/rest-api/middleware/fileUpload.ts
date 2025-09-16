@@ -41,6 +41,11 @@ export const riderFilefields = [
   { name: "nationalIdentification", maxCount: 1 },
 ];
 
+export const T3plFilefields = [
+  { name: "businessCertificate", maxCount: 1 },
+  { name: "businessLogo", maxCount: 1 },
+];
+
 export const storeRiderFileToS3 = async (
   riderId: String,
   req: Request

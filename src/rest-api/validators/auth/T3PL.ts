@@ -10,19 +10,22 @@ const businessInfoSchema = z.object({
     companyName:b_infoSchema,
     // businessType: b_infoSchema,
     businessDescription: z.string().trim().optional(),
+    businessAddress: z.string().trim().optional(),
     webApplicationDomainName: b_infoSchema.optional(),
-    businessAddress: b_infoSchema.optional(),
-    businessRegistrationNumber: b_infoSchema.optional(),
-    areaOfOperation: b_infoSchema.optional(),
-    yearsInOpertion: z.number().optional(),
-    logo: b_infoSchema.optional() ,
-    country_city: z.string().optional()
+    registrationNumber: z.string().trim().optional(),
+    gpsAddress: z.string().trim().optional(),
+    region: z.string().trim().optional(),
+    yearsInOperation: z.string().optional(),
+    logo: z.string().optional()
 })
 
 const contactDetailsSchema = z.object({
     name: b_infoSchema,
     email: z.string({required_error:"Business email required"}).email().trim(),
     phoneNumber: phoneNumberSchema,
+    additionalPhoneNumber: phoneNumberSchema.optional(),
+    position: z.string(),
+    ghanaCardNumber: z.string(),
     password: passwordSchema
 })
 

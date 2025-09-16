@@ -9,17 +9,21 @@ export interface T3PLCompanyInfo {
   businessDescription?: String;
   webApplicationDomainName?: String;
   businessAddress?: String;
-  businessRegistrationNumber?: String;
+  registrationNumber?: String;
   areaOfOperation?: String;
+  gpsAddress?:String;
+  region?:String;
   yearsInOpertion?: Number;
-  logo?: String;
-  country_city?: String
+ logo?: String;
 }
 
 export interface T3PLContactDetailsType {
   name: String;
   email: String;
   phoneNumber: String;
+  additionalPhoneNumber?:String;
+  position:String;
+  ghanaCardNumber:String;
   password: String;
 }
 

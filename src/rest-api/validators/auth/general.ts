@@ -83,7 +83,7 @@ export const financialInfoSchema = z.object({
         recipientName: nameSchema
     }).optional(),
     mobileMoneyAccount: z.object({
-        phoneNumber:phoneNumberSchema.optional(),
+        phoneNumber:phoneNumberSchema,
         recipientName: nameSchema
     }).optional()
 }).refine((val)=> val.bankAccountDetails || val.mobileMoneyAccount, {

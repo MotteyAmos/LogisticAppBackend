@@ -31,6 +31,7 @@ export class T3PLAuthService {
     const T3pl = await T3PLModel.create(registerDto.body);
 
     if (registerDto.req.file) {
+      
       const bussinessLogoUri = await storeT3PLFileToS3(
         T3pl._id as String,
         registerDto.req

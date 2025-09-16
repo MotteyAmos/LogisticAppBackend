@@ -26,7 +26,7 @@ export class T3PLAuthController {
       });
 
 
-      const msg = await this.T3plService.register({ req, body });
+      // const msg = await this.T3plService.register({ req, body });
 
       return res.status(HTTPSTATUS.CREATED).json({
         // user,

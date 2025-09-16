@@ -34,6 +34,18 @@ const contactSchema = new Schema<T3PLContactDetailsType>(
       required: true,
       trim: true,
     },
+    additionalPhoneNumber:{
+      type:String,
+      trim:true
+    },
+    position:{
+      type:String,
+      trim:true
+    },
+    ghanaCardNumber:{
+      type:String,
+      trim:true
+    }
   },
   { _id: false }
 );
@@ -58,7 +70,7 @@ const businessInfoSchema = new Schema<T3PLCompanyInfo>(
       type: String,
       trim: true,
     },
-    businessRegistrationNumber: {
+    registrationNumber: {
       type: String,
       trim: true,
     },
@@ -74,8 +86,12 @@ const businessInfoSchema = new Schema<T3PLCompanyInfo>(
       type: String,
       default:""
     },
-    country_city:{
+    gpsAddress:{
       type: String
+    },
+    region:{
+      type:String,
+      trim:true
     }
   },
   { _id: false }

@@ -3,7 +3,7 @@ import { staffsController, generalController, vendorController, riderController,
 // import { verifyIsAuthenticated } from "../auth/middlewares/verifyIsAuthenticated.ts";
 
 import { Role } from "../enum/general.ts";
-import {riderFilefields, uploadFile,VendorUploadFile } from "../middleware/fileUpload.ts";
+import {riderFilefields, T3plFilefields, uploadFile,VendorUploadFile } from "../middleware/fileUpload.ts";
 import {  canCreateStaff } from "../middleware/auth/permissions.ts";
 import { verifyIsAuthenticated } from "../middleware/auth/verifyIsAuthenticated.ts";
 
@@ -40,7 +40,7 @@ route.patch("/approval/rider", riderController.registrationApprovement)
 route.delete("/rider/:id", riderController.deleteRider)
 
 
-route.post("/register/3pl", VendorUploadFile.single("businessLogo"),T3PLController.register)
+route.post("/register/3pl", uploadFile.fields(T3plFilefields) ,T3PLController.register)
 route.patch("/approval/3pl", T3PLController.registrationApprovement)
 route.delete("/3pl/:id",T3PLController.deleteVendor)
 
