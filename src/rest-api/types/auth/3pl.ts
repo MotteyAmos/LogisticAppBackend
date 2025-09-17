@@ -15,7 +15,10 @@ export interface T3PLCompanyInfo {
   region?:String;
   yearsInOpertion?: Number;
  logo?: String;
+ businessCertificate?:String
+ streetAddress?:String
 }
+
 
 export interface T3PLContactDetailsType {
   name: String;

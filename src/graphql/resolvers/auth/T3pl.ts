@@ -45,6 +45,12 @@ export const T3plResolves = {
                     regex: searchRegex,
                   },
                 },
+                 {
+                  $regexMatch: {
+                    input: { $toString: "$businessInfo.region" },
+                    regex: searchRegex,
+                  },
+                },
                 {
                   $regexMatch: {
                     input: "$contactDetails.email",

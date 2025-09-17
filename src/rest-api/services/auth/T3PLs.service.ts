@@ -30,14 +30,24 @@ export class T3PLAuthService {
 
     const T3pl = await T3PLModel.create(registerDto.body);
 
-    if (registerDto.req.file) {
+    if (registerDto.req.files) {
       
-      const bussinessLogoUri = await storeT3PLFileToS3(
+      const {businessCertificate, businessLogo}= await storeT3PLFileToS3(
         T3pl._id as String,
         registerDto.req
       );
 
-      T3pl.businessInfo.logo = bussinessLogoUri as String;
+      if(businessLogo){
+      T3pl.businessInfo.logo = businessLogo as String;
+
+      }
+      if(businessCertificate){
+      T3pl.businessInfo.businessCertificate= businessCertificate as String;
+
+      }
+
+      
+
       await T3pl.save();
     }
 
@@ -72,6 +82,7 @@ export class T3PLAuthService {
       await T3pl.save();
       return "3pl's account denied successfully";
     }
+    
   }
 
     public async delete3PL(id: String): Promise<String> {

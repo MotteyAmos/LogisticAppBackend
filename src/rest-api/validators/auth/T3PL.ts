@@ -16,7 +16,8 @@ const businessInfoSchema = z.object({
     gpsAddress: z.string().trim().optional(),
     region: z.string().trim().optional(),
     yearsInOperation: z.string().optional(),
-    logo: z.string().optional()
+    logo: z.string().optional(),
+    streetAddress:z.string().optional()
 })
 
 const contactDetailsSchema = z.object({

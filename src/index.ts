@@ -62,7 +62,6 @@ await server.start();
 
 app.use(
   '/api/v1/graphql',
-
   cors<cors.CorsRequest>({
   origin: appConfig.APP_URI,
   optionsSuccessStatus: 200,

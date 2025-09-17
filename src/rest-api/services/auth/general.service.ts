@@ -58,6 +58,9 @@ import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
 import { RiderType } from "../../types/auth/rider.ts";
 import VendorModel from "../../../database/models/auth/vendorModel.ts";
 import { accountStatus } from "../../enum/general.ts";
+import { T3PLType } from "../../types/auth/3pl.ts";
+import T3PLModel from "../../../database/models/auth/3PLModel.ts";
+import RiderModel from "../../../database/models/auth/RiderModel.ts";
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -215,9 +218,10 @@ export class GeneralAuthService {
   public async login(loginDTo: loginDTO) {
     const { email, password, userAgent, role } = loginDTo;
 
-    let user: IStaff | vendorType | null = null;
+    let user: IStaff | vendorType | T3PLType| RiderType |null = null;
 
     let viewAbleTabs: String[] = [];
+    
     if (role == "STAFF") {
       user = (await StaffModel.findOne({
         "userProfile.email": email,
@@ -234,6 +238,15 @@ export class GeneralAuthService {
       user = (await VendorModel.findOne({
         "contactDetails.email": email,
       })) as vendorType;
+    }else if (role === "T3PL"){
+      user = (await T3PLModel.findOne({
+         "contactDetails.email": email,
+      })) as T3PLType;
+    }else if (role === "RIDER"){
+      user = ( await RiderModel.findOne({
+        "contactDetails.email": email
+      }) 
+      )as RiderType
     }
     // else{
     //     user = await T3PLModel.findOne({
@@ -281,6 +294,28 @@ export class GeneralAuthService {
       }
 
       viewAbleTabs = ["Vendor","View Orders", "Add Order", "Cash on Delivery"];
+    }
+     if (role == "T3PL") {
+      const _user = user as T3PLType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["T3PL","View Orders",  "Cash on Delivery"];
+    }
+    if (role == "RIDER") {
+      const _user = user as RiderType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["RIDER","View Orders",  "Cash on Delivery"];
     }
 
     let session

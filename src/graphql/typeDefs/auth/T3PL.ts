@@ -10,18 +10,25 @@ export const T3plTypeDefs = `#graphql
         businessDescription:String
         webApplicationDomainName:String
         businessAddress:String
-        businessRegistrationNumber:String
+        registrationNumber:String
         areaOfOperation: String
         yearsInOpertion: Int
+        businessCertificate:String
         logo: String
-        country_city: String
+        gpsAddress: String
+        region:String
+        streetAddress:String
     }
+
 
     type T3PLContactDetails{
         phoneNumber:String,
         
-        email:String,
+        email:String
         name:String
+        additionalPhoneNumber:String
+        position:String
+        ghanaCardNumber:String
     }
 
 
@@ -46,6 +53,7 @@ export const T3plTypeDefs = `#graphql
         status:String,
         preference: Preference
         auditing: AuditingAndConfirmation
+        createdAt:DateTime
     }
 
     type T3PLPositiveResult{
