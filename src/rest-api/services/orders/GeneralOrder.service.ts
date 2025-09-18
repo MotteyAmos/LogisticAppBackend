@@ -338,7 +338,7 @@ export class GeneralOrderService {
 
     order.assignedTo = assignDTO.assignToID as unknown as Types.ObjectId;
     order.assignToModelName = assignDTO.assignToModelName;
-    order.deliveryFee = assignDTO.deliveryFee;
+    order.deliveryFee = assignDTO?.deliveryFee;
     order.status = orderStatus.ASSIGNED;
     await order.save();
 

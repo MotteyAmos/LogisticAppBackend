@@ -22,8 +22,7 @@ export const T3plTypeDefs = `#graphql
 
 
     type T3PLContactDetails{
-        phoneNumber:String,
-        
+        phoneNumber:String,       
         email:String
         name:String
         additionalPhoneNumber:String
@@ -32,7 +31,6 @@ export const T3plTypeDefs = `#graphql
     }
 
 
-   
     type Preference {
         enable2FA: Boolean
         enableEmailNotification: Boolean

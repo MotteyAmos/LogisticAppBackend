@@ -53,6 +53,14 @@ export const orderResolvers = {
 
       const matchStages: PipelineStage[] = [];
 
+      if (payload?.UserType === "T3PL" || payload?.UserType === "RIDER") {
+         matchStages.push({
+          $match: {
+            assignedTo: new ObjectId(payload?.userId),
+          },
+        });
+      }
+
       if (orderIds.length > 0) {
         matchStages.push({
           $match: {
@@ -112,12 +120,13 @@ export const orderResolvers = {
           $addFields: {
             assignedTo: {
               $cond: [
-                { $eq: ["$assignToModelName", "Rider"] },
-                { $arrayElemAt: ["$riderDetails", 0] },
+                { $eq: ["$assignToModelName", "T3PL"] },
+                { $arrayElemAt: ["$t3plDetails", 0] },
+
                 {
                   $cond: [
-                    { $eq: ["$assignToModelName", "T3PL"] },
-                    { $arrayElemAt: ["$t3plDetails", 0] },
+                    { $eq: ["$assignToModelName", "Rider"] },
+                    { $arrayElemAt: ["$riderDetails", 0] },
                     null,
                   ],
                 },
@@ -149,7 +158,7 @@ export const orderResolvers = {
                 {
                   $regexMatch: {
                     input: {
-                      $ifNull: ["$assignedTo.userProfile.companyName", ""],
+                      $ifNull: ["$assignedTo.userProfile.fullName", ""],
                     },
                     regex: entityFilterRegex,
                   },
@@ -157,7 +166,7 @@ export const orderResolvers = {
                 {
                   $regexMatch: {
                     input: {
-                      $ifNull: ["$assignedTo.businessInfo.fullName", ""],
+                      $ifNull: ["$assignedTo.businessInfo.companyName", ""],
                     },
                     regex: entityFilterRegex,
                   },
@@ -255,6 +264,7 @@ export const orderResolvers = {
         ]).then((res) => res[0]?.totalCount || 0),
         ...counters,
       ]);
+      console.log(orders);
 
       return {
         totalNumberOfOrders,
@@ -342,7 +352,6 @@ export const orderResolvers = {
         },
       ];
 
-    
       if (orderIds.length > 0) {
         matchStages.push({
           $match: {
