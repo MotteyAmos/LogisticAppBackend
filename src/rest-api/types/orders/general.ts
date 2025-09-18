@@ -28,6 +28,7 @@ export interface IOrder extends Document {
   assignToModelName?: "Rider"|"T3PL";
   deliveryDate?: Date;
   productImage?: String;
+  quantity?: Number;
   rejectedReasons?:String
   confirmDeliverOTP?:String
 }
@@ -49,6 +50,7 @@ export interface IAddOrder{
     type: "SELF"|"VENDOR",
     vendorID?:String
   };
+  quantity?: String;
   // assignedTo?:Types.ObjectId;
   // assignToModelName?: "Rider"|"Rider";
   productImage?:String

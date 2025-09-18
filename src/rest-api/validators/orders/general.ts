@@ -20,7 +20,7 @@ export const addSingleOrderSchema =  z.object({
 
   paymentAmount: z.string({ required_error: "Payment amount required" }),
   deliveryFee: z.string({ required_error: "Delivery fee required" }).optional(),
-
+  quantity: z.string().optional(),
   source: z.object({
     type: z.nativeEnum(OrderSource),
     vendorID: z.string().optional(),

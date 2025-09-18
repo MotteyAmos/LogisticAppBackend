@@ -47,6 +47,7 @@ export class GeneralOrderService {
     await OrderModel.create({
       ...orderDTO.body,
       paymentAmount: Number.parseFloat(orderDTO?.body?.paymentAmount as string),
+      quantity: Number.parseFloat(orderDTO?.body?.quantity as string ?? "1"),
       deliveryFee: orderDTO?.body?.deliveryFee ?  Number.parseFloat(orderDTO?.body?.deliveryFee as string): 0,
       orderId: orderId,
 
@@ -54,6 +55,7 @@ export class GeneralOrderService {
         await OrderModel.create({
       ...orderDTO.body,
       paymentAmount: Number.parseFloat(orderDTO?.body?.paymentAmount as string),
+      quantity: Number.parseFloat(orderDTO?.body?.quantity as string ?? "1"),
       deliveryFee: orderDTO?.body?.deliveryFee ?  Number.parseFloat(orderDTO?.body?.deliveryFee as string): 0,
       orderId: orderId,
       source:{

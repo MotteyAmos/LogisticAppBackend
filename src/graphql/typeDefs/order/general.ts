@@ -32,6 +32,7 @@ export const generalOrderTypeDef = `#graphql
         assignedTo:AssignedTo 
         deliveryDate: DateTime 
         productImage:String 
+        quantity: Int
         rejectedReasons:String 
         updatedAt:DateTime
         createdAt: DateTime

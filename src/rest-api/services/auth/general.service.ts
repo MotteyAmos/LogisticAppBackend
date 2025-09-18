@@ -234,6 +234,8 @@ export class GeneralAuthService {
       viewAbleTabs = permissions?.map((perm) => {
         return perm?.name;
       });
+      viewAbleTabs.push("SELF")
+
     } else if (role == "VENDOR") {
       user = (await VendorModel.findOne({
         "contactDetails.email": email,
