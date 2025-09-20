@@ -1,9 +1,9 @@
 import multer from "multer";
 import { Request, Response } from "express";
-import { BadRequestException } from "../../utils/catch-error";
+import { BadRequestException } from "../utils/catch-error";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import sharp from "sharp";
-import { appConfig } from "../../config/app.config";
+import { appConfig } from "../config/app.config";
 
 const S3 = new S3Client({
   credentials: {
@@ -39,6 +39,11 @@ export const uploadFile = multer({
 export const riderFilefields = [
   { name: "driverLicense", maxCount: 1 },
   { name: "nationalIdentification", maxCount: 1 },
+];
+
+export const T3plFilefields = [
+  { name: "businessCertificate", maxCount: 1 },
+  { name: "businessLogo", maxCount: 1 },
 ];
 
 export const storeRiderFileToS3 = async (
@@ -126,6 +131,7 @@ export const VendorUploadFile = multer({
   }
 });
 
+
 export const storeVendorFileToS3 = async (
   vendorId: String,
   req: Request
@@ -153,3 +159,128 @@ export const storeVendorFileToS3 = async (
 
   return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
 };
+
+
+
+
+export const storeT3PLFileToS3 = async (
+  T3plId: String,
+  req: Request
+): Promise<{ businessCertificate: String; businessLogo: String }> => {
+  const filesUrl = {
+    businessCertificate: "",
+    businessLogo: "",
+  };
+
+  if (req.invalidFiles) {
+    const moreT2 = req.invalidFiles.length > 1;
+    if (!moreT2) {
+      throw new BadRequestException(
+        `File you uploaded under the field ${req.invalidFiles[0]} is not supported. Please provide an image or pdf`
+      );
+    } else {
+      throw new BadRequestException(
+        `Files you uploaded under the fields ${req.invalidFiles.join(", ")} are not supported. Please provide an image or pdf `
+      );
+    }
+  }
+
+  const files = req.files as {
+    [fieldname: string]: Express.Multer.File[];
+  };
+
+  if (files.businessCertificate && files.businessCertificate[0]) {
+    const dlFile = files.businessCertificate[0];
+
+    const fileKey = `T3PLDoc/${T3plId}-${dlFile?.originalname}`;
+
+    const params = {
+      Bucket: appConfig.S3_NAME,
+      Key: fileKey,
+      Body: dlFile.buffer,
+      ContentType: dlFile.mimetype,
+    };
+    filesUrl.businessCertificate = `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
+
+    const command = new PutObjectCommand(params);
+
+    S3.send(command);
+  }
+
+  if (files.businessLogo && files.businessLogo[0]) {
+    const nidFile = files.businessLogo[0];
+
+    const fileKey = `T3PLDoc/${T3plId}-${nidFile?.originalname}`;
+
+    const params = {
+      Bucket: appConfig.S3_NAME,
+      Key: fileKey,
+      Body: nidFile.buffer,
+      ContentType: nidFile.mimetype,
+    };
+
+    filesUrl.businessLogo = `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
+
+    const command = new PutObjectCommand(params);
+
+    S3.send(command);
+  }
+
+  return filesUrl;
+};
+
+
+export const OrderImageUploadFile = multer({
+  storage,
+  fileFilter: function (req, file, cb) {
+
+    if (file.mimetype.startsWith("image")) {
+      cb(null, true);
+    } else {
+    
+
+      req.invalidFiles = [file.fieldname];
+      cb(
+        new BadRequestException(
+          `Unsupported file format under the field ${file.fieldname}`
+        )
+      );
+    }
+  },
+   limits:{
+    fileSize: 1 * 1024 * 1024
+  }
+});
+
+
+export const OrderImageUploadToS3 = async (
+  sourceId: String,
+  req: Request
+): Promise<String> => {
+  if (req.invalidFiles) {
+    throw new BadRequestException(
+      `File you uploaded under the field ${req.invalidFiles[0]} is not supported. Please provide an image or pdf`
+    );
+  }
+
+  const file = req.file;
+
+  const fileKey = `OrdersDoc/${sourceId}-${file?.originalname}`;
+
+  const params = {
+    Bucket: appConfig.S3_NAME,
+    Key: fileKey,
+    Body: file?.buffer,
+    ContentType: file?.mimetype,
+  };
+
+  const command = new PutObjectCommand(params);
+
+  S3.send(command);
+
+  return `https://${appConfig.S3_NAME}.s3.${appConfig.S3_REGION}.amazonaws.com/${fileKey}`;
+};
+
+
+
+export const uploadOrder = multer({ dest: 'uploads/' });

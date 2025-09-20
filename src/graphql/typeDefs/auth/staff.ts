@@ -29,12 +29,12 @@ export const staffTypeDefs = `#graphql
     }
 
     type Staff {
-        id: ID
+        _id: ID
         userProfile: UserProfile
         role: Role
         preference: Preference
         auditingAndConfirmation: AuditingAndConfirmation
-
+        createdAt: Date
     }
     
     type StaffPositiveResult{
@@ -45,7 +45,7 @@ export const staffTypeDefs = `#graphql
     }
 
     type Query{
-        staffs(offset:Int!, limit:Int!): StaffPositiveResult
+        staffs(offset:Int!, limit:Int!,search:String!): StaffPositiveResult
         staff(id: ID!): Staff
     }
 

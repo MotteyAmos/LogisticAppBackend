@@ -21,6 +21,7 @@ import {
   getAuthCookies,
   setAuthCookies,
 } from "../../utils/auth/cookies.ts";
+import { ErrorCode } from "../../enum/errorCode.ts";
 
 
 export class GeneralAuthController {
@@ -113,7 +114,7 @@ export class GeneralAuthController {
     async (req: Request, res: Response): Promise<any> => {
       const { id } = req.params;
       const _id = roleId.parse(id);
-
+  
       const message = await this.authService.deleteRole(_id);
 
       return res.status(HTTPSTATUS.OK).json({
@@ -128,12 +129,14 @@ export class GeneralAuthController {
 
       const body = loginSchema.parse({ ...req.body, userAgent });
 
-      const { accessToken, refreshToken, user } =
-        await this.authService.login(body);
+      const { accessToken, refreshToken, user ,viewAbleTabs} = await this.authService.login(body);
 
       return setAuthCookies({ res, accessToken, refreshToken })
         .status(HTTPSTATUS.OK)
         .json({
+          viewAbleTabs,
+           accessToken,
+           refreshToken,
           user,
           message: "Login Successuful",
         });
@@ -142,15 +145,19 @@ export class GeneralAuthController {
 
   public refreshToken = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
-      const { refreshToken } = getAuthCookies(req);
+      // console.log( "my cooo" ,req)
+      const token= getAuthCookies(req);
 
-      if (!refreshToken) {
-        throw new UnauthorizedException();
+    
+      if (!token.refreshToken) {
+      
+
+        throw new UnauthorizedException("Token expired, Please relogin!!!", ErrorCode.EXPIRED_REFRESH_TOKEN);
         // "The refresh token is empty"
       }
 
       const { accessToken, newRefreshToken } =
-        await this.authService.refreshToken(refreshToken as string);
+        await this.authService.refreshToken(token.refreshToken as string);
 
       return setAuthCookies({
         res,
@@ -169,7 +176,7 @@ export class GeneralAuthController {
   public logout = asyncHandler(
     async (req: Request, res: Response): Promise<any> => {
       await this.authService.logout(req);
-
+      
       return clearAuthCookies(res).status(HTTPSTATUS.OK).json({
         message: "Logout successful",
       });

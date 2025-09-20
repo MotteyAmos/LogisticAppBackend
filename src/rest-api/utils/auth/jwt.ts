@@ -25,7 +25,8 @@ export const refreshTokenSignOptions: SignOptionsAndSeret = {
 export interface AccessTokenPayloadType {
     userId:mongoose.Types.ObjectId,
     sessionId: mongoose.Types.ObjectId,
-    roleId: mongoose.Types.ObjectId
+    roleId: mongoose.Types.ObjectId,
+    UserType:"STAFF"|"VENDOR"|"T3PL"|"RIDER"
 }
 
 export interface RefreshTokenPayloadType{
@@ -42,6 +43,7 @@ export const signToken = (
         ...signOpt
     })
 }
+
 
 
 export const verifyJwtToken = <TPayload extends object = AccessTokenPayloadType>(token:string, options?: VerifyOptions & {secret:string})=>{

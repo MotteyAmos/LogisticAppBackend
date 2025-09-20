@@ -6,14 +6,16 @@ import mongoose from "mongoose";
 export const emailSchema = z.string().trim().email({message:"Invalid email address"}).min(5).max(255);
 export const passwordSchema = z.string({required_error:"Password is required"}).trim().min(8,{message:"Minimum password length should be 8 characters"}).max(255);
 export const nameSchema =  z.string().trim().min(2).max(255)
-export const phoneNumberSchema = z.string({required_error:"phone number required"}).min(10,{message:"phone number length is incorrect"}).max(20);
+export const phoneNumberSchema = z.string({required_error:"phone number required"})
+
+// .min(10,{message:"phone number length is incorrect"})
 
 
 export const fullNameSchma= z.object(
     {
         surname: nameSchema,
         firstName: nameSchema,
-        middleName: nameSchema.optional()
+        middleName: z.string().trim().optional()
     }
 )
 
@@ -44,25 +46,25 @@ export const emergencyInfoSchema = z.object({
 export const userProfileSchema = z.object({
     fullName: fullNameSchma,
     gender: z.enum([Gender.FEMALE,Gender.MALE]),
-    email: emailSchema,
+    email:emailSchema,
     contact: phoneNumberSchema,
-    password: passwordSchema,
+    password: z.string().trim().optional(),
     picture: z.string().trim().optional()
 })
 
 export const updateFullNameSchma= z.object(
     {
-        surname: nameSchema.optional(),
-        firstName: nameSchema.optional(),
-        middleName: nameSchema.optional()
+        surname: z.string().optional(),
+        firstName: z.string().optional(),
+        middleName: z.string().optional()
     }
 )
 
 export const updateUserProfileSchema = z.object({
     fullName: updateFullNameSchma.optional(),
     gender: z.enum([Gender.FEMALE,Gender.MALE]).optional(),
-    email: emailSchema.optional(),
-    contact: phoneNumberSchema.optional(),
+    email: z.string().trim().email({message:"Invalid email address"}).optional(),
+    contact: z.string().trim().optional(),
     password: passwordSchema.optional(),
     picture: z.string().trim().optional()
 })
@@ -95,6 +97,7 @@ const isValidMongooseIdSchema = z.string().refine((val) => mongoose.Types.Object
 
 export const roleSchema = z.object({
   name: z.string().min(1, "Name is required").trim(),
+  description: z.string().optional(),
   permissions: z.array(isValidMongooseIdSchema).optional().default([]),
 });
 
@@ -116,6 +119,7 @@ export const updatePermissionSchema = z.object({
 export const updateRoleSchema = z.object({
     id: z.string({required_error:"Id of the role required"}).length(24, {message:"Invalid id"}).trim(),
     name: z.string().trim().optional(),
+    description:z.string().trim().optional(),
     permissions: z.array(isValidMongooseIdSchema).optional() 
 }).refine((val)=> val.name || val.permissions, {
     message: "Provide at least name or permission for update",
@@ -123,15 +127,18 @@ export const updateRoleSchema = z.object({
 })
 
 export const roleId = z.string({required_error:"role id required"}).length(24,{message:"Invalid id"}).trim()
+export const IdSchema = z.string({required_error:"role id required"}).length(24,{message:"Invalid id"}).trim()
+
 export const PermissionId = z.string({required_error:"role id required"}).length(24, {message:"Invalid id"}).trim()
 export const staffId = z.string({required_error:"staff id required"}).length(24, {message:"Invalid id"}).trim()
 
+export const IdsSchema = z.array(IdSchema);
 
 
 export const loginSchema = z.object({
-    email: emailSchema,
-    password:passwordSchema,
-    role:z.enum(["STAFF","VENDOR","T3PL"]),
+    email:z.string({required_error:"email required"}),
+    password:z.string({required_error:"password required"}),
+    role:z.enum(["STAFF","VENDOR","T3PL","RIDER"]),
     userAgent:z.string().trim().optional()
 })
 

@@ -4,10 +4,16 @@ import { typeDefs as scalarTypeDefs } from "graphql-scalars";
 import { staffTypeDefs } from "./auth/staff.ts";
 import { vendorTypeDefs } from "./auth/vendor.ts";
 import { generalOrderTypeDef } from "./order/general.ts";
+import { riderTypeDefs } from "./auth/rider.ts";
+import { T3plTypeDefs } from "./auth/T3PL.ts";
+
+
 export const mergedTypeDefs = mergeTypeDefs([
   scalarTypeDefs,
   generalTypeDefs,
   staffTypeDefs,
  vendorTypeDefs,
- generalOrderTypeDef
+ riderTypeDefs,
+ generalOrderTypeDef,
+ T3plTypeDefs
 ]);

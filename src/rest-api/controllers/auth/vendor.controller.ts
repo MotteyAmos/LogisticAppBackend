@@ -3,31 +3,59 @@ import { asyncHandler } from "../../middleware/asyncHandler.ts";
 import { HTTPSTATUS } from "../../config/http.config.ts";
 import { vendorRegisterSchema } from "../../validators/auth/vendor.ts";
 import { VendorAuthService } from "../../services/auth/vendor.service.ts";
-
+import { approvalStatusSchema } from "../../validators/auth/rider.ts";
+import { IdSchema } from "../../validators/auth/general.ts";
 
 export class VendorAuthController {
-    private vendorService: VendorAuthService;
-    
-    constructor(authService:VendorAuthService){
-        this.vendorService=authService
+  private vendorService: VendorAuthService;
+
+  constructor(authService: VendorAuthService) {
+    this.vendorService = authService;
+  }
+
+  public register = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      
+      
+      
+      const body = vendorRegisterSchema.parse({
+        businessInfo: JSON.parse(req.body.businessInfo || "{}"),
+        contactDetails:  JSON.parse(req.body.contactDetails || "{}"),
+        financialDetails: JSON.parse(req.body.financialDetails || "{}"),
+      });
+
+
+      const msg = await this.vendorService.register({ req, body });
+
+      return res.status(HTTPSTATUS.CREATED).json({
+        // user,
+        message: msg,
+      });
     }
+  );
 
-    public register = asyncHandler(
-        async (req:Request,res:Response):Promise<any>=>{
+  public registrationApprovement = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const body = approvalStatusSchema.parse({ ...req.body });
 
-           const body =  vendorRegisterSchema.parse({...JSON.parse(req?.body.data)})
-            
-            const msg = await  this.vendorService.register({req, body});
-           
+      const msg = await this.vendorService.registrationApprovement(body);
 
-            return res.status(HTTPSTATUS.CREATED).json({
-                // user,
-                message:msg,
-             
-            })
-        }
-    );
+      return res.status(HTTPSTATUS.OK).json({
+        message: msg,
+      });
+    }
+  );
 
-
+    public deleteVendor = asyncHandler(
+      async (req: Request, res: Response): Promise<any> => {
+        const { id } = req.params;
+        const _id = IdSchema.parse(id);
     
+        const message = await this.vendorService.deleteVendor(_id)
+        return res.status(HTTPSTATUS.OK).json({
+          message,
+        });
+      }
+    );
+  
 }

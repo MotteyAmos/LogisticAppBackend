@@ -5,6 +5,9 @@ import { resolvers as scalarResolvers } from "graphql-scalars";
 import { staffResolves } from "./auth/staff.ts";
 import { vendorResolves } from "./auth/vendor.ts";
 import { orderResolvers } from "./order/general.ts";
+import { riderResolvers } from "./auth/rider.ts";
+import { T3plResolves } from "./auth/T3pl.ts";
+
 
 
 export const mergedResolvers: IResolvers = mergeResolvers([
@@ -12,5 +15,7 @@ export const mergedResolvers: IResolvers = mergeResolvers([
   generalResolves,
   staffResolves,
   vendorResolves,
-  orderResolvers
+  riderResolvers,
+  orderResolvers,
+  T3plResolves
 ]);

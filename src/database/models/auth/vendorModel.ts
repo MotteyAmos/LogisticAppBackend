@@ -79,6 +79,9 @@ const businessInfoSchema = new Schema<vendorBusinessInfo>(
       type: String,
       default:""
     },
+    country_city:{
+      type: String
+    }
   },
   { _id: false }
 );
@@ -88,6 +91,10 @@ const vendorSchema = new Schema<vendorType>(
     businessInfo: businessInfoSchema,
     contactDetails: contactSchema,
     financialDetails: financialDetailSchema,
+    tempPassword:{
+      type:String,
+      default:""
+    },
     role: {
       type: String,
       enum: Object.values(Role),
@@ -96,7 +103,7 @@ const vendorSchema = new Schema<vendorType>(
     status: {
       type: String,
       enum: Object.values(accountStatus),
-      default: accountStatus.INACTIVE,
+      default: accountStatus.PENDING,
     },
     preference: preferenceSchema,
     auditing: auditingAndConfirmationSchema,

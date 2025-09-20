@@ -1,13 +1,18 @@
 
 
 export enum orderStatus {
-    PENDING = "PENDING",
+    ORDER_PLACED = "ORDER PLACED",
+    IN_TRANSIT = "IN TRANSIT",
+    ASSIGNED = "ASSIGNED",
     COMPLETED = "COMPLETED",
-    ORDER_FAILED = "ORDER_FAILED",
-    ORDER_REJECTED = "ORDER_REJECTED",
-    IN_TRANSIT = "IN_TRANSIT",
-    ORDER_ASSIGNED ="ORDER_ASSIGNED",
-    ORDER_RETURNED = "ORDER_RETURNED"
+    RETURNED = "RETURNED",
+    FAILED = "FAILED",
+    REJECTED = "REJECTED"
+}
+
+export enum PaymentStatus{
+    PENDING = "PENDING",
+    PAID = "PAID"
 }
 
 export enum OrderAssignedTo{

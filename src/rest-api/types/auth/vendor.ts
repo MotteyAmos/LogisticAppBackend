@@ -26,12 +26,14 @@ export interface vendorBusinessInfo {
   areaOfOperation?: String;
   yearsInOpertion?: Number;
   logo?: String;
+  country_city?: String
 }
 
 export interface vendorType extends mongoose.Document {
   businessInfo: vendorBusinessInfo;
   contactDetails: vendorContactDetailsType;
   financialDetails: financialInfo;
+  tempPassword: String;
   role: Role;
   status: accountStatus;
   preference: preference;

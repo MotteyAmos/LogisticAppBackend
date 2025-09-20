@@ -2,15 +2,17 @@
 export const generalTypeDefs = `#graphql
 
 type Role {
-    id: ID
+    _id: ID
     name: String
+    description:String
     permissions: [Permission]
+    assignTo:[Staff]
     createdAt: DateTime
     updatedAt: DateTime
 }
 
 type Permission {
-    id: ID
+    _id: ID
     name: String
     description: String
     createdAt: DateTime
@@ -32,10 +34,23 @@ type Permission {
         mobileMoneyAccount: MobileMoneyAccount
     }
 
+     enum Status{
+        APPROVED
+        PENDING
+        DENIED
+    }
+
+    type RolePositiveResult{
+        data:[Role]
+        totalCount:Int
+        hasNextPage: Boolean
+        currentPage: Int
+    }
 
 
 type Query{
-    roles: [Role]
+    roles(offset:Int!, limit:Int!,search:String!): RolePositiveResult
+    role(roleId:ID!): Role
     permissions: [Permission]
 }
 

@@ -1,35 +1,99 @@
-// import { ErrorCode } from "../../enum/errorCode";
-// import { BadRequestException } from "../../utils/catch-error";
-// import T3PLModel from "../database/models/3PLModel";
-// import { T3PLRegistrationDTO } from "../types/3pl";
+import { ErrorCode } from "../../enum/errorCode";
+import { BadRequestException } from "../../utils/catch-error";
+import VendorModel from "../../../database/models/auth/vendorModel";
+import { vendorRegisterDto } from "../../types/auth/vendor";
+import { generateApiKey } from "generate-api-key";
+import { hashValue } from "../../utils/auth/bcryptEn";
+import { storeRiderFileToS3, storeT3PLFileToS3, storeVendorFileToS3 } from "../../middleware/fileUpload";
+import { Request } from "express";
+import { accountStatus, ApproveStatus } from "../../enum/general";
+import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
+import { T3PLRegisterDto } from "../../types/auth/3pl";
+import RiderModel from "../../../database/models/auth/RiderModel";
+import T3PLModel from "../../../database/models/auth/3PLModel";
 
+export class T3PLAuthService {
+  public async register(registerDto: {
+    req: Request;
+    body: T3PLRegisterDto;
+  }) {
+    const T3plExist = await T3PLModel.findOne({
+      "contactDetails.email": registerDto.body.contactDetails.email,
+    });
 
-// export class T3PLAuthService{
+    if (T3plExist) {
+      throw new BadRequestException(
+        "3pl already exist",
+        ErrorCode.AUTH_EMAIL_ALREADY_EXISTS
+      );
+    }
 
+    const T3pl = await T3PLModel.create(registerDto.body);
 
-//     public async register(registerDto:T3PLRegistrationDTO){
+    if (registerDto.req.files) {
+      
+      const {businessCertificate, businessLogo}= await storeT3PLFileToS3(
+        T3pl._id as String,
+        registerDto.req
+      );
 
-//         // check if the user already exit
+      if(businessLogo){
+      T3pl.businessInfo.logo = businessLogo as String;
 
-//         const userExit =await  T3PLModel.findOne({
-//             "userProfile.contactDetails.email":registerDto.userProfile.contactDetails.email
-//         })
-       
+      }
+      if(businessCertificate){
+      T3pl.businessInfo.businessCertificate= businessCertificate as String;
 
-//         // if user exit throw error
-//         if (userExit){
-//             throw new BadRequestException("User already exits", ErrorCode.AUTH_EMAIL_ALREADY_EXISTS)
-//         }
+      }
 
-//         // save the profile picture on s3 bucket
+      
 
-//         // create admin or dispatcher
-//         const user = await T3PLModel.create(registerDto);
+      await T3pl.save();
+    }
 
+    // const apiKey =  generateApiKey({
 
-//         return {
-//             user
-//         }
+    //     name: `${user.businessInfo?.companyName.replace(/\s+/g, "")}${user.businessInfo?.businessType.replace(/\s+/g, "")}`
 
-//     }
-// }
+    // });
+
+    // user.apiKey = await hashValue(apiKey as String);
+
+    return "Account created successfully";
+  }
+
+  public async registrationApprovement(dto: ApprovalStatusDTO) {
+    const T3pl = await T3PLModel.findById(dto.id);
+
+    if (!T3pl) {
+      throw new BadRequestException(
+        "3pl does not exist",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
+
+    if (dto.status == ApproveStatus.APPROVE) {
+      T3pl.status = accountStatus.APPROVED;
+
+      await T3pl.save();
+      return "3pl's account approved successfully";
+    } else if (dto.status == ApproveStatus.DENIED) {
+      T3pl.status = accountStatus.DENIED;
+      await T3pl.save();
+      return "3pl's account denied successfully";
+    }
+    
+  }
+
+    public async delete3PL(id: String): Promise<String> {
+      const deleted3pl = await T3PLModel.findByIdAndDelete({ _id: id });
+  
+      if (!deleted3pl) {
+        throw new BadRequestException(
+          "3pl does not exist",
+          ErrorCode.ROLE_NOT_FOUND
+        );
+      }
+      return "3Pl deleted successful";
+    }
+}

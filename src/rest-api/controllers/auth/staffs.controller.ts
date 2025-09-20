@@ -24,6 +24,7 @@ export class AuthController {
         ...req.body,
       });
 
+      
    
 
       // pass it to the auth service
@@ -33,7 +34,7 @@ export class AuthController {
 
       return res.status(HTTPSTATUS.CREATED).json({
         // user,
-        message: "User created successful",
+        message: "User created successfully",
       });
     }
   );
@@ -58,6 +59,8 @@ export class AuthController {
   public deleteStaff = asyncHandler(
     async (req:Request, res:Response): Promise<any> =>{
         const {id} = req.params;
+
+        
         const _id = staffId.parse(id)
 
         const message = await this.authService.deleteStaff(_id)
@@ -67,6 +70,9 @@ export class AuthController {
               });
     }
   )
+
+
+  
   // public verifyVendorAccount = asyncHandler(
   //     async (req:Request, res:Response): Promise<any>=>{
 

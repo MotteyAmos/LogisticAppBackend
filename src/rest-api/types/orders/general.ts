@@ -1,5 +1,8 @@
-import { Document } from "mongoose";
-import { OrderAssignedTo, orderStatus } from "../../enum/orders";
+import { Document,Types } from "mongoose";
+import { OrderAssignedTo, orderStatus, PaymentStatus } from "../../enum/orders";
+import { Request } from "express";
+import { Schema } from "zod";
+
 
 export interface IOrder extends Document {
   orderDate?: Date;
@@ -15,44 +18,54 @@ export interface IOrder extends Document {
   paymentAmount: Number;
   deliveryFee?: Number;
   status?: orderStatus;
+  paymentStatus?: PaymentStatus,
+  paidDate:Date;
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String
   };
-  assignedTo:{
-    type:String,
-    entityAssignedId:String
-  } ;
+  assignedTo?:Types.ObjectId;
+  assignToModelName?: "Rider"|"T3PL";
   deliveryDate?: Date;
   productImage?: String;
+  quantity?: Number;
   rejectedReasons?:String
+  confirmDeliverOTP?:String
 }
 
 
 export interface IAddOrder{
   destination: String;
-  productDescription:String
+  productDescription?:String
   location?: {
     lat: Number;
     lng: Number;
   };
   recipientName: String;
   recipientNumber: String;
-  paymentAmount: Number;
-  deliveryFee?: Number;
+  paymentAmount:String;
+  deliveryFee?: String;
+  status?:String;
   source: {
     type: "SELF"|"VENDOR",
     vendorID?:String
   };
-  assignedTo?:{
-    type: OrderAssignedTo,
-    entityAssignedId: String
-  },
-  productImage?: {
-    imageFile?:String,
-    imageUrl?:String
-  };
+  quantity?: String;
+  // assignedTo?:Types.ObjectId;
+  // assignToModelName?: "Rider"|"Rider";
+  productImage?:String
+  //  {
+  //   imageFile?:String,
+  //   imageUrl?:String
+  // };
 }
+
+
+
+
+
+
+export interface AddSingleOrderDTO  {req:Request, body: IAddOrder}
 
 export  type AddOrderDTO = IAddOrder[]
 
@@ -67,25 +80,31 @@ interface UpdatedAbleOptions{
   };
   recipientName?: String;
   recipientNumber?: String;
-  paymentAmount?: Number;
-  deliveryFee?: Number;
+  paymentAmount?: String;
+  deliveryFee?: String;
   status?:orderStatus
   source?: {
     type?: "SELF"|"VENDOR",
     vendorID?:String
   };
   deliveryDate?:String
-  assignedTo?:{
-    type?: OrderAssignedTo,
-    entityAssignedId?: String
-  },
-  productImage?: {
-    imageFile?:String,
-    imageUrl?:String
-  }
+  assignedTo?:Types.ObjectId;
+  assignToModelName?: "Rider"|"T3PL";
+  productImage?:String
+  //  {
+  //   imageFile?:String,
+  //   imageUrl?:String
+  // }
   rejectedReason?:String
 }
 
+
+export interface AssignOrderDTO{
+  orderId:String,
+  deliveryFee: Number,
+  assignToID: String,
+  assignToModelName:"Rider" | "T3PL"
+}
 export  type IUpdateOrderDTO = UpdatedAbleOptions[]
 
 interface delOrder{

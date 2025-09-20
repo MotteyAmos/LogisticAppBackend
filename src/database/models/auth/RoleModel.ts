@@ -17,6 +17,15 @@ const roleSchema = new Schema<RoleType>({
         trim:true,
         unique:true
     },
+    description: {
+        type: String,
+        required:false,
+        trim:true,
+    },
+     assignTo:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff"
+    }],
     permissions:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Permission"

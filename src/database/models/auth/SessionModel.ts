@@ -3,10 +3,11 @@ import { sevenDaysFromNow } from "../../../rest-api/utils/date-time.ts";
 import { Role } from "../../../rest-api/enum/general.ts";
 
 
-export interface SessionDocument extends Document{
+export interface SessionDocument{
     userId: mongoose.Types.ObjectId;
     userAgent?: String;
-    roleId: mongoose.Types.ObjectId;
+    roleId?: mongoose.Types.ObjectId;
+    UserType: "STAFF"|"VENDOR"|"T3PL"|"RIDER",
     expiredAt:Date;
     createdAt: Date;
 }
@@ -22,7 +23,11 @@ const sessionSchema = new Schema<SessionDocument>({
     },
     roleId:{
         type: Schema.Types.ObjectId,
-        required:true
+       
+    },
+    UserType: {
+         type: String,
+         enum:["STAFF","VENDOR","T3PL","RIDER"]
     },
     createdAt: {
         type: Date,

@@ -1,7 +1,8 @@
 import RiderModel from "../../../database/models/auth/RiderModel";
 import { ErrorCode } from "../../enum/errorCode";
-import { Gender } from "../../enum/general";
-import { storeRiderFileToS3 } from "../../middleware/auth/fileUpload";
+import { accountStatus, ApproveStatus, Gender } from "../../enum/general";
+import { storeRiderFileToS3 } from "../../middleware/fileUpload";
+import { ApprovalStatusDTO } from "../../types/auth/generalTypes";
 import { RiderRegistrationDTO } from "../../types/auth/rider";
 import { BadRequestException } from "../../utils/catch-error";
 import { Request } from "express";
@@ -48,4 +49,44 @@ export class RiderService {
     return "rider account created successful"
     
 }
+
+  public async registrationApprovement(dto: ApprovalStatusDTO){
+
+    const rider = await RiderModel.findById(dto.id);
+
+     if (!rider) {
+      throw new BadRequestException(
+        "Rider does not exist",
+        ErrorCode.AUTH_USER_NOT_FOUND
+      );
+    }
+
+    if (dto.status == ApproveStatus.APPROVE){
+      rider.status = accountStatus.APPROVED
+
+      await rider.save();
+      return "Rider's account approved successfully"
+    }
+    else if(dto.status == ApproveStatus.DENIED){
+      rider.status = accountStatus.DENIED;
+      await rider.save()
+      return "Rider's account denied successful"
+    }
+
+  }
+
+  
+      public async deleteRider(id: String): Promise<String> {
+        const deletedRider = await RiderModel.findByIdAndDelete({ _id: id });
+    
+        if (!deletedRider) {
+          throw new BadRequestException(
+            "Rider does not exist",
+            ErrorCode.ROLE_NOT_FOUND
+          );
+        }
+        return "Rider account deleted successful";
+      }
+
+
 }

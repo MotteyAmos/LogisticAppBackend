@@ -1,7 +1,7 @@
 
 import { z } from "zod/v4";
 import mongoose from "mongoose"
-import { accountVerificationStatus, Gender, Permissions, Role } from "../../enum/general.ts"
+import { accountVerificationStatus, ApproveStatus, Gender, Permissions, Role } from "../../enum/general.ts"
 import { loginSchema } from "../../validators/auth/general.ts";
 
 
@@ -75,11 +75,14 @@ export interface financialInfo {
 
 export interface RoleType{
     name: String,
-    permissions?: mongoose.Types.ObjectId[]
+    description?: String,
+    assignTo?: mongoose.Types.ObjectId[]
+    permissions?:PermsissionType | mongoose.Types.ObjectId[]
 }
 
 export interface RoleDTO{
     name:String,
+    description?:String,
     permissions?:String[]
 }
 
@@ -99,6 +102,7 @@ export interface UpdatePermsissionDTO{
 export interface UpdateRoleDto{
     id:String,
     name?:String,
+    description?:String,
     permissions?: String[]
 }
 
@@ -137,7 +141,7 @@ export interface SessionType{
 export interface loginDTO{
     email:String,
     password: String,
-    role: "STAFF"|"VENDOR"|"T3PL",
+    role: "STAFF"|"VENDOR"|"T3PL"|"RIDER",
     userAgent?: String
 }
 
@@ -156,12 +160,19 @@ export interface verifyOtpDTO{
     userAgent?:String
 }
 
+export interface ApprovalStatusDTO{
+    id: String,
+    status: ApproveStatus
+}
+
+
 
 declare global{
     namespace Express{
         interface Request{
             userId:String;
-            role: String,
+            userType: String,
+            
             invalidFiles:String[]
             
            

@@ -16,21 +16,29 @@ import { mergedResolvers } from "./graphql/resolvers/index.ts";
 import connectDatabase from "./database/dbConnect.ts";
 import cookieParser from "cookie-parser"
 import env from "dotenv";
+import { getAuthCookies } from "./rest-api/utils/auth/cookies.ts";
+import { UnauthorizedException } from "./rest-api/utils/catch-error.ts";
+import { ErrorCode } from "./rest-api/enum/errorCode.ts";
+import { UnauthorizedException as GraphqlUnauthorizedException } from "./graphql/utils/catch-error.ts";
+import { AccessTokenPayloadType, verifyJwtToken } from "./rest-api/utils/auth/jwt.ts";
+
 env.config();
 
 
 const app = express();
 
-// app.use(cors({
-//   origin: appConfig.APP_URI,
-//   optionsSuccessStatus: 200,
-//   credentials:true 
-// }))
+app.use(cors({
+  origin: appConfig.APP_URI,
+  optionsSuccessStatus: 200,
+  credentials:true,
+  methods: ['GET', 'POST', 'OPTIONS',"DELETE","PATCH"] 
+}))
+
 app.use(express.json())
 app.use(urlencoded({extended:true}));
 app.use(cookieParser())
 
-
+// app.use((req,res,next)=>{console.log(req); next()})
 
 const httpServer = http.createServer(app);
 
@@ -39,12 +47,12 @@ app.get("/", (req:Request, res: Response)=>{
     res.send("Hello the app is up");
 })
 
-interface MyContext {
-  token?: String;
+export interface GraphContext {
+  payload?:AccessTokenPayloadType;
 }
 
 
-const server = new ApolloServer<MyContext>({
+const server = new ApolloServer<GraphContext>({
   typeDefs:mergedTypeDefs,
   resolvers:mergedResolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
@@ -53,13 +61,40 @@ const server = new ApolloServer<MyContext>({
 await server.start();
 
 app.use(
-  '/graphql',
-  cors<cors.CorsRequest>(),
+  '/api/v1/graphql',
+  cors<cors.CorsRequest>({
+  origin: appConfig.APP_URI,
+  optionsSuccessStatus: 200,
+  credentials:true 
+}),
   express.json(),
-  expressMiddleware(server),
+   expressMiddleware(server, {
+    context: async ({ req }) => {
+  
+      const {accessToken} =  getAuthCookies(req)
+      if (!accessToken) {
+        throw new  GraphqlUnauthorizedException(
+          "Expired access token",
+          ErrorCode.EXPIRED_ACCESS_TOKEN
+        );
+      }
+     const payload = verifyJwtToken(accessToken)
+
+     if (!payload) {
+        throw new  GraphqlUnauthorizedException(
+         "Token expired, Please relogin",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+        );
+      }
+      
+     return {...payload}
+      
+      },
+  }),
 );
 
-app.use("/api/v1/auth", authRoute)
+
+app.use("/api/v1/auth",authRoute)
 
 app.use("/api/v1/order", orderRoute)
 

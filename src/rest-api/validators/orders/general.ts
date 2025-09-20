@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { OrderAssignedTo, OrderSource, orderStatus } from "../../enum/orders";
 
-export const addOrderSchema =z.array(
- z.object({
+
+
+export const addSingleOrderSchema =  z.object({
   destination: z.string(),
-  productDescription: z.string({
-    required_error: "Product description required",
-  }),
+  productDescription: z.string().optional(),
   location: z
     .object({
       lat: z.number(),
@@ -19,34 +18,36 @@ export const addOrderSchema =z.array(
     required_error: "Recipient phone number required",
   }),
 
-  paymentAmount: z.number({ required_error: "Payment amount required" }),
-  deliveryFee: z.number({ required_error: "Delivery fee required" }).optional(),
-
+  paymentAmount: z.string({ required_error: "Payment amount required" }),
+  deliveryFee: z.string({ required_error: "Delivery fee required" }).optional(),
+  quantity: z.string().optional(),
   source: z.object({
     type: z.nativeEnum(OrderSource),
     vendorID: z.string().optional(),
   }),
 
-  assignedTo: z
-    .object({
-      type: z.nativeEnum(OrderAssignedTo),
-      entityAssignedId: z
-        .string({
-          required_error:
-            "Provide the id of the entity you want to assign order to (3PL | Rider) id",
-        })
-        .length(24, { message: "Invalid (3PL or Rider) id" }),
-    })
-    .optional(),
 
-  productImage: z
-    .object({
-      imageFile: z.string().optional(),
-      imageUrl: z.string().optional(),
-    })
-    .optional(),
+  // assignedTo: z.string({
+  //         required_error:
+  //           "Provide the id of the entity you want to assign order to (3PL | Rider) id",
+  //       })
+  //       .length(24, { message: "Invalid (3PL or Rider) id" }).optional()
+    
+
+  // productImage:z.string().optional()
+  //  z
+  //   .object({
+  //     imageFile: z.string().optional(),
+  //     imageUrl: z.string().optional(),
+  //   })
+  //   .optional(),
 })
+
+
+
+export const addOrderSchema =z.array(addSingleOrderSchema
 )
+
 
 
 export const updateOrderSchema = z.array(
@@ -90,3 +91,31 @@ export const deleteOrderSchema = z.array(
     orderId:z.string()
   })
 )
+
+export const assignToSchema = z.object({
+  orderId: z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+  deliveryFee: z.number({required_error:"Delivery fee is required"}),
+
+  assignToID: z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+  assignToModelName: z.enum(["T3PL","Rider"])
+})
+
+
+export const orderDeliveredSchema = z.object({
+  orderId:z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+   otpCode: z.string()   
+})
+
+export const orderFailedSchema = z.object({
+  orderId:z.string().length(24, {
+        message: "Invalid ID  "
+      }),
+   remark: z.string().min(1,"remark is required")   
+})
+

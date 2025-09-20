@@ -7,7 +7,6 @@ import {
 } from "../../utils/catch-error.ts";
 // import T3PLModel from "../database/models/3PLModel";
 
-
 import StaffModel from "../../../database/models/auth/staffs.Model.ts";
 
 import {
@@ -15,6 +14,7 @@ import {
   loginDTO,
   PermsissionType,
   RoleDTO,
+  RoleType,
   SessionType,
   UpdatePermsissionDTO,
   UpdateRoleDto,
@@ -47,7 +47,7 @@ import { escapeRegex } from "../../utils/general.ts";
 import { roleSchema } from "../../validators/auth/general.ts";
 
 import PermsissionModel from "../../../database/models/auth/PermissionModel.ts";
-import {IStaff} from "../../types/auth/staffs.ts"
+import { IStaff } from "../../types/auth/staffs.ts";
 import { Request } from "express";
 
 import { getAuthCookies } from "../../utils/auth/cookies.ts";
@@ -55,7 +55,12 @@ import VerificationCodeType from "../../enum/verificationCode.ts";
 import VerificationCodeModel from "../../../database/models/auth/verificationCodeModel.ts";
 import { generateRandomNumber } from "../../utils/generateRandomNumber.ts";
 import { sendForgotPasswordEmail } from "../../utils/auth/emailTemplate.ts";
-
+import { RiderType } from "../../types/auth/rider.ts";
+import VendorModel from "../../../database/models/auth/vendorModel.ts";
+import { accountStatus } from "../../enum/general.ts";
+import { T3PLType } from "../../types/auth/3pl.ts";
+import T3PLModel from "../../../database/models/auth/3PLModel.ts";
+import RiderModel from "../../../database/models/auth/RiderModel.ts";
 
 export class GeneralAuthService {
   public async createPermssion(permission: PermsissionType) {
@@ -167,11 +172,15 @@ export class GeneralAuthService {
       );
     }
 
-    if (roleExist && role.name) {
+    if (roleExist && role?.name) {
       roleExist.name = role.name;
     }
 
-    if (roleExist && role.permissions) {
+    if (roleExist && role?.description) {
+      roleExist.description = role.description;
+    }
+
+    if (roleExist && role?.permissions) {
       roleExist.permissions =
         role.permissions as unknown as mongoose.Types.ObjectId[];
     }
@@ -184,20 +193,14 @@ export class GeneralAuthService {
   }
 
   public async deleteRole(id: String): Promise<String> {
-    const isRoleUsed = await StaffModel.find()
-      .populate({
-        path: "role",
-        match: { _id: { $eq: id } },
-      })
+    const isRoleUsed = await RoleModel.findById(id)
+      .populate({ path: "assignTo", select: "userProfile.fullName" })
+      .lean()
       .exec();
 
-    if (isRoleUsed) {
-      const roleUsedBy = isRoleUsed.map((p) => p.userProfile.fullName.surname);
-
+    if (isRoleUsed?.assignTo && isRoleUsed?.assignTo?.length !== 0) {
       throw new BadRequestException(
-        `Role is attached to the following staff(s): ${roleUsedBy.join(
-          ", "
-        )}. Please detach the role from these staff(s) and try again.`,
+        `Role is in use`,
         ErrorCode.PERMISSION_IN_USE
       );
     }
@@ -215,25 +218,43 @@ export class GeneralAuthService {
   public async login(loginDTo: loginDTO) {
     const { email, password, userAgent, role } = loginDTo;
 
-    let user: IStaff | null = null;
+    let user: IStaff | vendorType | T3PLType| RiderType |null = null;
 
+    let viewAbleTabs: String[] = [];
+    
     if (role == "STAFF") {
       user = (await StaffModel.findOne({
         "userProfile.email": email,
-      })) as IStaff;
+      })
+        .populate({ path: "role", populate: { path: "permissions" } })
+        .exec()) as IStaff;
+
+      const roles = user?.role as RoleType;
+      const permissions = roles?.permissions as unknown as PermsissionType[];
+      viewAbleTabs = permissions?.map((perm) => {
+        return perm?.name;
+      });
+      viewAbleTabs.push("SELF")
+
+    } else if (role == "VENDOR") {
+      user = (await VendorModel.findOne({
+        "contactDetails.email": email,
+      })) as vendorType;
+    }else if (role === "T3PL"){
+      user = (await T3PLModel.findOne({
+         "contactDetails.email": email,
+      })) as T3PLType;
+    }else if (role === "RIDER"){
+      user = ( await RiderModel.findOne({
+        "contactDetails.email": email
+      }) 
+      )as RiderType
     }
-
-    //   else if (role == Role.VENDOR){
-
-    //       user = await VendorModel.findOne({
-    //           "userProfile.contactDetails.email":email
-    //       }) as vendorType
-
-    //   }else{
-    //       user = await T3PLModel.findOne({
-    //           "userProfile.contactDetails.email":email
-    //       }) as T3PLTypes
-    //   }
+    // else{
+    //     user = await T3PLModel.findOne({
+    //         "userProfile.contactDetails.email":email
+    //     }) as T3PLTypes
+    // }
 
     if (!user) {
       throw new BadRequestException(
@@ -265,16 +286,62 @@ export class GeneralAuthService {
     //     // send a verification code to user
     // }
 
-    const session = await SessionModel.create({
-      userId: user._id,
-      userAgent: userAgent,
-      roleId: user.role,
-    });
+    if (role == "VENDOR") {
+      const _user = user as vendorType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["Vendor","View Orders", "Add Order", "Cash on Delivery"];
+    }
+     if (role == "T3PL") {
+      const _user = user as T3PLType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["T3PL","View Orders",  "Cash on Delivery"];
+    }
+    if (role == "RIDER") {
+      const _user = user as RiderType;
+
+      if (_user.status !== accountStatus.APPROVED) {
+        throw new BadRequestException(
+          "Wait for throttle to approve your registration"
+        );
+      }
+
+      viewAbleTabs = ["RIDER","View Orders",  "Cash on Delivery"];
+    }
+
+    let session
+    if (role == "STAFF") {
+       session = await SessionModel.create({
+        userId: user._id,
+        userAgent: userAgent,
+        roleId: user.role,
+        UserType: role,
+      });
+    } else {
+      session = await SessionModel.create({
+        userId: user._id,
+        userAgent: userAgent,
+        UserType: role,
+      });
+    }
+
 
     const accessToken = signToken({
       userId: user._id,
       sessionId: session._id,
-      roleId: user.role,
+      roleId: role == "STAFF" ? user.role : "",
+      UserType: role,
     } as AccessTokenPayloadType);
 
     const refreshToken = signToken(
@@ -283,6 +350,7 @@ export class GeneralAuthService {
     );
 
     return {
+      viewAbleTabs,
       user: user,
       accessToken,
       refreshToken,
@@ -295,21 +363,30 @@ export class GeneralAuthService {
     }) as JwtPayload;
 
     if (!payload) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Invalid refresh token"
     }
 
     const session = await SessionModel.findById(payload?.sessionId);
 
     if (!session) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Session does not exist"
     }
 
     const now = Date.now();
 
-    if (session.expiredAt.getTime() <= now) {
-      throw new UnauthorizedException();
+    if (session.expiredAt.getTime() < now) {
+      throw new UnauthorizedException(
+        "Token expired, Please relogin!!!",
+        ErrorCode.EXPIRED_REFRESH_TOKEN
+      );
       // "Session expired"
     }
 
@@ -326,12 +403,13 @@ export class GeneralAuthService {
           { sessionId: session._id } as RefreshTokenPayloadType,
           refreshTokenSignOptions
         )
-      : undefined;
+      : refreshToken;
 
     const accessToken = signToken({
       userId: session.userId,
-      roleId: session.roleId,
+      roleId: session?.roleId,
       sessionId: session._id,
+      UserType: session.UserType,
     } as AccessTokenPayloadType);
 
     return {
@@ -353,7 +431,7 @@ export class GeneralAuthService {
   public async forgotPassword(forgotPasswordDTO: forgotPasswordDTO) {
     const { email, role } = forgotPasswordDTO;
 
-    let user: IStaff | null = null;
+    let user: IStaff | vendorType | null = null;
 
     if (role == "STAFF") {
       user = (await StaffModel.findOne({
@@ -422,8 +500,8 @@ export class GeneralAuthService {
 
     if (user.auditingAndConfirmation.numberOfOtpVerificationTry > 4) {
       if (role == "STAFF") {
-        user.auditingAndConfirmation.numberOfOtpVerificationTry = 0
-        await user.save()
+        user.auditingAndConfirmation.numberOfOtpVerificationTry = 0;
+        await user.save();
       }
 
       throw new BadRequestException(
@@ -440,30 +518,29 @@ export class GeneralAuthService {
 
     if (!validCode) {
       if (role == "STAFF") {
-         user.auditingAndConfirmation.numberOfOtpVerificationTry = user.auditingAndConfirmation.numberOfOtpVerificationTry+1
-        await user.save()
+        user.auditingAndConfirmation.numberOfOtpVerificationTry =
+          user.auditingAndConfirmation.numberOfOtpVerificationTry + 1;
+        await user.save();
       }
       throw new BadRequestException("Invalid OTP Code");
     }
 
     if (role == "STAFF") {
-        user.userProfile.password = password
+      user.userProfile.password = password;
     }
 
-
-    await user.save()
+    await user.save();
 
     await VerificationCodeModel.deleteMany({
-         userId: user._id,
-          type: VerificationCodeType.PasswordReset
-    })
+      userId: user._id,
+      type: VerificationCodeType.PasswordReset,
+    });
 
     await SessionModel.deleteMany({
-        userId:user._id
-    })
+      userId: user._id,
+    });
 
-
-     const session = await SessionModel.create({
+    const session = await SessionModel.create({
       userId: user._id,
       userAgent: userAgent,
       roleId: user.role,
@@ -481,13 +558,11 @@ export class GeneralAuthService {
     );
 
     return {
-    message:"Password updated successful",
+      message: "Password updated successful",
       user,
       accessToken,
       refreshToken,
     };
-
-   
   }
 
   //   public async handleEmailEvent(result:any){
