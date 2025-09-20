@@ -32,9 +32,7 @@ export const orderResolvers = {
       },
       { payload }: GraphContext
     ) => {
-      // Input validation (unchanged)
-
-      console.log(`workingdssdsd ${pickupDateFrom} ${pickupDateTo}`)
+ 
       let orderIdInitail = "SELF";
       if (payload?.UserType == "VENDOR") {
         const orderCounter = await OrderCounterModel.findOne({
@@ -241,20 +239,30 @@ export const orderResolvers = {
                },
               }
             : {})
-                    }            
+             }
+             
+          const totalCountAssignToFilter =  {
+            ...(payload?.UserType === "T3PL" || payload?.UserType === "RIDER"
+            ? {
+            assignedTo: new ObjectId(payload?.userId)
+            }
+            : {})
+             }
+             
+          
         
           
       const counters =
-        orderIdInitail === "SELF"
+       (orderIdInitail === "SELF" || payload?.UserType == "T3PL" || payload?.UserType == "RIDER" || payload?.UserType == "STAFF" )
           ? [
-              OrderModel.countDocuments(totalCountDateFilter),
-              OrderModel.countDocuments({ status: "ORDER PLACED",...totalCountDateFilter }),
-              OrderModel.countDocuments({ status: "IN TRANSIT" ,...totalCountDateFilter}),
-              OrderModel.countDocuments({ status: "ASSIGNED" ,...totalCountDateFilter}),
-              OrderModel.countDocuments({ status: "COMPLETED",...totalCountDateFilter }),
-              OrderModel.countDocuments({ status: "RETURNED",...totalCountDateFilter }),
-              OrderModel.countDocuments({ status: "FAILED",...totalCountDateFilter }),
-              OrderModel.countDocuments({ status: "REJECTED",...totalCountDateFilter }),
+              OrderModel.countDocuments({...totalCountDateFilter,...totalCountAssignToFilter}),
+              OrderModel.countDocuments({ status: "ORDER PLACED",...totalCountDateFilter,...totalCountAssignToFilter }),
+              OrderModel.countDocuments({ status: "IN TRANSIT" ,...totalCountDateFilter,...totalCountAssignToFilter}),
+              OrderModel.countDocuments({ status: "ASSIGNED" ,...totalCountDateFilter,...totalCountAssignToFilter}),
+              OrderModel.countDocuments({ status: "COMPLETED",...totalCountDateFilter,...totalCountAssignToFilter }),
+              OrderModel.countDocuments({ status: "RETURNED",...totalCountDateFilter,...totalCountAssignToFilter }),
+              OrderModel.countDocuments({ status: "FAILED",...totalCountDateFilter,...totalCountAssignToFilter }),
+              OrderModel.countDocuments({ status: "REJECTED",...totalCountDateFilter,...totalCountAssignToFilter }),
             ]
           : [
               OrderModel.countDocuments({
