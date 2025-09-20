@@ -71,7 +71,8 @@ input OrderSourcFilterInput {
 }
 
     type Query{
-        orders(offset:Int!, limit:Int!, search: String!,entityFilter:String!,orderIds:[String]):OrdersPositiveResult
+        orders(offset:Int!, limit:Int!, search: String!,pickupDateFrom:String, pickupDateTo:String,entityFilter:String!,orderIds:[String]
+        ):OrdersPositiveResult
         order(id:ID!):Order,
         cod(offset:Int!, limit:Int!, search: String!,orderIds:[String],pickupDateFrom:String,pickupDateTo:String,deliveryDateFrom:String,deliveryDateTo:String,  vendorId:String,assignedTo:String): CODPositiveResult
     }

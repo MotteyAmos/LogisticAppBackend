@@ -17,6 +17,8 @@ export const orderResolvers = {
         offset,
         limit,
         search,
+        pickupDateFrom,
+        pickupDateTo,
         entityFilter,
         orderIds,
       }: {
@@ -25,11 +27,14 @@ export const orderResolvers = {
         search: string;
         entityFilter: string;
         orderIds: string[];
+        pickupDateFrom: string;
+        pickupDateTo: string;
       },
       { payload }: GraphContext
     ) => {
       // Input validation (unchanged)
 
+      console.log(`workingdssdsd ${pickupDateFrom} ${pickupDateTo}`)
       let orderIdInitail = "SELF";
       if (payload?.UserType == "VENDOR") {
         const orderCounter = await OrderCounterModel.findOne({
@@ -54,9 +59,40 @@ export const orderResolvers = {
       const matchStages: PipelineStage[] = [];
 
       if (payload?.UserType === "T3PL" || payload?.UserType === "RIDER") {
-         matchStages.push({
+        matchStages.push({
           $match: {
             assignedTo: new ObjectId(payload?.userId),
+          },
+        });
+      }
+
+      // filter by date
+     
+      if (pickupDateFrom && pickupDateTo) {
+        matchStages.push({
+          $match: {
+            orderDate: {
+              $gte: new Date(pickupDateFrom),
+              $lte: new Date(pickupDateTo),
+            },
+          },
+        });
+      } else if (pickupDateFrom) {
+        matchStages.push({
+          $match: {
+            orderDate: {
+              $gte: new Date(pickupDateFrom),
+          
+            },
+          },
+        });
+      } else if (pickupDateTo) {
+       matchStages.push({
+          $match: {
+            orderDate: {
+            
+              $lte: new Date(pickupDateTo),
+            },
           },
         });
       }
@@ -196,49 +232,69 @@ export const orderResolvers = {
             ]
           : [...matchStages, ...basePipeline];
 
+        const totalCountDateFilter =  {
+            ...(pickupDateFrom || pickupDateTo
+            ? {
+            orderDate: {
+              ...(pickupDateFrom ? { $gte: new Date(pickupDateFrom) } : {}),
+              ...(pickupDateTo ? { $lte: new Date(pickupDateTo) } : {}),
+               },
+              }
+            : {})
+                    }            
+        
+          
       const counters =
         orderIdInitail === "SELF"
           ? [
-              OrderModel.countDocuments(),
-              OrderModel.countDocuments({ status: "ORDER PLACED" }),
-              OrderModel.countDocuments({ status: "IN TRANSIT" }),
-              OrderModel.countDocuments({ status: "ASSIGNED" }),
-              OrderModel.countDocuments({ status: "COMPLETED" }),
-              OrderModel.countDocuments({ status: "RETURNED" }),
-              OrderModel.countDocuments({ status: "FAILED" }),
-              OrderModel.countDocuments({ status: "REJECTED" }),
+              OrderModel.countDocuments(totalCountDateFilter),
+              OrderModel.countDocuments({ status: "ORDER PLACED",...totalCountDateFilter }),
+              OrderModel.countDocuments({ status: "IN TRANSIT" ,...totalCountDateFilter}),
+              OrderModel.countDocuments({ status: "ASSIGNED" ,...totalCountDateFilter}),
+              OrderModel.countDocuments({ status: "COMPLETED",...totalCountDateFilter }),
+              OrderModel.countDocuments({ status: "RETURNED",...totalCountDateFilter }),
+              OrderModel.countDocuments({ status: "FAILED",...totalCountDateFilter }),
+              OrderModel.countDocuments({ status: "REJECTED",...totalCountDateFilter }),
             ]
           : [
               OrderModel.countDocuments({
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "ORDER PLACED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "IN TRANSIT",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "ASSIGNED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "COMPLETED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "RETURNED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "FAILED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
               OrderModel.countDocuments({
                 status: "REJECTED",
                 orderId: { $regex: `^${orderIdInitail}`, $options: "i" },
+                ...totalCountDateFilter
               }),
             ];
 
@@ -256,15 +312,14 @@ export const orderResolvers = {
       ] = await Promise.all([
         OrderModel.aggregate(fullPipeline),
         OrderModel.aggregate([
-          ...matchStages,
-          ...basePipeline.filter(
+          ...fullPipeline.filter(
             (stage) => !("$skip" in stage) && !("$limit" in stage)
           ),
           { $count: "totalCount" },
         ]).then((res) => res[0]?.totalCount || 0),
         ...counters,
       ]);
-      console.log(orders);
+
 
       return {
         totalNumberOfOrders,
@@ -554,9 +609,7 @@ export const orderResolvers = {
           { $count: "totalCount" },
         ]).then((res) => res[0]?.totalCount || 0),
       ]);
-      console.log(accumulatedValues);
-      console.log(orders);
-
+    
       return {
         data: orders,
         totalCount,
