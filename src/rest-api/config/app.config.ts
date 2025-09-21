@@ -28,8 +28,8 @@ const config = ()=>({
     APP_ORIGIN: getEnv("APP_ORIGIN"),
     S3_NAME: getEnv("S3_NAME"),
     S3_REGION: getEnv("S3_REGION"),
-    AWS_ACCESS_KEY: getEnv("AWS_ACCESS_KEY"),
-    AWS_SECRET_ACCESS_KEY: getEnv("AWS_SECRET_ACCESS_KEY"),
+    AWS_ACCESS_KEY: getEnv("S3_ACCESS_KEY"),
+    AWS_SECRET_ACCESS_KEY: getEnv("S3_SECRET_ACCESS_KEY"),
     SMS_API_KEY: getEnv("SMS_API_KEY"),
     SMS_SECRET:getEnv("SMS_SECRET")
 })
