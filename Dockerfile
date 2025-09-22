@@ -14,6 +14,7 @@ RUN npm install
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 
+RUN npm install csv-parse
 
 RUN npm install swagger-jsdoc swagger-ui-express
 RUN npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
