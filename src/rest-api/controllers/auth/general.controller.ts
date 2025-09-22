@@ -130,7 +130,7 @@ export class GeneralAuthController {
       const body = loginSchema.parse({ ...req.body, userAgent });
 
       const { accessToken, refreshToken, user ,viewAbleTabs} = await this.authService.login(body);
-
+     
       return setAuthCookies({ res, accessToken, refreshToken })
         .status(HTTPSTATUS.OK)
         .json({
