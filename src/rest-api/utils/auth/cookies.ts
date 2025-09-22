@@ -8,7 +8,7 @@ import { verifyJwtToken } from "./jwt";
 const secure = process.env.NODE_ENV == "production";
 
 const defaults: CookieOptions = {
-  sameSite: "lax",
+  sameSite: "none",
   httpOnly: true,
   secure,
 };
@@ -39,7 +39,7 @@ export const setAuthCookies = ({ res, accessToken, refreshToken }: Params) => {
 
 export const clearAuthCookies = (res: Response) => {
     const cookieOptions = {
-    sameSite: "lax" as const,
+    sameSite: "none" as const,
     secure: true,
   };
 
