@@ -5,7 +5,7 @@ on:
     branches:
       - master
 env:
-    DOCKER_PASSWORD: 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
+    DOCKER_PASSWORD: 
     DOCKER_USERNAME: MotteyAmos
     RENDER_DEPLOY_HOOK_URL: https://api.render.com/deploy/srv-d1d7osumcj7s73fhvubg?key=njcEltd7icg
 jobs:
